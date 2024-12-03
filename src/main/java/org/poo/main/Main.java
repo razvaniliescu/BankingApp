@@ -3,15 +3,21 @@ package org.poo.main;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import org.poo.accounts.User;
 import org.poo.checker.Checker;
 import org.poo.checker.CheckerConstants;
-import org.poo.fileio.ObjectInput;
+import org.poo.commands.Command;
+import org.poo.commands.CommandFactory;
+import org.poo.commerciants.Commerciant;
+import org.poo.exchange.ExchangeRate;
+import org.poo.fileio.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Objects;
@@ -74,6 +80,45 @@ public final class Main {
 
         ArrayNode output = objectMapper.createArrayNode();
 
+        UserInput[] users = inputData.getUsers();
+        ArrayList<User> userList = new ArrayList<>();
+        for (UserInput input : users) {
+            User newUser = new User(input);
+            userList.add(newUser);
+        }
+
+
+
+        ExchangeInput[] exchangeRates = inputData.getExchangeRates();
+        ArrayList<ExchangeRate> exchangeRateList = new ArrayList<>();
+        if (exchangeRates.length > 0) {
+            for (ExchangeInput input : exchangeRates) {
+                ExchangeRate exchangeRate = new ExchangeRate(input);
+                exchangeRateList.add(exchangeRate);
+            }
+        }
+
+        CommerciantInput[] commerciants = inputData.getCommerciants();
+        ArrayList<Commerciant> commerciantList = new ArrayList<Commerciant>();
+        if (commerciants != null) {
+            for (CommerciantInput input: commerciants) {
+                Commerciant commerciant = new Commerciant(input);
+                commerciantList.add(commerciant);
+            }
+        }
+
+        CommandInput[] commands = inputData.getCommands();
+        ArrayList<Command> commandList = new ArrayList<>();
+        for (CommandInput command : commands) {
+            Command newCommand = CommandFactory.createCommand(command, userList);
+            commandList.add(newCommand);
+        }
+
+        for (Command command : commandList) {
+            if (command != null) {
+                command.execute(objectMapper, output);
+            }
+        }
         /*
          * TODO Implement your function here
          *
