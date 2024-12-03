@@ -8,16 +8,24 @@ import org.poo.commands.Command;
 import org.poo.fileio.CommandInput;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class AddAccount extends Command {
     private User user;
     private String currency;
     private String type;
 
-    public AddAccount(CommandInput input, User user) {
+    public AddAccount(CommandInput input, ArrayList<User> users) {
+        for (User u : users) {
+            if (Objects.equals(u.getEmail(), input.getEmail())) {
+                user = u;
+            }
+        }
+        if (user == null) {
+            throw new IllegalArgumentException("User not found");
+        }
         this.command = input.getCommand();
         this.timestamp = input.getTimestamp();
-        this.user = user;
         this.currency = input.getCurrency();
         this.type = input.getAccountType();
     }
@@ -46,12 +54,8 @@ public class AddAccount extends Command {
         this.currency = currency;
     }
 
-    private void addAccount() {
-        user.getAccounts().add(new Account(currency, type));
-    }
-
     @Override
     public void execute(ObjectMapper objectMapper, ArrayNode arrayNode) {
-        addAccount();
+        user.addAccount(new Account(currency, type));
     }
 }

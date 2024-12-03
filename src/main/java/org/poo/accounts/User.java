@@ -9,7 +9,7 @@ public class User {
     private String firstName;
     private String lastName;
     private String email;
-    private List<Account> accounts;
+    private ArrayList<Account> accounts;
 
     public User(UserInput user) {
         this.firstName = user.getFirstName();
@@ -42,11 +42,28 @@ public class User {
         this.email = email;
     }
 
-    public List<Account> getAccounts() {
+    public ArrayList<Account> getAccounts() {
         return accounts;
     }
 
-    public void setAccounts(List<Account> accounts) {
+    public void setAccounts(ArrayList<Account> accounts) {
         this.accounts = accounts;
+    }
+
+    public void addAccount(Account account) {
+        accounts.add(account);
+    }
+
+    public Account getAccount(String iban) {
+        for (Account account : accounts) {
+            if (account.getIban().equals(iban)) {
+                return account;
+            }
+        }
+        throw new IllegalArgumentException("No such account");
+    }
+
+    public void deleteAccount(String iban) {
+        accounts.removeIf(account -> account.getIban().equals(iban));
     }
 }

@@ -50,6 +50,7 @@ public class PrintUsers extends Command {
             usersArray.add(userNode);
         }
         node.set("output", usersArray);
+        node.put("timestamp", timestamp);
         output.add(node);
     }
     @Override

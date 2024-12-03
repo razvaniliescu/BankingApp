@@ -1,12 +1,14 @@
 package org.poo.accounts;
 
+import org.poo.utils.Utils;
+
 public class Card {
     private String cardNumber;
     private String status;
 
-    public Card(String cardNumber, String status) {
-        this.cardNumber = cardNumber;
-        this.status = status;
+    public Card() {
+        this.cardNumber = Utils.generateCardNumber();
+        this.status = "active";
     }
 
     public String getCardNumber() {

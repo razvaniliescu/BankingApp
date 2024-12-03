@@ -1,4 +1,4 @@
 package org.poo.commands.commandTypes;
 
-public class changeInterestRate {
+public class ChangeInterestRate {
 }
