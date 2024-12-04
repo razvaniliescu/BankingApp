@@ -9,6 +9,7 @@ import org.poo.checker.CheckerConstants;
 import org.poo.commands.Command;
 import org.poo.commands.CommandFactory;
 import org.poo.commerciants.Commerciant;
+import org.poo.exchange.ExchangeGraph;
 import org.poo.exchange.ExchangeRate;
 import org.poo.fileio.*;
 import org.poo.utils.Utils;
@@ -81,26 +82,25 @@ public final class Main {
 
         ArrayNode output = objectMapper.createArrayNode();
 
-        UserInput[] users = inputData.getUsers();
+        UserInput[] userInput = inputData.getUsers();
         ArrayList<User> userList = new ArrayList<>();
-        for (UserInput input : users) {
+        for (UserInput input : userInput) {
             User newUser = new User(input);
             userList.add(newUser);
         }
 
-        ExchangeInput[] exchangeRates = inputData.getExchangeRates();
+        ExchangeInput[] exchangeRateInput = inputData.getExchangeRates();
         ArrayList<ExchangeRate> exchangeRateList = new ArrayList<>();
-        if (exchangeRates.length > 0) {
-            for (ExchangeInput input : exchangeRates) {
-                ExchangeRate exchangeRate = new ExchangeRate(input);
-                exchangeRateList.add(exchangeRate);
-            }
+        for (ExchangeInput input : exchangeRateInput) {
+            ExchangeRate exchangeRate = new ExchangeRate(input);
+            exchangeRateList.add(exchangeRate);
         }
+        ExchangeGraph exchangeRates = new ExchangeGraph(exchangeRateList);
 
-        CommerciantInput[] commerciants = inputData.getCommerciants();
+        CommerciantInput[] commerciantInput = inputData.getCommerciants();
         ArrayList<Commerciant> commerciantList = new ArrayList<>();
-        if (commerciants != null) {
-            for (CommerciantInput input: commerciants) {
+        if (commerciantInput != null) {
+            for (CommerciantInput input: commerciantInput) {
                 Commerciant commerciant = new Commerciant(input);
                 commerciantList.add(commerciant);
             }
@@ -109,7 +109,7 @@ public final class Main {
         CommandInput[] commands = inputData.getCommands();
         ArrayList<Command> commandList = new ArrayList<>();
         for (CommandInput command : commands) {
-            Command newCommand = CommandFactory.createCommand(command, userList, exchangeRateList);
+            Command newCommand = CommandFactory.createCommand(command, userList, exchangeRates);
             commandList.add(newCommand);
         }
 

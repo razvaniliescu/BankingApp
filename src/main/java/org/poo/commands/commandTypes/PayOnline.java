@@ -2,10 +2,12 @@ package org.poo.commands.commandTypes;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.accounts.Account;
 import org.poo.accounts.Card;
 import org.poo.accounts.User;
 import org.poo.commands.Command;
+import org.poo.exchange.ExchangeGraph;
 import org.poo.exchange.ExchangeRate;
 import org.poo.fileio.CommandInput;
 
@@ -18,10 +20,12 @@ public class PayOnline extends Command {
     private String description;
     private String commerciant;
     private ArrayList<User> users;
-    private ArrayList<ExchangeRate> rates;
+    private ExchangeGraph rates;
 
-    public PayOnline(CommandInput input, ArrayList<User> users, ArrayList<ExchangeRate> rates) {
+    public PayOnline(CommandInput input, ArrayList<User> users, ExchangeGraph rates) {
         this.cardNumber = input.getCardNumber();
+        this.timestamp = input.getTimestamp();
+        this.command = input.getCommand();
         this.amount = input.getAmount();
         this.currency = input.getCurrency();
         this.description = input.getDescription();
@@ -78,25 +82,41 @@ public class PayOnline extends Command {
         this.users = users;
     }
 
-    public ArrayList<ExchangeRate> getRates() {
+    public ExchangeGraph getRates() {
         return rates;
     }
 
-    public void setRates(ArrayList<ExchangeRate> rates) {
+    public void setRates(ExchangeGraph rates) {
         this.rates = rates;
     }
 
-    @Override
-    public void execute(ObjectMapper objectMapper, ArrayNode arrayNode) {
+    public void payOnline() {
         for (User user : users) {
             for (Account account : user.getAccounts()) {
                 for (Card card : account.getCards()) {
                     if (card.getCardNumber().equals(cardNumber)) {
-                        account.payOnline(card, amount, currency, rates);
+                        account.payOnline(card, amount, currency, rates.getExchangeRate(this.currency, account.getCurrency()));
                         return;
                     }
                 }
             }
+        }
+        throw new IllegalArgumentException("Card not found");
+    }
+
+    @Override
+    public void execute(ObjectMapper objectMapper, ArrayNode output) {
+        try {
+            payOnline();
+        } catch (IllegalArgumentException e) {
+            ObjectNode node = objectMapper.createObjectNode();
+            node.put("command", "payOnline");
+            ObjectNode result = objectMapper.createObjectNode();
+            result.put("timestamp", this.timestamp);
+            result.put("description", e.getMessage());
+            node.set("output", result);
+            node.put("timestamp", this.timestamp);
+            output.add(node);
         }
     }
 }

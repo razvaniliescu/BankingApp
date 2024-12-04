@@ -82,17 +82,18 @@ public class Account {
         this.cards.remove(card);
     }
 
-    public void payOnline(Card card, double amount, String currency, ArrayList<ExchangeRate> rates) {
-        if (!this.currency.equals(currency)) {
-            for (ExchangeRate rate : rates) {
-                if (rate.getFrom().equals(this.currency) && rate.getTo().equals(currency)) {
-                    amount *= rate.getRate();
-                    break;
-                }
-            }
-        }
+    public void payOnline(Card card, double amount, String currency, double rate) {
+        amount *= rate;
         if (this.balance >= amount + minBalance) {
             this.balance -= amount;
+        }
+    }
+
+    public void sendMoney(Account receiver, double amount, double rate) {
+        double received_amount = amount * rate;
+        if (this.balance >= amount + minBalance) {
+            this.balance -= amount;
+            receiver.balance += received_amount;
         }
     }
 }

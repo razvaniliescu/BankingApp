@@ -6,5 +6,5 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 public abstract class Command {
     protected String command;
     protected int timestamp;
-    public abstract void execute(ObjectMapper objectMapper, ArrayNode arrayNode);
+    public abstract void execute(ObjectMapper objectMapper, ArrayNode output);
 }
