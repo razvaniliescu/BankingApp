@@ -63,7 +63,7 @@ public class User {
         throw new IllegalArgumentException("No such account");
     }
 
-    public void deleteAccount(String iban) {
-        accounts.removeIf(account -> account.getIban().equals(iban));
+    public void deleteAccount(Account account) {
+        accounts.remove(account);
     }
 }

@@ -11,6 +11,7 @@ import org.poo.commands.CommandFactory;
 import org.poo.commerciants.Commerciant;
 import org.poo.exchange.ExchangeRate;
 import org.poo.fileio.*;
+import org.poo.utils.Utils;
 
 import java.io.File;
 import java.io.IOException;
@@ -87,8 +88,6 @@ public final class Main {
             userList.add(newUser);
         }
 
-
-
         ExchangeInput[] exchangeRates = inputData.getExchangeRates();
         ArrayList<ExchangeRate> exchangeRateList = new ArrayList<>();
         if (exchangeRates.length > 0) {
@@ -99,7 +98,7 @@ public final class Main {
         }
 
         CommerciantInput[] commerciants = inputData.getCommerciants();
-        ArrayList<Commerciant> commerciantList = new ArrayList<Commerciant>();
+        ArrayList<Commerciant> commerciantList = new ArrayList<>();
         if (commerciants != null) {
             for (CommerciantInput input: commerciants) {
                 Commerciant commerciant = new Commerciant(input);
@@ -110,33 +109,18 @@ public final class Main {
         CommandInput[] commands = inputData.getCommands();
         ArrayList<Command> commandList = new ArrayList<>();
         for (CommandInput command : commands) {
-            Command newCommand = CommandFactory.createCommand(command, userList);
+            Command newCommand = CommandFactory.createCommand(command, userList, exchangeRateList);
             commandList.add(newCommand);
         }
+
+        Utils.resetRandom();
 
         for (Command command : commandList) {
             if (command != null) {
                 command.execute(objectMapper, output);
             }
         }
-        /*
-         * TODO Implement your function here
-         *
-         * How to add output to the output array?
-         * There are multiple ways to do this, here is one example:
-         *
-         * ObjectMapper mapper = new ObjectMapper();
-         *
-         * ObjectNode objectNode = mapper.createObjectNode();
-         * objectNode.put("field_name", "field_value");
-         *
-         * ArrayNode arrayNode = mapper.createArrayNode();
-         * arrayNode.add(objectNode);
-         *
-         * output.add(arrayNode);
-         * output.add(objectNode);
-         *
-         */
+        System.out.println();
 
         ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
         objectWriter.writeValue(new File(filePath2), output);

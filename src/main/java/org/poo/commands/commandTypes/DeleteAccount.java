@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.accounts.Account;
+import org.poo.accounts.Card;
 import org.poo.accounts.User;
 import org.poo.commands.Command;
 import org.poo.fileio.CommandInput;
@@ -25,8 +26,10 @@ public class DeleteAccount extends Command {
     public void execute(ObjectMapper objectMapper, ArrayNode output) {
         for (User user : users) {
             for (Account account : user.getAccounts()) {
-                if (account.getIban().equals(iban) && account.getBalance() == 0) {
-                    user.getAccounts().remove(account);
+                if (account.getIban().equals(this.iban)) {
+                    System.out.println("ok");
+                    user.deleteAccount(account);
+                    break;
                 }
             }
         }
@@ -36,6 +39,7 @@ public class DeleteAccount extends Command {
         result.put("success", "Account deleted");
         result.put("timestamp", timestamp );
         node.set("output", result);
+        node.put("timestamp", timestamp);
         output.add(node);
     }
 }

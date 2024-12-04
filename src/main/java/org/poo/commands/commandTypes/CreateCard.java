@@ -12,8 +12,8 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class CreateCard extends Command {
-    private ArrayList<User> users;
-    private String account;
+    protected ArrayList<User> users;
+    protected String account;
 
     public CreateCard(CommandInput input, ArrayList<User> users) {
         this.users = users;
