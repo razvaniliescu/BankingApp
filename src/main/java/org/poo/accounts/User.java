@@ -1,21 +1,43 @@
 package org.poo.accounts;
 
 import org.poo.fileio.UserInput;
+import org.poo.transactions.Transaction;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class User {
     private String firstName;
     private String lastName;
     private String email;
     private ArrayList<Account> accounts;
+    private Map<String, Account> aliases;
+    private ArrayList<Transaction> transactions;
 
     public User(UserInput user) {
         this.firstName = user.getFirstName();
         this.lastName = user.getLastName();
         this.email = user.getEmail();
         accounts = new ArrayList<>();
+        aliases = new HashMap<>();
+        transactions = new ArrayList<>();
+    }
+
+    public ArrayList<Transaction> getTransactions() {
+        return transactions;
+    }
+
+    public void setTransactions(ArrayList<Transaction> transactions) {
+        this.transactions = transactions;
+    }
+
+    public Map<String, Account> getAliases() {
+        return aliases;
+    }
+
+    public void setAliases(Map<String, Account> aliases) {
+        this.aliases = aliases;
     }
 
     public String getFirstName() {
@@ -64,6 +86,18 @@ public class User {
     }
 
     public void deleteAccount(Account account) {
-        accounts.remove(account);
+        if (account.getBalance() == 0) {
+            accounts.remove(account);
+        } else {
+            throw new IllegalArgumentException("Account couldn't be deleted - see org.poo.transactions for details");
+        }
+    }
+
+    public void addAlias(String alias, Account account) {
+        aliases.put(alias, account);
+    }
+
+    public void addTransaction(Transaction transaction) {
+        transactions.add(transaction);
     }
 }

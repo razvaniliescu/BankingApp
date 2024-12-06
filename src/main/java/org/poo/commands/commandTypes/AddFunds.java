@@ -6,6 +6,7 @@ import org.poo.accounts.Account;
 import org.poo.accounts.User;
 import org.poo.commands.Command;
 import org.poo.fileio.CommandInput;
+import org.poo.transactions.Transaction;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -59,7 +60,7 @@ public class AddFunds extends Command {
     }
 
     @Override
-    public void execute(ObjectMapper objectMapper, ArrayNode arrayNode) {
+    public void execute(ObjectMapper objectMapper, ArrayNode arrayNode, ArrayList<Transaction> transactions) {
         addFunds();
     }
 }

@@ -10,6 +10,9 @@ import org.poo.commands.Command;
 import org.poo.exchange.ExchangeGraph;
 import org.poo.exchange.ExchangeRate;
 import org.poo.fileio.CommandInput;
+import org.poo.transactions.CardTransaction;
+import org.poo.transactions.InsufficientFunds;
+import org.poo.transactions.Transaction;
 
 import java.util.ArrayList;
 
@@ -95,7 +98,14 @@ public class PayOnline extends Command {
             for (Account account : user.getAccounts()) {
                 for (Card card : account.getCards()) {
                     if (card.getCardNumber().equals(cardNumber)) {
-                        account.payOnline(card, amount, currency, rates.getExchangeRate(this.currency, account.getCurrency()));
+                        double rate = rates.getExchangeRate(this.currency, account.getCurrency());
+                        int ok = account.payOnline(card, amount, currency, rate);
+                        amount *= rate;
+                        if (ok == 0) {
+                            user.addTransaction(new CardTransaction(this));
+                        } else {
+                            user.addTransaction(new InsufficientFunds(this));
+                        }
                         return;
                     }
                 }
@@ -105,7 +115,7 @@ public class PayOnline extends Command {
     }
 
     @Override
-    public void execute(ObjectMapper objectMapper, ArrayNode output) {
+    public void execute(ObjectMapper objectMapper, ArrayNode output, ArrayList<Transaction> transactions) {
         try {
             payOnline();
         } catch (IllegalArgumentException e) {

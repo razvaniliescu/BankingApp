@@ -82,18 +82,22 @@ public class Account {
         this.cards.remove(card);
     }
 
-    public void payOnline(Card card, double amount, String currency, double rate) {
+    public int payOnline(Card card, double amount, String currency, double rate) {
         amount *= rate;
         if (this.balance >= amount + minBalance) {
             this.balance -= amount;
+            return 0;
         }
+        return 1;
     }
 
-    public void sendMoney(Account receiver, double amount, double rate) {
+    public int sendMoney(Account receiver, double amount, double rate) {
         double received_amount = amount * rate;
         if (this.balance >= amount + minBalance) {
             this.balance -= amount;
             receiver.balance += received_amount;
+            return 0;
         }
+        return 1;
     }
 }

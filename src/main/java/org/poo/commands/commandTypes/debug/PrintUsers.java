@@ -8,6 +8,7 @@ import org.poo.accounts.Card;
 import org.poo.accounts.User;
 import org.poo.commands.Command;
 import org.poo.fileio.CommandInput;
+import org.poo.transactions.Transaction;
 
 import java.util.ArrayList;
 
@@ -54,7 +55,7 @@ public class PrintUsers extends Command {
         output.add(node);
     }
     @Override
-    public void execute(ObjectMapper objectMapper, ArrayNode output) {
+    public void execute(ObjectMapper objectMapper, ArrayNode output, ArrayList<Transaction> transactions) {
         printUsers(objectMapper, output);
     }
 }

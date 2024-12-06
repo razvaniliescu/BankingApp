@@ -12,6 +12,7 @@ import org.poo.commerciants.Commerciant;
 import org.poo.exchange.ExchangeGraph;
 import org.poo.exchange.ExchangeRate;
 import org.poo.fileio.*;
+import org.poo.transactions.Transaction;
 import org.poo.utils.Utils;
 
 import java.io.File;
@@ -115,12 +116,13 @@ public final class Main {
 
         Utils.resetRandom();
 
+        ArrayList<Transaction> transactions = new ArrayList<>();
+
         for (Command command : commandList) {
             if (command != null) {
-                command.execute(objectMapper, output);
+                command.execute(objectMapper, output, transactions);
             }
         }
-        System.out.println();
 
         ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
         objectWriter.writeValue(new File(filePath2), output);
