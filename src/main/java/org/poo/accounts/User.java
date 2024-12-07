@@ -12,6 +12,7 @@ public class User {
     private String lastName;
     private String email;
     private ArrayList<Account> accounts;
+    private ArrayList<SavingsAccount> savingsAccounts;
     private Map<String, Account> aliases;
     private ArrayList<Transaction> transactions;
 
@@ -20,6 +21,7 @@ public class User {
         this.lastName = user.getLastName();
         this.email = user.getEmail();
         accounts = new ArrayList<>();
+        savingsAccounts = new ArrayList<>();
         aliases = new HashMap<>();
         transactions = new ArrayList<>();
     }
@@ -72,8 +74,20 @@ public class User {
         this.accounts = accounts;
     }
 
+    public ArrayList<SavingsAccount> getSavingsAccounts() {
+        return savingsAccounts;
+    }
+
+    public void setSavingsAccounts(ArrayList<SavingsAccount> savingsAccounts) {
+        this.savingsAccounts = savingsAccounts;
+    }
+
     public void addAccount(Account account) {
         accounts.add(account);
+    }
+
+    public void addSavingsAccount(SavingsAccount savingsAccount) {
+        savingsAccounts.add(savingsAccount);
     }
 
     public Account getAccount(String iban) {

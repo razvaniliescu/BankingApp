@@ -3,13 +3,13 @@ package org.poo.transactions;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.poo.commands.commandTypes.SplitPayment;
+import org.poo.commands.commandTypes.payments.SplitPayment;
 import java.util.List;
 
 public class SplitPayTransaction extends Transaction {
-    private List<String> accounts;
-    private String currency;
-    private double amount;
+    protected List<String> accounts;
+    protected String currency;
+    protected double amount;
     public SplitPayTransaction(SplitPayment command) {
         this.timestamp = command.getTimestamp();
         this.accounts = command.getAccounts();

@@ -55,7 +55,7 @@ public class CreateCard extends Command {
             for (Account account : user.getAccounts()) {
                 if (account.getIban().equals(iban)) {
                     if (user.getEmail().equals(email)) {
-                        this.card = new Card();
+                        this.card = new Card(account);
                         account.addCard(card);
                         Transaction t = new NewCard(this);
                         user.addTransaction(t);

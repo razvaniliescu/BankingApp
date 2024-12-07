@@ -3,12 +3,14 @@ package org.poo.accounts;
 import org.poo.utils.Utils;
 
 public class Card {
-    private String cardNumber;
-    private String status;
+    protected String cardNumber;
+    protected String status;
+    protected Account account;
 
-    public Card() {
+    public Card(Account account) {
         this.cardNumber = Utils.generateCardNumber();
         this.status = "active";
+        this.account = account;
     }
 
     public String getCardNumber() {
@@ -25,5 +27,17 @@ public class Card {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Account getAccount() {
+        return account;
+    }
+
+    public void setAccount(Account account) {
+        this.account = account;
+    }
+
+    public void pay(int timestamp) {
+
     }
 }

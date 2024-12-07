@@ -1,16 +1,14 @@
 package org.poo.commands;
 
-import org.poo.accounts.Account;
-import org.poo.accounts.User;
 import org.poo.commands.commandTypes.*;
 import org.poo.commands.commandTypes.debug.PrintTransactions;
 import org.poo.commands.commandTypes.debug.PrintUsers;
-import org.poo.exchange.ExchangeGraph;
-import org.poo.exchange.ExchangeRate;
+import org.poo.commands.commandTypes.payments.PayOnline;
+import org.poo.commands.commandTypes.payments.SendMoney;
+import org.poo.commands.commandTypes.payments.SplitPayment;
+import org.poo.commands.commandTypes.reports.Report;
+import org.poo.commands.commandTypes.reports.SpendingsReport;
 import org.poo.fileio.CommandInput;
-
-import java.util.ArrayList;
-import java.util.Objects;
 
 public class CommandFactory {
     public static Command createCommand(CommandInput input) {
@@ -29,10 +27,10 @@ public class CommandFactory {
             case "sendMoney": return new SendMoney(input);
             case "splitPayment": return new SplitPayment(input);
             case "setAlias":  return new SetAlias(input);
-            case "addInterest": return null;
-            case "changeInterestRate": return null;
+            case "addInterest": return new AddInterest(input);
+            case "changeInterestRate": return new ChangeInterestRate(input);
             case "report":  return new Report(input);
-            case "spendingReport": return null;
+            case "spendingsReport": return new SpendingsReport(input);
             default: return null;
         }
     }

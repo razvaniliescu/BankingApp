@@ -34,10 +34,12 @@ public class DeleteAccount extends Command {
         ObjectNode node = objectMapper.createObjectNode();
         node.put("command", "deleteAccount");
         ObjectNode result = objectMapper.createObjectNode();
+        User accountUser = null;
         try {
             for (User user : users) {
                 for (Account account : user.getAccounts()) {
                     if (account.getIban().equals(this.iban)) {
+                        accountUser = user;
                         user.deleteAccount(account);
                         break;
                     }
@@ -46,6 +48,7 @@ public class DeleteAccount extends Command {
             result.put("success", "Account deleted");
             result.put("timestamp", timestamp );
         } catch (IllegalArgumentException e) {
+            accountUser.addTransaction(new Transaction(timestamp, "Account couldn't be deleted - there are funds remaining"));
             result.put("error", e.getMessage());
             result.put("timestamp", timestamp);
         }

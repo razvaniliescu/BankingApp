@@ -1,29 +1,32 @@
 package org.poo.accounts;
 
-import org.poo.commands.commandTypes.SpendingReport;
 import org.poo.exchange.ExchangeGraph;
-import org.poo.exchange.ExchangeRate;
+import org.poo.transactions.CardTransaction;
 import org.poo.transactions.Transaction;
 import org.poo.utils.Utils;
 
 import java.util.ArrayList;
 
 public class Account {
-    private String iban;
-    private double balance;
-    private String currency;
-    private String type;
-    private ArrayList<Card> cards;
-    private double minBalance;
-    private ArrayList<Transaction> transactions;
+    protected String iban;
+    protected double balance;
+    protected String currency;
+    protected String type;
+    protected ArrayList<Card> cards;
+    protected double minBalance;
+    protected ArrayList<Transaction> transactions;
+    protected ArrayList<CardTransaction> onlineTransactions;
+    protected User user;
 
-    public Account(String currency, String type) {
+    public Account(String currency, String type, User user) {
         this.iban = Utils.generateIBAN();
         this.balance = 0;
         this.currency = currency;
         this.type = type;
         this.cards = new ArrayList<>();
         transactions = new ArrayList<>();
+        onlineTransactions = new ArrayList<>();
+        this.user = user;
     }
 
     public String getIban() {
@@ -82,6 +85,22 @@ public class Account {
         this.transactions = transactions;
     }
 
+    public ArrayList<CardTransaction> getOnlineTransactions() {
+        return onlineTransactions;
+    }
+
+    public void setOnlineTransactions(ArrayList<CardTransaction> onlineTransactions) {
+        this.onlineTransactions = onlineTransactions;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     public void addCard(Card card) {
         this.cards.add(card);
     }
@@ -125,5 +144,9 @@ public class Account {
 
     public void addTransaction(Transaction t) {
         transactions.add(t);
+    }
+
+    public void addOnlineTransaction(CardTransaction t) {
+        onlineTransactions.add(t);
     }
 }

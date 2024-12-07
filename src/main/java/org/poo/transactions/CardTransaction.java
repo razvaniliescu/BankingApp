@@ -3,7 +3,7 @@ package org.poo.transactions;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.poo.commands.commandTypes.PayOnline;
+import org.poo.commands.commandTypes.payments.PayOnline;
 
 public class CardTransaction extends Transaction {
     private double amount;

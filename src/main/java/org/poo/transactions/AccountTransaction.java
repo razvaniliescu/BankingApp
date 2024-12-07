@@ -3,7 +3,7 @@ package org.poo.transactions;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.poo.commands.commandTypes.SendMoney;
+import org.poo.commands.commandTypes.payments.SendMoney;
 
 public class AccountTransaction extends Transaction {
     private String senderIBAN;

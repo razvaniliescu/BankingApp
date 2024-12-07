@@ -1,4 +1,4 @@
-package org.poo.commands.commandTypes;
+package org.poo.commands.commandTypes.payments;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -8,7 +8,6 @@ import org.poo.accounts.Card;
 import org.poo.accounts.User;
 import org.poo.commands.Command;
 import org.poo.exchange.ExchangeGraph;
-import org.poo.exchange.ExchangeRate;
 import org.poo.fileio.CommandInput;
 import org.poo.transactions.CardTransaction;
 import org.poo.transactions.InsufficientFunds;
@@ -98,11 +97,15 @@ public class PayOnline extends Command {
                             Transaction t;
                             if (ok == 0) {
                                 t = new CardTransaction(this);
+                                account.addOnlineTransaction((CardTransaction) t);
+                                user.addTransaction(t);
+                                account.addTransaction(t);
+                                card.pay(timestamp);
                             } else {
                                 t = new InsufficientFunds(this);
+                                user.addTransaction(t);
+                                account.addTransaction(t);
                             }
-                            user.addTransaction(t);
-                            account.addTransaction(t);
                             return;
                         }
                     }

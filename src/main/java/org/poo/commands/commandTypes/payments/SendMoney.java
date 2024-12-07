@@ -1,8 +1,7 @@
-package org.poo.commands.commandTypes;
+package org.poo.commands.commandTypes.payments;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.accounts.Account;
 import org.poo.accounts.User;
 import org.poo.commands.Command;
@@ -13,7 +12,6 @@ import org.poo.transactions.InsufficientFunds;
 import org.poo.transactions.Transaction;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class SendMoney extends Command {
     private String iban;
@@ -104,6 +102,8 @@ public class SendMoney extends Command {
         int ok = senderAccount.sendMoney(receiverAccount, amount, rate);
         if (ok == 0) {
             Transaction tSent = new AccountTransaction(this, "sent");
+            amount *= rates.getExchangeRate(currency, receiverAccount.getCurrency());
+            currency = receiverAccount.getCurrency();
             Transaction tReceived = new AccountTransaction(this, "received");
             sender.addTransaction(tSent);
             senderAccount.addTransaction(tSent);

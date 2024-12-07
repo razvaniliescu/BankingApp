@@ -1,4 +1,4 @@
-package org.poo.commands.commandTypes;
+package org.poo.commands.commandTypes.payments;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -7,6 +7,7 @@ import org.poo.accounts.User;
 import org.poo.commands.Command;
 import org.poo.exchange.ExchangeGraph;
 import org.poo.fileio.CommandInput;
+import org.poo.transactions.SplitPayError;
 import org.poo.transactions.SplitPayTransaction;
 import org.poo.transactions.Transaction;
 
@@ -53,7 +54,7 @@ public class SplitPayment extends Command {
 
     @Override
     public void execute(ObjectMapper objectMapper, ArrayNode output, ArrayList<User> users, ExchangeGraph rates) {
-        boolean allCanPay = true;
+        Account errorAccount = null;
         int accountsNum = accounts.size();
         Map<Account, User> userAccountMap = new HashMap<>();
         ArrayList<Account> accounts = new ArrayList<>();
@@ -64,21 +65,25 @@ public class SplitPayment extends Command {
                         accounts.add(account);
                         userAccountMap.put(account, user);
                         if (!account.canPay(amount / accountsNum, currency, rates)) {
-                            allCanPay = false;
+                            errorAccount = account;
                         }
                     }
                 }
             }
         }
-        if (allCanPay) {
+        if (errorAccount == null) {
             for (Account account: accounts) {
                 Transaction t = new SplitPayTransaction(this);
                 account.pay(amount / accountsNum, currency, rates);
-                userAccountMap.get(account).addTransaction(new SplitPayTransaction(this));
+                userAccountMap.get(account).addTransaction(t);
                 account.addTransaction(t);
             }
         } else {
-
+            for (Account account: accounts) {
+                Transaction t = new SplitPayError(this, errorAccount.getIban());
+                userAccountMap.get(account).addTransaction(t);
+                account.addTransaction(t);
+            }
         }
     }
 }

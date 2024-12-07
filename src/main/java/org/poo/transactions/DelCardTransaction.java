@@ -10,6 +10,14 @@ public class DelCardTransaction extends Transaction {
     private String card;
     private String email;
 
+    public DelCardTransaction(String iban, String card, String email, int timestamp) {
+        this.timestamp = timestamp;
+        this.iban = iban;
+        this.card = card;
+        this.email = email;
+        this.description = "The card has been destroyed";
+    }
+
     public DelCardTransaction(DeleteCard command) {
         this.timestamp = command.getTimestamp();
         this.description = "The card has been destroyed";

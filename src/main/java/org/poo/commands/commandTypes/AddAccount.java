@@ -75,9 +75,10 @@ public class AddAccount extends Command {
         }
         Account account = null;
         if (Objects.equals(type, "classic")) {
-            account = new Account(currency, type);
+            account = new Account(currency, type, user);
         } else if (Objects.equals(type, "savings")) {
-            account = new SavingsAccount(currency, type, interestRate);
+            account = new SavingsAccount(currency, type, interestRate, user);
+            user.addSavingsAccount((SavingsAccount) account);
         }
         user.addAccount(account);
         Transaction t = new NewAccount(timestamp);

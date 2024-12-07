@@ -10,6 +10,14 @@ public class NewCard extends Transaction {
     private String cardHolder;
     private String account;
 
+    public NewCard(String card, String cardHolder, String iban, int timestamp) {
+        this.card = card;
+        this.cardHolder = cardHolder;
+        this.account = iban;
+        this.timestamp = timestamp;
+        this.description = "New card created";
+    }
+
     public NewCard(CreateCard command) {
         this.timestamp = command.getTimestamp();
         this.description = "New card created";
