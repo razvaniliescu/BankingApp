@@ -7,21 +7,20 @@ import org.poo.accounts.Account;
 import org.poo.accounts.Card;
 import org.poo.accounts.User;
 import org.poo.commands.Command;
+import org.poo.exchange.ExchangeGraph;
 import org.poo.fileio.CommandInput;
 import org.poo.transactions.Transaction;
 
 import java.util.ArrayList;
 
 public class PrintUsers extends Command {
-    private final ArrayList<User> users;
-
-    public PrintUsers(CommandInput input, ArrayList<User> users) {
-        this.command = input.getCommand();
-        this.timestamp = input.getTimestamp();
-        this.users = users;
+    public PrintUsers(CommandInput input) {
+        super(input);
     }
 
-    private void printUsers(ObjectMapper objectMapper, ArrayNode output) {
+
+    @Override
+    public void execute(ObjectMapper objectMapper, ArrayNode output, ArrayList<User> users, ExchangeGraph rates) {
         ObjectNode node = objectMapper.createObjectNode();
         node.put("command", command);
         ArrayNode usersArray = objectMapper.createArrayNode();
@@ -53,9 +52,5 @@ public class PrintUsers extends Command {
         node.set("output", usersArray);
         node.put("timestamp", timestamp);
         output.add(node);
-    }
-    @Override
-    public void execute(ObjectMapper objectMapper, ArrayNode output, ArrayList<Transaction> transactions) {
-        printUsers(objectMapper, output);
     }
 }

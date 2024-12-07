@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.poo.accounts.Account;
 import org.poo.accounts.User;
 import org.poo.commands.Command;
+import org.poo.exchange.ExchangeGraph;
 import org.poo.fileio.CommandInput;
 import org.poo.transactions.Transaction;
 import org.poo.utils.Processing;
@@ -15,15 +16,12 @@ public class SetAlias extends Command {
     private String email;
     private String alias;
     private String iban;
-    private ArrayList<User> users;
 
-    public SetAlias(CommandInput input, ArrayList<User> users) {
-        this.command = input.getCommand();
-        this.timestamp = input.getTimestamp();
+    public SetAlias(CommandInput input) {
+        super(input);
         this.email = input.getEmail();
         this.alias = input.getAlias();
         this.iban = input.getAccount();
-        this.users = users;
     }
 
     public String getEmail() {
@@ -50,22 +48,16 @@ public class SetAlias extends Command {
         this.iban = iban;
     }
 
-    public ArrayList<User> getUsers() {
-        return users;
-    }
-
-    public void setUsers(ArrayList<User> users) {
-        this.users = users;
-    }
-
-    public void setAlias() {
-        User user = Processing.findUser(email, users);
-        Account account = Processing.findAccount(user, email);
-        user.addAlias(alias, account);
-    }
 
     @Override
-    public void execute(ObjectMapper objectMapper, ArrayNode output, ArrayList<Transaction> transactions) {
-        setAlias();
+    public void execute(ObjectMapper objectMapper, ArrayNode output, ArrayList<User> users, ExchangeGraph rates) {
+        for (User user : users) {
+            for (Account account : user.getAccounts()) {
+                if (account.getIban().equals(this.iban)) {
+                    user.addAlias(alias, account);
+                    return;
+                }
+            }
+        }
     }
 }

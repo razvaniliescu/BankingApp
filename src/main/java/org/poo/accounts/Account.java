@@ -1,7 +1,9 @@
 package org.poo.accounts;
 
 import org.poo.commands.commandTypes.SpendingReport;
+import org.poo.exchange.ExchangeGraph;
 import org.poo.exchange.ExchangeRate;
+import org.poo.transactions.Transaction;
 import org.poo.utils.Utils;
 
 import java.util.ArrayList;
@@ -13,6 +15,7 @@ public class Account {
     private String type;
     private ArrayList<Card> cards;
     private double minBalance;
+    private ArrayList<Transaction> transactions;
 
     public Account(String currency, String type) {
         this.iban = Utils.generateIBAN();
@@ -20,6 +23,7 @@ public class Account {
         this.currency = currency;
         this.type = type;
         this.cards = new ArrayList<>();
+        transactions = new ArrayList<>();
     }
 
     public String getIban() {
@@ -70,6 +74,14 @@ public class Account {
         this.minBalance = minBalance;
     }
 
+    public ArrayList<Transaction> getTransactions() {
+        return transactions;
+    }
+
+    public void setTransactions(ArrayList<Transaction> transactions) {
+        this.transactions = transactions;
+    }
+
     public void addCard(Card card) {
         this.cards.add(card);
     }
@@ -99,5 +111,19 @@ public class Account {
             return 0;
         }
         return 1;
+    }
+
+    public boolean canPay(double amount, String currency, ExchangeGraph rates) {
+        amount *= rates.getExchangeRate(this.currency, currency);
+        return balance >= amount + minBalance;
+    }
+
+    public void pay(double amount, String currency, ExchangeGraph rates) {
+        amount *= rates.getExchangeRate(currency, this.currency);
+        balance -= amount;
+    }
+
+    public void addTransaction(Transaction t) {
+        transactions.add(t);
     }
 }

@@ -2,6 +2,7 @@ package org.poo.commands.commandTypes;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.accounts.Account;
 import org.poo.accounts.User;
 import org.poo.commands.Command;
@@ -10,28 +11,23 @@ import org.poo.fileio.CommandInput;
 import org.poo.transactions.AccountTransaction;
 import org.poo.transactions.InsufficientFunds;
 import org.poo.transactions.Transaction;
-import org.poo.utils.Processing;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class SendMoney extends Command {
     private String iban;
     private double amount;
     private String receiver;
     private String description;
-    private ExchangeGraph rates;
-    private ArrayList<User> users;
     private String currency;
 
-    public SendMoney(CommandInput input, ArrayList<User> users, ExchangeGraph rates) {
-        this.command = input.getCommand();
-        this.timestamp = input.getTimestamp();
+    public SendMoney(CommandInput input) {
+        super(input);
         this.iban = input.getAccount();
         this.amount = input.getAmount();
         this.receiver = input.getReceiver();
         this.description = input.getDescription();
-        this.rates = rates;
-        this.users = users;
     }
 
     public String getIban() {
@@ -66,22 +62,6 @@ public class SendMoney extends Command {
         this.description = description;
     }
 
-    public ExchangeGraph getRates() {
-        return rates;
-    }
-
-    public void setRates(ExchangeGraph rates) {
-        this.rates = rates;
-    }
-
-    public ArrayList<User> getUsers() {
-        return users;
-    }
-
-    public void setUsers(ArrayList<User> users) {
-        this.users = users;
-    }
-
     public String getCurrency() {
         return currency;
     }
@@ -91,7 +71,7 @@ public class SendMoney extends Command {
     }
 
     @Override
-    public void execute(ObjectMapper objectMapper, ArrayNode output, ArrayList<Transaction> transactions) {
+    public void execute(ObjectMapper objectMapper, ArrayNode output, ArrayList<User> users, ExchangeGraph rates) {
         User sender = null;
         User receiver = null;
         Account senderAccount = null;
@@ -101,12 +81,10 @@ public class SendMoney extends Command {
                 if (account.getIban().equals(iban)) {
                     sender = user;
                     senderAccount = account;
-                    break;
                 }
                 if (account.getIban().equals(this.receiver)) {
                     receiver = user;
                     receiverAccount = account;
-                    break;
                 }
             }
             if (user.getAliases().containsKey(iban)) {
@@ -125,10 +103,16 @@ public class SendMoney extends Command {
         double rate = rates.getExchangeRate(senderAccount.getCurrency(), receiverAccount.getCurrency());
         int ok = senderAccount.sendMoney(receiverAccount, amount, rate);
         if (ok == 0) {
-            sender.addTransaction(new AccountTransaction(this, "sent"));
-            receiver.addTransaction(new AccountTransaction(this, "received"));
+            Transaction tSent = new AccountTransaction(this, "sent");
+            Transaction tReceived = new AccountTransaction(this, "received");
+            sender.addTransaction(tSent);
+            senderAccount.addTransaction(tSent);
+            receiver.addTransaction(tReceived);
+            receiverAccount.addTransaction(tReceived);
         } else {
-            sender.addTransaction(new InsufficientFunds(this));
+            Transaction tSent = new InsufficientFunds(this);
+            sender.addTransaction(tSent);
+            senderAccount.addTransaction(tSent);
         }
     }
 }

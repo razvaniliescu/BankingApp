@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.poo.accounts.Account;
 import org.poo.accounts.User;
 import org.poo.commands.Command;
+import org.poo.exchange.ExchangeGraph;
 import org.poo.fileio.CommandInput;
 import org.poo.transactions.Transaction;
 
@@ -13,14 +14,11 @@ import java.util.Objects;
 
 public class AddFunds extends Command {
     private String account;
-    private ArrayList<User> users;
     private double funds;
 
-    public AddFunds(CommandInput input, ArrayList<User> users) {
-        this.users = users;
+    public AddFunds(CommandInput input) {
+        super(input);
         this.account = input.getAccount();
-        this.command = input.getCommand();
-        this.timestamp = input.getTimestamp();
         this.funds = input.getAmount();
     }
 
@@ -40,15 +38,8 @@ public class AddFunds extends Command {
         this.funds = funds;
     }
 
-    public ArrayList<User> getUser() {
-        return users;
-    }
-
-    public void setUser(ArrayList<User> users) {
-        this.users = users;
-    }
-
-    private void addFunds() {
+    @Override
+    public void execute(ObjectMapper objectMapper, ArrayNode arrayNode, ArrayList<User> users, ExchangeGraph rates) {
         for (User user: users) {
             for (Account account : user.getAccounts()) {
                 if (account.getIban().equals(this.account)) {
@@ -57,10 +48,5 @@ public class AddFunds extends Command {
                 }
             }
         }
-    }
-
-    @Override
-    public void execute(ObjectMapper objectMapper, ArrayNode arrayNode, ArrayList<Transaction> transactions) {
-        addFunds();
     }
 }

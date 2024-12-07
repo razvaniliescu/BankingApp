@@ -110,17 +110,15 @@ public final class Main {
         CommandInput[] commands = inputData.getCommands();
         ArrayList<Command> commandList = new ArrayList<>();
         for (CommandInput command : commands) {
-            Command newCommand = CommandFactory.createCommand(command, userList, exchangeRates);
+            Command newCommand = CommandFactory.createCommand(command);
             commandList.add(newCommand);
         }
 
         Utils.resetRandom();
 
-        ArrayList<Transaction> transactions = new ArrayList<>();
-
         for (Command command : commandList) {
             if (command != null) {
-                command.execute(objectMapper, output, transactions);
+                command.execute(objectMapper, output, userList, exchangeRates);
             }
         }
 

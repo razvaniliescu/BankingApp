@@ -23,18 +23,14 @@ public class PayOnline extends Command {
     private String description;
     private String commerciant;
     private ArrayList<User> users;
-    private ExchangeGraph rates;
 
-    public PayOnline(CommandInput input, ArrayList<User> users, ExchangeGraph rates) {
+    public PayOnline(CommandInput input) {
+        super(input);
         this.cardNumber = input.getCardNumber();
-        this.timestamp = input.getTimestamp();
-        this.command = input.getCommand();
         this.amount = input.getAmount();
         this.currency = input.getCurrency();
         this.description = input.getDescription();
         this.commerciant = input.getCommerciant();
-        this.users = users;
-        this.rates = rates;
     }
 
     public String getCardNumber() {
@@ -85,39 +81,34 @@ public class PayOnline extends Command {
         this.users = users;
     }
 
-    public ExchangeGraph getRates() {
-        return rates;
-    }
-
-    public void setRates(ExchangeGraph rates) {
-        this.rates = rates;
-    }
-
-    public void payOnline() {
-        for (User user : users) {
-            for (Account account : user.getAccounts()) {
-                for (Card card : account.getCards()) {
-                    if (card.getCardNumber().equals(cardNumber)) {
-                        double rate = rates.getExchangeRate(this.currency, account.getCurrency());
-                        int ok = account.payOnline(card, amount, currency, rate);
-                        amount *= rate;
-                        if (ok == 0) {
-                            user.addTransaction(new CardTransaction(this));
-                        } else {
-                            user.addTransaction(new InsufficientFunds(this));
+    @Override
+    public void execute(ObjectMapper objectMapper, ArrayNode output, ArrayList<User> users, ExchangeGraph rates) {
+        try {
+            for (User user : users) {
+                for (Account account : user.getAccounts()) {
+                    for (Card card : account.getCards()) {
+                        if (card.getCardNumber().equals(cardNumber)) {
+                            if (card.getStatus().equals("frozen")) {
+                                user.addTransaction(new Transaction(timestamp, "The card is frozen"));
+                                return;
+                            }
+                            double rate = rates.getExchangeRate(this.currency, account.getCurrency());
+                            int ok = account.payOnline(card, amount, currency, rate);
+                            amount *= rate;
+                            Transaction t;
+                            if (ok == 0) {
+                                t = new CardTransaction(this);
+                            } else {
+                                t = new InsufficientFunds(this);
+                            }
+                            user.addTransaction(t);
+                            account.addTransaction(t);
+                            return;
                         }
-                        return;
                     }
                 }
             }
-        }
-        throw new IllegalArgumentException("Card not found");
-    }
-
-    @Override
-    public void execute(ObjectMapper objectMapper, ArrayNode output, ArrayList<Transaction> transactions) {
-        try {
-            payOnline();
+            throw new IllegalArgumentException("Card not found");
         } catch (IllegalArgumentException e) {
             ObjectNode node = objectMapper.createObjectNode();
             node.put("command", "payOnline");
