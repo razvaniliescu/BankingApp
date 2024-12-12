@@ -3,124 +3,81 @@ package org.poo.commands.commandTypes.payments;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.poo.accounts.Account;
-import org.poo.accounts.Card;
-import org.poo.accounts.User;
+import lombok.Getter;
+import lombok.Setter;
+import org.poo.core.accounts.Account;
+import org.poo.core.cards.Card;
+import org.poo.core.User;
 import org.poo.commands.Command;
-import org.poo.exchange.ExchangeGraph;
+import org.poo.exceptions.CardNotFoundException;
+import org.poo.core.exchange.ExchangeGraph;
 import org.poo.fileio.CommandInput;
-import org.poo.transactions.CardTransaction;
-import org.poo.transactions.InsufficientFunds;
+import org.poo.transactions.error.CardIsFrozenError;
+import org.poo.transactions.error.InsufficientFundsError;
+import org.poo.transactions.success.CardTransaction;
 import org.poo.transactions.Transaction;
 
 import java.util.ArrayList;
 
+/**
+ * Implementation for the payOnline command
+ */
+@Setter
+@Getter
 public class PayOnline extends Command {
     private String cardNumber;
     private double amount;
     private String currency;
     private String description;
     private String commerciant;
-    private ArrayList<User> users;
+    private String email;
 
-    public PayOnline(CommandInput input) {
+    public PayOnline(final CommandInput input) {
         super(input);
         this.cardNumber = input.getCardNumber();
         this.amount = input.getAmount();
         this.currency = input.getCurrency();
         this.description = input.getDescription();
         this.commerciant = input.getCommerciant();
+        this.email = input.getEmail();
     }
 
-    public String getCardNumber() {
-        return cardNumber;
-    }
-
-    public void setCardNumber(String cardNumber) {
-        this.cardNumber = cardNumber;
-    }
-
-    public double getAmount() {
-        return amount;
-    }
-
-    public void setAmount(double amount) {
-        this.amount = amount;
-    }
-
-    public String getCurrency() {
-        return currency;
-    }
-
-    public void setCurrency(String currency) {
-        this.currency = currency;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getCommerciant() {
-        return commerciant;
-    }
-
-    public void setCommerciant(String commerciant) {
-        this.commerciant = commerciant;
-    }
-
-    public ArrayList<User> getUsers() {
-        return users;
-    }
-
-    public void setUsers(ArrayList<User> users) {
-        this.users = users;
-    }
-
+    /**
+     * Finds the specified card and its associated card,
+     * checks its balance and makes a transaction
+     */
     @Override
-    public void execute(ObjectMapper objectMapper, ArrayNode output, ArrayList<User> users, ExchangeGraph rates) {
+    public void execute(final ObjectMapper objectMapper, final ArrayNode output,
+                        final ArrayList<User> users, final ExchangeGraph rates) {
         try {
             for (User user : users) {
-                for (Account account : user.getAccounts()) {
-                    for (Card card : account.getCards()) {
-                        if (card.getCardNumber().equals(cardNumber)) {
-                            if (card.getStatus().equals("frozen")) {
-                                user.addTransaction(new Transaction(timestamp, "The card is frozen"));
-                                return;
-                            }
-                            double rate = rates.getExchangeRate(this.currency, account.getCurrency());
-                            int ok = account.payOnline(card, amount, currency, rate);
-                            amount *= rate;
-                            Transaction t;
-                            if (ok == 0) {
-                                t = new CardTransaction(this);
-                                account.addOnlineTransaction((CardTransaction) t);
-                                user.addTransaction(t);
-                                account.addTransaction(t);
-                                card.pay(timestamp);
-                            } else {
-                                t = new InsufficientFunds(this);
-                                user.addTransaction(t);
-                                account.addTransaction(t);
-                            }
-                            return;
-                        }
+                if (user.getEmail().equals(email)) {
+                    Account account = user.checkCard(cardNumber);
+                    Card card = account.checkCard(cardNumber);
+                    if (card.getStatus().equals("frozen")) {
+                        user.addTransaction(new CardIsFrozenError(timestamp));
+                        return;
                     }
+                    double rate = rates.getExchangeRate(this.currency, account.getCurrency());
+                    boolean ok = account.payOnline(amount, rate);
+                    amount *= rate;
+                    Transaction t;
+                    if (ok) {
+                        t = new CardTransaction(this);
+                        account.addOnlineTransaction((CardTransaction) t);
+                        user.addTransaction(t);
+                        account.addTransaction(t);
+                        card.pay(timestamp);
+                    } else {
+                        t = new InsufficientFundsError(timestamp);
+                        user.addTransaction(t);
+                        account.addTransaction(t);
+                    }
+                    return;
                 }
             }
-            throw new IllegalArgumentException("Card not found");
-        } catch (IllegalArgumentException e) {
-            ObjectNode node = objectMapper.createObjectNode();
-            node.put("command", "payOnline");
-            ObjectNode result = objectMapper.createObjectNode();
-            result.put("timestamp", this.timestamp);
-            result.put("description", e.getMessage());
-            node.set("output", result);
-            node.put("timestamp", this.timestamp);
-            output.add(node);
+        } catch (CardNotFoundException e) {
+            e.printException(objectMapper, output, command, timestamp);
         }
     }
 }

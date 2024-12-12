@@ -3,16 +3,14 @@ package org.poo.main;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import org.poo.accounts.User;
+import org.poo.core.User;
 import org.poo.checker.Checker;
 import org.poo.checker.CheckerConstants;
 import org.poo.commands.Command;
 import org.poo.commands.CommandFactory;
-import org.poo.commerciants.Commerciant;
-import org.poo.exchange.ExchangeGraph;
-import org.poo.exchange.ExchangeRate;
+import org.poo.core.exchange.ExchangeGraph;
+import org.poo.core.exchange.ExchangeRate;
 import org.poo.fileio.*;
-import org.poo.transactions.Transaction;
 import org.poo.utils.Utils;
 
 import java.io.File;
@@ -83,6 +81,10 @@ public final class Main {
 
         ArrayNode output = objectMapper.createArrayNode();
 
+        // Reset the random seed
+        Utils.resetRandom();
+
+        // Get the users from the input
         UserInput[] userInput = inputData.getUsers();
         ArrayList<User> userList = new ArrayList<>();
         for (UserInput input : userInput) {
@@ -90,6 +92,7 @@ public final class Main {
             userList.add(newUser);
         }
 
+        // Get the exchange rates from the input and create the graph
         ExchangeInput[] exchangeRateInput = inputData.getExchangeRates();
         ArrayList<ExchangeRate> exchangeRateList = new ArrayList<>();
         for (ExchangeInput input : exchangeRateInput) {
@@ -98,15 +101,7 @@ public final class Main {
         }
         ExchangeGraph exchangeRates = new ExchangeGraph(exchangeRateList);
 
-        CommerciantInput[] commerciantInput = inputData.getCommerciants();
-        ArrayList<Commerciant> commerciantList = new ArrayList<>();
-        if (commerciantInput != null) {
-            for (CommerciantInput input: commerciantInput) {
-                Commerciant commerciant = new Commerciant(input);
-                commerciantList.add(commerciant);
-            }
-        }
-
+        // Get the commands from the input...
         CommandInput[] commands = inputData.getCommands();
         ArrayList<Command> commandList = new ArrayList<>();
         for (CommandInput command : commands) {
@@ -114,18 +109,17 @@ public final class Main {
             commandList.add(newCommand);
         }
 
-        Utils.resetRandom();
-
+        // ...and execute them
         for (Command command : commandList) {
             if (command != null) {
                 command.execute(objectMapper, output, userList, exchangeRates);
             }
         }
 
+        // Write the output in the output
         ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
         objectWriter.writeValue(new File(filePath2), output);
     }
-
     /**
      * Method used for extracting the test number from the file name.
      *

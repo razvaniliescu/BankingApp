@@ -3,24 +3,29 @@ package org.poo.commands.commandTypes.debug;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.poo.accounts.Account;
-import org.poo.accounts.Card;
-import org.poo.accounts.User;
+import org.poo.core.accounts.Account;
+import org.poo.core.cards.Card;
+import org.poo.core.User;
 import org.poo.commands.Command;
-import org.poo.exchange.ExchangeGraph;
+import org.poo.core.exchange.ExchangeGraph;
 import org.poo.fileio.CommandInput;
-import org.poo.transactions.Transaction;
 
 import java.util.ArrayList;
 
+/**
+ * Implementation for the printUsers command
+ */
 public class PrintUsers extends Command {
-    public PrintUsers(CommandInput input) {
+    public PrintUsers(final CommandInput input) {
         super(input);
     }
 
-
+    /**
+     * Prints all the users and their details to the output
+     */
     @Override
-    public void execute(ObjectMapper objectMapper, ArrayNode output, ArrayList<User> users, ExchangeGraph rates) {
+    public void execute(final ObjectMapper objectMapper, final ArrayNode output,
+                        final ArrayList<User> users, final ExchangeGraph rates) {
         ObjectNode node = objectMapper.createObjectNode();
         node.put("command", command);
         ArrayNode usersArray = objectMapper.createArrayNode();

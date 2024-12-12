@@ -2,95 +2,67 @@ package org.poo.commands.commandTypes.payments;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import org.poo.accounts.Account;
-import org.poo.accounts.User;
+import lombok.Getter;
+import lombok.Setter;
+import org.poo.core.accounts.Account;
+import org.poo.core.User;
 import org.poo.commands.Command;
-import org.poo.exchange.ExchangeGraph;
+import org.poo.core.exchange.ExchangeGraph;
 import org.poo.fileio.CommandInput;
-import org.poo.transactions.AccountTransaction;
-import org.poo.transactions.InsufficientFunds;
+import org.poo.transactions.error.InsufficientFundsError;
+import org.poo.transactions.success.AccountTransaction;
 import org.poo.transactions.Transaction;
 
 import java.util.ArrayList;
 
+/**
+ * Implementation for the sendMoney command
+ */
+@Setter
+@Getter
 public class SendMoney extends Command {
-    private String iban;
+    private String senderIban;
     private double amount;
-    private String receiver;
+    private String receiverIban;
     private String description;
     private String currency;
 
-    public SendMoney(CommandInput input) {
+    public SendMoney(final CommandInput input) {
         super(input);
-        this.iban = input.getAccount();
+        this.senderIban = input.getAccount();
         this.amount = input.getAmount();
-        this.receiver = input.getReceiver();
+        this.receiverIban = input.getReceiver();
         this.description = input.getDescription();
     }
 
-    public String getIban() {
-        return iban;
-    }
-
-    public void setIban(String iban) {
-        this.iban = iban;
-    }
-
-    public double getAmount() {
-        return amount;
-    }
-
-    public void setAmount(double amount) {
-        this.amount = amount;
-    }
-
-    public String getReceiver() {
-        return receiver;
-    }
-
-    public void setReceiver(String receiver) {
-        this.receiver = receiver;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getCurrency() {
-        return currency;
-    }
-
-    public void setCurrency(String currency) {
-        this.currency = currency;
-    }
-
+    /**
+     * Finds the two accounts and
+     * makes a transaction
+     */
     @Override
-    public void execute(ObjectMapper objectMapper, ArrayNode output, ArrayList<User> users, ExchangeGraph rates) {
+    public void execute(final ObjectMapper objectMapper, final ArrayNode output,
+                        final ArrayList<User> users, final ExchangeGraph rates) {
         User sender = null;
         User receiver = null;
         Account senderAccount = null;
         Account receiverAccount = null;
         for (User user : users) {
             for (Account account : user.getAccounts()) {
-                if (account.getIban().equals(iban)) {
+                if (account.getIban().equals(senderIban)) {
                     sender = user;
                     senderAccount = account;
                 }
-                if (account.getIban().equals(this.receiver)) {
+                if (account.getIban().equals(this.receiverIban)) {
                     receiver = user;
                     receiverAccount = account;
                 }
             }
-            if (user.getAliases().containsKey(iban)) {
+            if (user.getAliases().containsKey(senderIban)) {
                 return;
             }
-            if (user.getAliases().containsKey(this.receiver)) {
+            if (user.getAliases().containsKey(this.receiverIban)) {
                 receiver = user;
-                receiverAccount = user.getAliases().get(this.receiver);
+                receiverAccount = user.getAliases().get(this.receiverIban);
                 break;
             }
         }
@@ -98,9 +70,10 @@ public class SendMoney extends Command {
             return;
         }
         this.currency = senderAccount.getCurrency();
-        double rate = rates.getExchangeRate(senderAccount.getCurrency(), receiverAccount.getCurrency());
-        int ok = senderAccount.sendMoney(receiverAccount, amount, rate);
-        if (ok == 0) {
+        double rate = rates.getExchangeRate(senderAccount.getCurrency(),
+                receiverAccount.getCurrency());
+        boolean ok = senderAccount.sendMoney(receiverAccount, amount, rate);
+        if (ok) {
             Transaction tSent = new AccountTransaction(this, "sent");
             amount *= rates.getExchangeRate(currency, receiverAccount.getCurrency());
             currency = receiverAccount.getCurrency();
@@ -110,7 +83,7 @@ public class SendMoney extends Command {
             receiver.addTransaction(tReceived);
             receiverAccount.addTransaction(tReceived);
         } else {
-            Transaction tSent = new InsufficientFunds(this);
+            Transaction tSent = new InsufficientFundsError(timestamp);
             sender.addTransaction(tSent);
             senderAccount.addTransaction(tSent);
         }

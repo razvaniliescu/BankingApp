@@ -3,53 +3,37 @@ package org.poo.commands.commandTypes.reports;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.poo.accounts.Account;
-import org.poo.accounts.User;
+import lombok.Getter;
+import lombok.Setter;
+import org.poo.core.accounts.Account;
+import org.poo.core.User;
 import org.poo.commands.Command;
-import org.poo.exchange.ExchangeGraph;
+import org.poo.core.exchange.ExchangeGraph;
 import org.poo.fileio.CommandInput;
 import org.poo.transactions.Transaction;
 
 import java.util.ArrayList;
 
+@Setter
+@Getter
 public class Report extends Command {
     protected int startTimestamp;
     protected int endTimestamp;
     protected String iban;
 
-    public Report(CommandInput input) {
+    public Report(final CommandInput input) {
         super(input);
         this.startTimestamp = input.getStartTimestamp();
         this.endTimestamp = input.getEndTimestamp();
         this.iban = input.getAccount();
     }
 
-    public int getStartTimestamp() {
-        return startTimestamp;
-    }
-
-    public void setStartTimestamp(int startTimestamp) {
-        this.startTimestamp = startTimestamp;
-    }
-
-    public int getEndTimestamp() {
-        return endTimestamp;
-    }
-
-    public void setEndTimestamp(int endTimestamp) {
-        this.endTimestamp = endTimestamp;
-    }
-
-    public String getIban() {
-        return iban;
-    }
-
-    public void setIban(String iban) {
-        this.iban = iban;
-    }
-
+    /**
+     * Build a report for the specified account
+     */
     @Override
-    public void execute(ObjectMapper objectMapper, ArrayNode output, ArrayList<User> users, ExchangeGraph rates) {
+    public void execute(final ObjectMapper objectMapper, final ArrayNode output,
+                        final ArrayList<User> users, final ExchangeGraph rates) {
         try {
             ObjectNode node = objectMapper.createObjectNode();
             node.put("command", command);
@@ -62,7 +46,8 @@ public class Report extends Command {
                         result.put("currency", account.getCurrency());
                         ArrayNode transactions = objectMapper.createArrayNode();
                         for (Transaction transaction : account.getTransactions()) {
-                            if (transaction.getTimestamp() >= startTimestamp && transaction.getTimestamp() <= endTimestamp) {
+                            if (transaction.getTimestamp() >= startTimestamp
+                                    && transaction.getTimestamp() <= endTimestamp) {
                                 transaction.print(objectMapper, transactions);
                             }
                         }

@@ -14,6 +14,8 @@ public final class Utils {
     private static final String RO_STR = "RO";
     private static final String POO_STR = "POOB";
 
+    public static final int PRECISION = 4;
+    public static final int WARNING_BALANCE = 30;
 
     private static Random ibanRandom = new Random(IBAN_SEED);
     private static Random cardRandom = new Random(CARD_SEED);

@@ -2,13 +2,15 @@ package org.poo.commands.commandTypes.payments;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import org.poo.accounts.Account;
-import org.poo.accounts.User;
+import lombok.Getter;
+import lombok.Setter;
+import org.poo.core.accounts.Account;
+import org.poo.core.User;
 import org.poo.commands.Command;
-import org.poo.exchange.ExchangeGraph;
+import org.poo.core.exchange.ExchangeGraph;
 import org.poo.fileio.CommandInput;
-import org.poo.transactions.SplitPayError;
-import org.poo.transactions.SplitPayTransaction;
+import org.poo.transactions.error.SplitPayError;
+import org.poo.transactions.success.SplitPayTransaction;
 import org.poo.transactions.Transaction;
 
 import java.util.ArrayList;
@@ -16,55 +18,42 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Implementation for the splitPayment command
+ */
+@Setter
+@Getter
 public class SplitPayment extends Command {
     private List<String> accounts;
     private double amount;
     private String currency;
 
-    public SplitPayment(CommandInput input) {
+    public SplitPayment(final CommandInput input) {
         super(input);
         this.accounts = input.getAccounts();
         this.amount = input.getAmount();
         this.currency = input.getCurrency();
     }
 
-    public List<String> getAccounts() {
-        return accounts;
-    }
-
-    public void setAccounts(List<String> accounts) {
-        this.accounts = accounts;
-    }
-
-    public double getAmount() {
-        return amount;
-    }
-
-    public void setAmount(double amount) {
-        this.amount = amount;
-    }
-
-    public String getCurrency() {
-        return currency;
-    }
-
-    public void setCurrency(String currency) {
-        this.currency = currency;
-    }
-
+    /**
+     * Finds all the accounts involved in the payment,
+     * checks them and makes the transactions
+     */
     @Override
-    public void execute(ObjectMapper objectMapper, ArrayNode output, ArrayList<User> users, ExchangeGraph rates) {
+    public void execute(final ObjectMapper objectMapper, final ArrayNode output,
+                        final ArrayList<User> users, final ExchangeGraph rates) {
         Account errorAccount = null;
         int accountsNum = accounts.size();
         Map<Account, User> userAccountMap = new HashMap<>();
-        ArrayList<Account> accounts = new ArrayList<>();
+        ArrayList<Account> involvedAccounts = new ArrayList<>();
         for (String iban: this.accounts) {
             for (User user: users) {
                 for (Account account: user.getAccounts()) {
                     if (account.getIban().equals(iban)) {
-                        accounts.add(account);
+                        involvedAccounts.add(account);
                         userAccountMap.put(account, user);
-                        if (!account.canPay(amount / accountsNum, currency, rates)) {
+                        double rate = rates.getExchangeRate(currency, account.getCurrency());
+                        if (!account.canPay(amount / accountsNum, rate)) {
                             errorAccount = account;
                         }
                     }
@@ -72,14 +61,15 @@ public class SplitPayment extends Command {
             }
         }
         if (errorAccount == null) {
-            for (Account account: accounts) {
+            for (Account account: involvedAccounts) {
                 Transaction t = new SplitPayTransaction(this);
-                account.pay(amount / accountsNum, currency, rates);
+                double rate = rates.getExchangeRate(currency, account.getCurrency());
+                account.payOnline(amount / accountsNum, rate);
                 userAccountMap.get(account).addTransaction(t);
                 account.addTransaction(t);
             }
         } else {
-            for (Account account: accounts) {
+            for (Account account: involvedAccounts) {
                 Transaction t = new SplitPayError(this, errorAccount.getIban());
                 userAccountMap.get(account).addTransaction(t);
                 account.addTransaction(t);

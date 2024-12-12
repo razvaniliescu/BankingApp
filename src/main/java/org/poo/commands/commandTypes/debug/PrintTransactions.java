@@ -3,29 +3,37 @@ package org.poo.commands.commandTypes.debug;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.poo.accounts.User;
+import org.poo.core.User;
 import org.poo.commands.Command;
-import org.poo.exchange.ExchangeGraph;
+import org.poo.core.exchange.ExchangeGraph;
 import org.poo.fileio.CommandInput;
 import org.poo.transactions.Transaction;
 
 import java.util.ArrayList;
 
+/**
+ * Implementation for the printTransactions command
+ */
 public class PrintTransactions extends Command {
-    private String user;
+    private final String email;
 
-    public PrintTransactions(CommandInput input) {
+    public PrintTransactions(final CommandInput input) {
         super(input);
-        this.user = input.getEmail();
+        this.email = input.getEmail();
     }
 
+    /**
+     * Finds the specified user and
+     * prints all of their transactions in the output
+     */
     @Override
-    public void execute(ObjectMapper objectMapper, ArrayNode output, ArrayList<User> users, ExchangeGraph rates) {
+    public void execute(final ObjectMapper objectMapper, final ArrayNode output,
+                        final ArrayList<User> users, final ExchangeGraph rates) {
         ObjectNode node = objectMapper.createObjectNode();
         node.put("command", command);
         ArrayNode transactionsArray = objectMapper.createArrayNode();
         for (User user : users) {
-            if (user.getEmail().equals(this.user)) {
+            if (user.getEmail().equals(this.email)) {
                 for (Transaction transaction : user.getTransactions()) {
                     transaction.print(objectMapper, transactionsArray);
                 }

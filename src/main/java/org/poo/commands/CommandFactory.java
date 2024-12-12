@@ -1,17 +1,27 @@
 package org.poo.commands;
 
-import org.poo.commands.commandTypes.*;
+import org.poo.commands.commandTypes.account.*;
+import org.poo.commands.commandTypes.card.CheckCardStatus;
+import org.poo.commands.commandTypes.card.CreateCard;
+import org.poo.commands.commandTypes.card.CreateOneTimeCard;
+import org.poo.commands.commandTypes.card.DeleteCard;
 import org.poo.commands.commandTypes.debug.PrintTransactions;
 import org.poo.commands.commandTypes.debug.PrintUsers;
-import org.poo.commands.commandTypes.payments.PayOnline;
-import org.poo.commands.commandTypes.payments.SendMoney;
-import org.poo.commands.commandTypes.payments.SplitPayment;
+import org.poo.commands.commandTypes.payments.*;
 import org.poo.commands.commandTypes.reports.Report;
 import org.poo.commands.commandTypes.reports.SpendingsReport;
 import org.poo.fileio.CommandInput;
 
-public class CommandFactory {
-    public static Command createCommand(CommandInput input) {
+public final class CommandFactory {
+    private CommandFactory() {
+
+    }
+
+    /**
+     * Creates commands based on the name given in the input
+     * @return a specific command object
+     */
+    public static Command createCommand(final CommandInput input) {
         switch (input.getCommand()) {
             case "printUsers": return new PrintUsers(input);
             case "printTransactions": return new PrintTransactions(input);

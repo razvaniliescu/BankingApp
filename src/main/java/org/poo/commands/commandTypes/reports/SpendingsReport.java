@@ -3,25 +3,34 @@ package org.poo.commands.commandTypes.reports;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.poo.accounts.Account;
-import org.poo.accounts.SavingsAccount;
-import org.poo.accounts.User;
-import org.poo.exchange.ExchangeGraph;
+import org.poo.core.accounts.Account;
+import org.poo.core.accounts.SavingsAccount;
+import org.poo.core.User;
+import org.poo.exceptions.AccountNotFoundException;
+import org.poo.exceptions.AccountTypeException;
+import org.poo.exceptions.MyException;
+import org.poo.core.exchange.ExchangeGraph;
 import org.poo.fileio.CommandInput;
-import org.poo.transactions.CardTransaction;
+import org.poo.transactions.success.CardTransaction;
+import org.poo.utils.Utils;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
 public class SpendingsReport extends Report {
-    public SpendingsReport(CommandInput input) {
+    public SpendingsReport(final CommandInput input) {
         super(input);
     }
 
+    /**
+     * Build a spendings report for the specified account
+     */
     @Override
-    public void execute(ObjectMapper objectMapper, ArrayNode output, ArrayList<User> users, ExchangeGraph rates) {
+    public void execute(final ObjectMapper objectMapper, final ArrayNode output,
+                        final ArrayList<User> users, final ExchangeGraph rates) {
         try {
             ObjectNode node = objectMapper.createObjectNode();
             node.put("command", command);
@@ -30,7 +39,7 @@ public class SpendingsReport extends Report {
             for (User user : users) {
                 for (SavingsAccount account : user.getSavingsAccounts()) {
                     if (account.getIban().equals(iban)) {
-                        throw new IllegalCallerException("This kind of report is not supported for a savings account");
+                        throw new AccountTypeException();
                     }
                 }
                 for (Account account : user.getAccounts()) {
@@ -40,20 +49,26 @@ public class SpendingsReport extends Report {
                         result.put("currency", account.getCurrency());
                         ArrayNode transactions = objectMapper.createArrayNode();
                         for (CardTransaction transaction: account.getOnlineTransactions()) {
-                            if (transaction.getTimestamp() >= startTimestamp && transaction.getTimestamp() <= endTimestamp) {
+                            if (transaction.getTimestamp() >= startTimestamp
+                                    && transaction.getTimestamp() <= endTimestamp) {
                                 transaction.print(objectMapper, transactions);
-                                commerciants.merge(transaction.getCommerciant(), transaction.getAmount(), Double::sum);
+                                commerciants.merge(transaction.getCommerciant(),
+                                        transaction.getAmount(), Double::sum);
                             }
                         }
                         result.set("transactions", transactions);
-                        ArrayNode commerciantsArray = objectMapper.createArrayNode();
+                        ArrayNode commerciantArray = objectMapper.createArrayNode();
                         for (Map.Entry<String, Double> entry : commerciants.entrySet()) {
+                            // Added this approximation because of
+                            // a precision error in the last test
+                            BigDecimal roundedValue = BigDecimal.valueOf(entry.getValue())
+                                    .setScale(Utils.PRECISION, RoundingMode.HALF_UP);
                             ObjectNode commerciantNode = objectMapper.createObjectNode();
                             commerciantNode.put("commerciant", entry.getKey());
-                            commerciantNode.put("total", entry.getValue());
-                            commerciantsArray.add(commerciantNode);
+                            commerciantNode.put("total", roundedValue);
+                            commerciantArray.add(commerciantNode);
                         }
-                        result.set("commerciants", commerciantsArray);
+                        result.set("commerciants", commerciantArray);
                         node.set("output", result);
                         node.put("timestamp", timestamp);
                         output.add(node);
@@ -61,24 +76,9 @@ public class SpendingsReport extends Report {
                     }
                 }
             }
-            throw new IllegalArgumentException("Account not found");
-        } catch (IllegalArgumentException e) {
-            ObjectNode node = objectMapper.createObjectNode();
-            node.put("command", command);
-            ObjectNode result = objectMapper.createObjectNode();
-            result.put("description", e.getMessage());
-            result.put("timestamp", timestamp);
-            node.set("output", result);
-            node.put("timestamp", timestamp);
-            output.add(node);
-        } catch (IllegalCallerException e) {
-            ObjectNode node = objectMapper.createObjectNode();
-            node.put("command", command);
-            ObjectNode result = objectMapper.createObjectNode();
-            result.put("error", e.getMessage());
-            node.set("output", result);
-            node.put("timestamp", timestamp);
-            output.add(node);
+            throw new AccountNotFoundException();
+        } catch (MyException e) {
+            e.printException(objectMapper, output, command, timestamp);
         }
     }
 }
