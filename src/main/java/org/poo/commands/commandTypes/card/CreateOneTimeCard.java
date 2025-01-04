@@ -33,7 +33,11 @@ public class CreateOneTimeCard extends CreateCard {
                     if (user.getEmail().equals(email)) {
                         this.card = new OneTimeCard(account);
                         account.addCard(card);
-                        Transaction t = new NewCard(this);
+                        Transaction t = new Transaction.Builder(timestamp, "New card created")
+                                .card(card.getCardNumber())
+                                .cardHolder(email)
+                                .account(iban)
+                                .build();
                         user.addTransaction(t);
                         account.addTransaction(t);
                         return;

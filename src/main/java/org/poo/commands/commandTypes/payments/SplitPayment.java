@@ -62,7 +62,12 @@ public class SplitPayment extends Command {
         }
         if (errorAccount == null) {
             for (Account account: involvedAccounts) {
-                Transaction t = new SplitPayTransaction(this);
+                Transaction t = new Transaction.Builder(timestamp,
+                        String.format("Split payment of %.2f %s", amount, currency))
+                        .accounts(involvedAccounts)
+                        .currency(currency)
+                        .amount(amount)
+                        .build();
                 double rate = rates.getExchangeRate(currency, account.getCurrency());
                 account.payOnline(amount / accountsNum, rate);
                 userAccountMap.get(account).addTransaction(t);
@@ -70,7 +75,13 @@ public class SplitPayment extends Command {
             }
         } else {
             for (Account account: involvedAccounts) {
-                Transaction t = new SplitPayError(this, errorAccount.getIban());
+                Transaction t = new Transaction.Builder(timestamp,
+                        String.format("Split payment of %.2f %s", amount, currency))
+                        .accounts(involvedAccounts)
+                        .currency(currency)
+                        .amount(amount)
+                        .errorMessage("Account " + errorAccount + " has insufficient funds for a split payment.")
+                        .build();
                 userAccountMap.get(account).addTransaction(t);
                 account.addTransaction(t);
             }

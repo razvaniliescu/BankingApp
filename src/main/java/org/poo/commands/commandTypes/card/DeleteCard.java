@@ -45,7 +45,11 @@ public class DeleteCard extends Command {
                     if (card.getCardNumber().equals(this.cardNumber)) {
                         this.iban = account.getIban();
                         account.deleteCard(card);
-                        Transaction t = new DelCardTransaction(this);
+                        Transaction t = new Transaction.Builder(timestamp, "The card has been destroyed")
+                                .card(card.getCardNumber())
+                                .iban(this.iban)
+                                .cardHolder(this.email)
+                                .build();
                         user.addTransaction(t);
                         account.addTransaction(t);
                         return;

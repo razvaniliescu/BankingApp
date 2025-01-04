@@ -2,6 +2,7 @@ package org.poo.core.accounts;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.poo.core.ServicePlans;
 import org.poo.core.cards.Card;
 import org.poo.core.User;
 import org.poo.exceptions.CardNotFoundException;
@@ -24,6 +25,7 @@ public class Account {
     protected String currency;
     protected String type;
     protected ArrayList<Card> cards;
+    protected ServicePlans.Plans plan;
     protected double minBalance;
     protected ArrayList<Transaction> transactions;
     protected ArrayList<CardTransaction> onlineTransactions;
@@ -38,6 +40,11 @@ public class Account {
         transactions = new ArrayList<>();
         onlineTransactions = new ArrayList<>();
         this.user = user;
+        if (Objects.equals(user.getOccupation(), "student")) {
+            this.plan = ServicePlans.Plans.student;
+        } else {
+            this.plan = ServicePlans.Plans.standard;
+        }
     }
 
     /**

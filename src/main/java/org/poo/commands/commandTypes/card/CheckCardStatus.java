@@ -12,6 +12,7 @@ import org.poo.commands.Command;
 import org.poo.exceptions.CardNotFoundException;
 import org.poo.core.exchange.ExchangeGraph;
 import org.poo.fileio.CommandInput;
+import org.poo.transactions.Transaction;
 import org.poo.transactions.success.FreezeCardTransaction;
 import org.poo.utils.Utils;
 
@@ -45,7 +46,9 @@ public class CheckCardStatus extends Command {
                     if (account.getBalance() <= account.getMinBalance()
                             && !Objects.equals(card.getStatus(), "frozen")) {
                         card.setStatus("frozen");
-                        user.addTransaction(new FreezeCardTransaction(timestamp));
+                        user.addTransaction(new Transaction.Builder(timestamp,
+                                "You have reached the minimum amount of funds, the card will be frozen")
+                                .build());
                         return;
                     } else if (account.getBalance() <= account.getMinBalance()
                             + Utils.WARNING_BALANCE) {

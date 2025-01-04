@@ -63,13 +63,17 @@ public class PayOnline extends Command {
                     amount *= rate;
                     Transaction t;
                     if (ok) {
-                        t = new CardTransaction(this);
+                        t = new Transaction.Builder(timestamp, "Card payment")
+                                .amount(amount)
+                                .commerciant(commerciant)
+                                .build();
                         account.addOnlineTransaction((CardTransaction) t);
                         user.addTransaction(t);
                         account.addTransaction(t);
                         card.pay(timestamp);
                     } else {
-                        t = new InsufficientFundsError(timestamp);
+                        t = new Transaction.Builder(timestamp, "Insufficient funds")
+                                .build();
                         user.addTransaction(t);
                         account.addTransaction(t);
                     }

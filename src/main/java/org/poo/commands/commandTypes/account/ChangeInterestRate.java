@@ -12,6 +12,7 @@ import org.poo.commands.Command;
 import org.poo.exceptions.SavingsAccountException;
 import org.poo.core.exchange.ExchangeGraph;
 import org.poo.fileio.CommandInput;
+import org.poo.transactions.Transaction;
 import org.poo.transactions.success.ChangeInterestTransaction;
 
 import java.util.ArrayList;
@@ -44,8 +45,9 @@ public class ChangeInterestRate extends Command {
                     if (account.getIban().equals(iban)) {
                         if (account.isASavingsAccount()) {
                             ((SavingsAccount) account).setInterestRate(interestRate);
-                            user.addTransaction(new
-                                    ChangeInterestTransaction(timestamp, interestRate));
+                            user.addTransaction(new Transaction.Builder(timestamp,
+                                    "Interest rate of the account changed to " + interestRate)
+                                    .build());
                         }
                     }
                 }

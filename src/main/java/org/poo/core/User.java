@@ -24,6 +24,8 @@ public class User {
     private String firstName;
     private String lastName;
     private String email;
+    private String birthDate;
+    private String occupation;
     private ArrayList<Account> accounts;
     private ArrayList<SavingsAccount> savingsAccounts;
     private Map<String, Account> aliases;
@@ -33,6 +35,8 @@ public class User {
         this.firstName = user.getFirstName();
         this.lastName = user.getLastName();
         this.email = user.getEmail();
+        this.birthDate = user.getBirthDate();
+        this.occupation = user.getOccupation();
         accounts = new ArrayList<>();
         savingsAccounts = new ArrayList<>();
         aliases = new HashMap<>();

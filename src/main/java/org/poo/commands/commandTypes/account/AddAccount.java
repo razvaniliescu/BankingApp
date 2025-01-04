@@ -51,9 +51,12 @@ public class AddAccount extends Command {
                     u.addSavingsAccount((SavingsAccount) account);
                 }
                 u.addAccount(account);
-                Transaction t = new Transaction(timestamp, "New account created");
+                Transaction t = new Transaction.Builder(timestamp, "New account created")
+                        .build();
                 u.addTransaction(t);
-                account.addTransaction(t);
+                if (account != null) {
+                    account.addTransaction(t);
+                }
             }
         }
     }

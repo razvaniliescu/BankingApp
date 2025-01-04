@@ -74,16 +74,28 @@ public class SendMoney extends Command {
                 receiverAccount.getCurrency());
         boolean ok = senderAccount.sendMoney(receiverAccount, amount, rate);
         if (ok) {
-            Transaction tSent = new AccountTransaction(this, "sent");
+            Transaction tSent = new Transaction.Builder(timestamp, description)
+                    .senderIBAN(senderIban)
+                    .receiverIBAN(receiverIban)
+                    .amount(amount)
+                    .currency(currency)
+                    .type("sent")
+                    .build();
             amount *= rates.getExchangeRate(currency, receiverAccount.getCurrency());
             currency = receiverAccount.getCurrency();
-            Transaction tReceived = new AccountTransaction(this, "received");
+            Transaction tReceived = new Transaction.Builder(timestamp, description)
+                    .senderIBAN(senderIban)
+                    .receiverIBAN(receiverIban)
+                    .amount(amount)
+                    .currency(currency)
+                    .type("received")
+                    .build();
             sender.addTransaction(tSent);
             senderAccount.addTransaction(tSent);
             receiver.addTransaction(tReceived);
             receiverAccount.addTransaction(tReceived);
         } else {
-            Transaction tSent = new InsufficientFundsError(timestamp);
+            Transaction tSent = new Transaction.Builder(timestamp, "Insufficient funds").build();
             sender.addTransaction(tSent);
             senderAccount.addTransaction(tSent);
         }

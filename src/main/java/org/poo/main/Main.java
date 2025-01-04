@@ -3,11 +3,12 @@ package org.poo.main;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import org.poo.core.User;
 import org.poo.checker.Checker;
 import org.poo.checker.CheckerConstants;
 import org.poo.commands.Command;
 import org.poo.commands.CommandFactory;
+import org.poo.commerciants.Commerciant;
+import org.poo.core.User;
 import org.poo.core.exchange.ExchangeGraph;
 import org.poo.core.exchange.ExchangeRate;
 import org.poo.fileio.*;
@@ -92,6 +93,14 @@ public final class Main {
             userList.add(newUser);
         }
 
+        // Get the commerciants from the input
+        CommerciantInput[] commerciantInput = inputData.getCommerciants();
+        ArrayList<Commerciant> commerciantList = new ArrayList<>();
+        for (CommerciantInput input : commerciantInput) {
+            Commerciant newCommerciant = new Commerciant(input);
+            commerciantList.add(newCommerciant);
+        }
+
         // Get the exchange rates from the input and create the graph
         ExchangeInput[] exchangeRateInput = inputData.getExchangeRates();
         ArrayList<ExchangeRate> exchangeRateList = new ArrayList<>();
@@ -120,6 +129,7 @@ public final class Main {
         ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
         objectWriter.writeValue(new File(filePath2), output);
     }
+
     /**
      * Method used for extracting the test number from the file name.
      *
