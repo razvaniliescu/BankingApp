@@ -12,9 +12,6 @@ import org.poo.commands.Command;
 import org.poo.exceptions.CardNotFoundException;
 import org.poo.core.exchange.ExchangeGraph;
 import org.poo.fileio.CommandInput;
-import org.poo.transactions.error.CardIsFrozenError;
-import org.poo.transactions.error.InsufficientFundsError;
-import org.poo.transactions.success.CardTransaction;
 import org.poo.transactions.Transaction;
 
 import java.util.ArrayList;
@@ -55,7 +52,7 @@ public class PayOnline extends Command {
                     Account account = user.checkCard(cardNumber);
                     Card card = account.checkCard(cardNumber);
                     if (card.getStatus().equals("frozen")) {
-                        user.addTransaction(new CardIsFrozenError(timestamp));
+                        user.addTransaction(new Transaction.Builder(timestamp, "Card is frozen").build());
                         return;
                     }
                     double rate = rates.getExchangeRate(this.currency, account.getCurrency());
@@ -67,7 +64,7 @@ public class PayOnline extends Command {
                                 .amount(amount)
                                 .commerciant(commerciant)
                                 .build();
-                        account.addOnlineTransaction((CardTransaction) t);
+                        account.addOnlineTransaction(t);
                         user.addTransaction(t);
                         account.addTransaction(t);
                         card.pay(timestamp);

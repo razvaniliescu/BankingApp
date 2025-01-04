@@ -9,8 +9,6 @@ import org.poo.core.User;
 import org.poo.commands.Command;
 import org.poo.core.exchange.ExchangeGraph;
 import org.poo.fileio.CommandInput;
-import org.poo.transactions.error.SplitPayError;
-import org.poo.transactions.success.SplitPayTransaction;
 import org.poo.transactions.Transaction;
 
 import java.util.ArrayList;

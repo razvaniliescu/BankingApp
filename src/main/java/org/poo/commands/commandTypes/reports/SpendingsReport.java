@@ -11,7 +11,7 @@ import org.poo.exceptions.AccountTypeException;
 import org.poo.exceptions.MyException;
 import org.poo.core.exchange.ExchangeGraph;
 import org.poo.fileio.CommandInput;
-import org.poo.transactions.success.CardTransaction;
+import org.poo.transactions.Transaction;
 import org.poo.utils.Utils;
 
 import java.math.BigDecimal;
@@ -48,7 +48,7 @@ public class SpendingsReport extends Report {
                         result.put("balance", account.getBalance());
                         result.put("currency", account.getCurrency());
                         ArrayNode transactions = objectMapper.createArrayNode();
-                        for (CardTransaction transaction: account.getOnlineTransactions()) {
+                        for (Transaction transaction: account.getOnlineTransactions()) {
                             if (transaction.getTimestamp() >= startTimestamp
                                     && transaction.getTimestamp() <= endTimestamp) {
                                 transaction.print(objectMapper, transactions);

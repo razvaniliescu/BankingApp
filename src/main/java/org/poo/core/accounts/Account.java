@@ -7,7 +7,6 @@ import org.poo.core.cards.Card;
 import org.poo.core.User;
 import org.poo.exceptions.CardNotFoundException;
 import org.poo.exceptions.SavingsAccountException;
-import org.poo.transactions.success.CardTransaction;
 import org.poo.transactions.Transaction;
 import org.poo.utils.Utils;
 
@@ -28,7 +27,7 @@ public class Account {
     protected ServicePlans.Plans plan;
     protected double minBalance;
     protected ArrayList<Transaction> transactions;
-    protected ArrayList<CardTransaction> onlineTransactions;
+    protected ArrayList<Transaction> onlineTransactions;
     protected User user;
 
     public Account(final String currency, final String type, final User user) {
@@ -121,7 +120,7 @@ public class Account {
      * Adds a new card transaction to the account
      * @param t the transaction to add
      */
-    public void addOnlineTransaction(final CardTransaction t) {
+    public void addOnlineTransaction(final Transaction t) {
         onlineTransactions.add(t);
     }
 

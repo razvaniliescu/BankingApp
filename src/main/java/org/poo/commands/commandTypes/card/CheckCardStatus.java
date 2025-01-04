@@ -2,7 +2,6 @@ package org.poo.commands.commandTypes.card;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
 import lombok.Setter;
 import org.poo.core.accounts.Account;
@@ -13,7 +12,6 @@ import org.poo.exceptions.CardNotFoundException;
 import org.poo.core.exchange.ExchangeGraph;
 import org.poo.fileio.CommandInput;
 import org.poo.transactions.Transaction;
-import org.poo.transactions.success.FreezeCardTransaction;
 import org.poo.utils.Utils;
 
 import java.util.ArrayList;

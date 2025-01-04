@@ -22,26 +22,26 @@ public final class CommandFactory {
      * @return a specific command object
      */
     public static Command createCommand(final CommandInput input) {
-        switch (input.getCommand()) {
-            case "printUsers": return new PrintUsers(input);
-            case "printTransactions": return new PrintTransactions(input);
-            case "addAccount": return new AddAccount(input);
-            case "addFunds":  return new AddFunds(input);
-            case "createCard":  return new CreateCard(input);
-            case "createOneTimeCard":  return new CreateOneTimeCard(input);
-            case "deleteAccount": return new DeleteAccount(input);
-            case "deleteCard":  return new DeleteCard(input);
-            case "setMinBalance":  return new SetMinBalance(input);
-            case "checkCardStatus": return new CheckCardStatus(input);
-            case "payOnline":  return new PayOnline(input);
-            case "sendMoney": return new SendMoney(input);
-            case "splitPayment": return new SplitPayment(input);
-            case "setAlias":  return new SetAlias(input);
-            case "addInterest": return new AddInterest(input);
-            case "changeInterestRate": return new ChangeInterestRate(input);
-            case "report":  return new Report(input);
-            case "spendingsReport": return new SpendingsReport(input);
-            default: return null;
-        }
+        return switch (input.getCommand()) {
+            case "printUsers" -> new PrintUsers(input);
+            case "printTransactions" -> new PrintTransactions(input);
+            case "addAccount" -> new AddAccount(input);
+            case "addFunds" -> new AddFunds(input);
+            case "createCard" -> new CreateCard(input);
+            case "createOneTimeCard" -> new CreateOneTimeCard(input);
+            case "deleteAccount" -> new DeleteAccount(input);
+            case "deleteCard" -> new DeleteCard(input);
+            case "setMinBalance" -> new SetMinBalance(input);
+            case "checkCardStatus" -> new CheckCardStatus(input);
+            case "payOnline" -> new PayOnline(input);
+            case "sendMoney" -> new SendMoney(input);
+            case "splitPayment" -> new SplitPayment(input);
+            case "setAlias" -> new SetAlias(input);
+            case "addInterest" -> new AddInterest(input);
+            case "changeInterestRate" -> new ChangeInterestRate(input);
+            case "report" -> new Report(input);
+            case "spendingsReport" -> new SpendingsReport(input);
+            default -> null;
+        };
     }
 }

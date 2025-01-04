@@ -1,8 +1,6 @@
 package org.poo.core.cards;
 
 import org.poo.core.accounts.Account;
-import org.poo.transactions.success.DelCardTransaction;
-import org.poo.transactions.success.NewCard;
 import org.poo.transactions.Transaction;
 import org.poo.utils.Utils;
 
@@ -20,13 +18,19 @@ public class OneTimeCard extends Card {
      * the specific transactions to the account
      */
     public void pay(final int timestamp) {
-        Transaction del = new DelCardTransaction(this.account.getIban(),
-                cardNumber, this.account.getUser().getEmail(), timestamp);
+        Transaction del = new Transaction.Builder(timestamp, "The card has been destroyed")
+                .card(cardNumber)
+                .iban(account.getIban())
+                .cardHolder(account.getUser().getEmail())
+                .build();
         account.getTransactions().add(del);
         account.getUser().addTransaction(del);
         cardNumber = Utils.generateCardNumber();
-        Transaction create = new NewCard(this.cardNumber,
-                this.account.getUser().getEmail(), this.account.getIban(), timestamp);
+        Transaction create = new Transaction.Builder(timestamp, "New card created")
+                .card(cardNumber)
+                .cardHolder(account.getUser().getEmail())
+                .account(account.getIban())
+                .build();
         account.getTransactions().add(create);
         account.getUser().addTransaction(create);
     }

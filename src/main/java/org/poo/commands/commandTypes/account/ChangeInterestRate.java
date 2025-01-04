@@ -13,7 +13,6 @@ import org.poo.exceptions.SavingsAccountException;
 import org.poo.core.exchange.ExchangeGraph;
 import org.poo.fileio.CommandInput;
 import org.poo.transactions.Transaction;
-import org.poo.transactions.success.ChangeInterestTransaction;
 
 import java.util.ArrayList;
 

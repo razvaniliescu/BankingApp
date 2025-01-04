@@ -11,7 +11,7 @@ import org.poo.commands.Command;
 import org.poo.exceptions.BalanceNotEmptyException;
 import org.poo.core.exchange.ExchangeGraph;
 import org.poo.fileio.CommandInput;
-import org.poo.transactions.error.FundsRemaingError;
+import org.poo.transactions.Transaction;
 
 import java.util.ArrayList;
 
@@ -52,7 +52,8 @@ public class DeleteAccount extends Command {
             result.put("success", "Account deleted");
             result.put("timestamp", timestamp);
         } catch (BalanceNotEmptyException e) {
-            accountUser.addTransaction(new FundsRemaingError(timestamp));
+            accountUser.addTransaction(new Transaction.Builder(timestamp,
+                    "Account couldn't be deleted - there are funds remaining").build());
             result.put("error", e.getMessage());
             result.put("timestamp", timestamp);
         }

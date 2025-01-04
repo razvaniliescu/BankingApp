@@ -7,7 +7,6 @@ import org.poo.core.cards.OneTimeCard;
 import org.poo.core.User;
 import org.poo.core.exchange.ExchangeGraph;
 import org.poo.fileio.CommandInput;
-import org.poo.transactions.success.NewCard;
 import org.poo.transactions.Transaction;
 
 import java.util.ArrayList;
