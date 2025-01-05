@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.Getter;
 import lombok.Setter;
+import org.poo.commerciants.Commerciant;
 import org.poo.core.accounts.Account;
 import org.poo.core.User;
 import org.poo.commands.Command;
@@ -35,7 +36,7 @@ public class SetAlias extends Command {
      */
     @Override
     public void execute(final ObjectMapper objectMapper, final ArrayNode output,
-                        final ArrayList<User> users, final ExchangeGraph rates) {
+                        final ArrayList<User> users, final ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
         for (User user : users) {
             for (Account account : user.getAccounts()) {
                 if (account.getIban().equals(this.iban)) {

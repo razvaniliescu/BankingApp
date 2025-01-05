@@ -4,10 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.Getter;
 import lombok.Setter;
+import org.poo.commerciants.Commerciant;
 import org.poo.core.accounts.Account;
 import org.poo.core.User;
 import org.poo.commands.Command;
 import org.poo.core.exchange.ExchangeGraph;
+import org.poo.exceptions.UserNotFoundException;
 import org.poo.fileio.CommandInput;
 import org.poo.transactions.Transaction;
 
@@ -39,63 +41,67 @@ public class SendMoney extends Command {
      */
     @Override
     public void execute(final ObjectMapper objectMapper, final ArrayNode output,
-                        final ArrayList<User> users, final ExchangeGraph rates) {
-        User sender = null;
-        User receiver = null;
-        Account senderAccount = null;
-        Account receiverAccount = null;
-        for (User user : users) {
-            for (Account account : user.getAccounts()) {
-                if (account.getIban().equals(senderIban)) {
-                    sender = user;
-                    senderAccount = account;
+                        final ArrayList<User> users, final ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
+        try {
+            User sender = null;
+            User receiver = null;
+            Account senderAccount = null;
+            Account receiverAccount = null;
+            for (User user : users) {
+                for (Account account : user.getAccounts()) {
+                    if (account.getIban().equals(senderIban)) {
+                        sender = user;
+                        senderAccount = account;
+                    }
+                    if (account.getIban().equals(this.receiverIban)) {
+                        receiver = user;
+                        receiverAccount = account;
+                    }
                 }
-                if (account.getIban().equals(this.receiverIban)) {
+                if (user.getAliases().containsKey(senderIban)) {
+                    return;
+                }
+                if (user.getAliases().containsKey(this.receiverIban)) {
                     receiver = user;
-                    receiverAccount = account;
+                    receiverAccount = user.getAliases().get(this.receiverIban);
+                    break;
                 }
             }
-            if (user.getAliases().containsKey(senderIban)) {
-                return;
+            if (senderAccount == null || receiverAccount == null) {
+                throw new UserNotFoundException();
             }
-            if (user.getAliases().containsKey(this.receiverIban)) {
-                receiver = user;
-                receiverAccount = user.getAliases().get(this.receiverIban);
-                break;
+            this.currency = senderAccount.getCurrency();
+            double rate = rates.getExchangeRate(senderAccount.getCurrency(),
+                    receiverAccount.getCurrency());
+            boolean ok = senderAccount.sendMoney(receiverAccount, amount, rate, rates);
+            if (ok) {
+                Transaction tSent = new Transaction.Builder(timestamp, description)
+                        .senderIBAN(senderIban)
+                        .receiverIBAN(receiverIban)
+                        .amount(amount)
+                        .currency(currency)
+                        .type("sent")
+                        .build();
+                amount *= rates.getExchangeRate(currency, receiverAccount.getCurrency());
+                currency = receiverAccount.getCurrency();
+                Transaction tReceived = new Transaction.Builder(timestamp, description)
+                        .senderIBAN(senderIban)
+                        .receiverIBAN(receiverIban)
+                        .amount(amount)
+                        .currency(currency)
+                        .type("received")
+                        .build();
+                sender.addTransaction(tSent);
+                senderAccount.addTransaction(tSent);
+                receiver.addTransaction(tReceived);
+                receiverAccount.addTransaction(tReceived);
+            } else {
+                Transaction tSent = new Transaction.Builder(timestamp, "Insufficient funds").build();
+                sender.addTransaction(tSent);
+                senderAccount.addTransaction(tSent);
             }
-        }
-        if (senderAccount == null || receiverAccount == null) {
-            return;
-        }
-        this.currency = senderAccount.getCurrency();
-        double rate = rates.getExchangeRate(senderAccount.getCurrency(),
-                receiverAccount.getCurrency());
-        boolean ok = senderAccount.sendMoney(receiverAccount, amount, rate);
-        if (ok) {
-            Transaction tSent = new Transaction.Builder(timestamp, description)
-                    .senderIBAN(senderIban)
-                    .receiverIBAN(receiverIban)
-                    .amount(amount)
-                    .currency(currency)
-                    .type("sent")
-                    .build();
-            amount *= rates.getExchangeRate(currency, receiverAccount.getCurrency());
-            currency = receiverAccount.getCurrency();
-            Transaction tReceived = new Transaction.Builder(timestamp, description)
-                    .senderIBAN(senderIban)
-                    .receiverIBAN(receiverIban)
-                    .amount(amount)
-                    .currency(currency)
-                    .type("received")
-                    .build();
-            sender.addTransaction(tSent);
-            senderAccount.addTransaction(tSent);
-            receiver.addTransaction(tReceived);
-            receiverAccount.addTransaction(tReceived);
-        } else {
-            Transaction tSent = new Transaction.Builder(timestamp, "Insufficient funds").build();
-            sender.addTransaction(tSent);
-            senderAccount.addTransaction(tSent);
+        } catch (UserNotFoundException e) {
+            e.printException(objectMapper, output, command, timestamp);
         }
     }
 }

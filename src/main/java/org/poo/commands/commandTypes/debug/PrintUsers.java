@@ -3,6 +3,7 @@ package org.poo.commands.commandTypes.debug;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.poo.commerciants.Commerciant;
 import org.poo.core.accounts.Account;
 import org.poo.core.cards.Card;
 import org.poo.core.User;
@@ -25,7 +26,7 @@ public class PrintUsers extends Command {
      */
     @Override
     public void execute(final ObjectMapper objectMapper, final ArrayNode output,
-                        final ArrayList<User> users, final ExchangeGraph rates) {
+                        final ArrayList<User> users, final ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
         ObjectNode node = objectMapper.createObjectNode();
         node.put("command", command);
         ArrayNode usersArray = objectMapper.createArrayNode();
@@ -38,7 +39,7 @@ public class PrintUsers extends Command {
             for (Account account : user.getAccounts()) {
                 ObjectNode accountNode = objectMapper.createObjectNode();
                 accountNode.put("IBAN", account.getIban());
-                accountNode.put("balance", account.getBalance());
+                accountNode.put("balance", Math.round(account.getBalance() * 100) / 100.0);
                 accountNode.put("currency", account.getCurrency());
                 accountNode.put("type", account.getType());
                 ArrayNode cardsArray = objectMapper.createArrayNode();

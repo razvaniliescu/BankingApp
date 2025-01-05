@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.Getter;
 import lombok.Setter;
+import org.poo.commerciants.Commerciant;
 import org.poo.core.accounts.Account;
 import org.poo.core.cards.Card;
 import org.poo.core.User;
@@ -37,7 +38,7 @@ public class DeleteCard extends Command {
      */
     @Override
     public void execute(final ObjectMapper objectMapper, final ArrayNode arrayNode,
-                        final ArrayList<User> users, final ExchangeGraph rates) {
+                        final ArrayList<User> users, final ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
         for (User user : users) {
             for (Account account : user.getAccounts()) {
                 for (Card card : account.getCards()) {
@@ -46,7 +47,7 @@ public class DeleteCard extends Command {
                         account.deleteCard(card);
                         Transaction t = new Transaction.Builder(timestamp, "The card has been destroyed")
                                 .card(card.getCardNumber())
-                                .iban(this.iban)
+                                .account(this.iban)
                                 .cardHolder(this.email)
                                 .build();
                         user.addTransaction(t);

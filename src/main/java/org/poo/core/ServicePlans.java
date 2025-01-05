@@ -12,7 +12,7 @@ public class ServicePlans {
         return switch (plan) {
             case standard, student -> 0;
             case silver -> 1;
-            case gold -> 2;
+            case gold -> 3;
         };
     }
 

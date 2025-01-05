@@ -20,7 +20,7 @@ public class OneTimeCard extends Card {
     public void pay(final int timestamp) {
         Transaction del = new Transaction.Builder(timestamp, "The card has been destroyed")
                 .card(cardNumber)
-                .iban(account.getIban())
+                .account(account.getIban())
                 .cardHolder(account.getUser().getEmail())
                 .build();
         account.getTransactions().add(del);

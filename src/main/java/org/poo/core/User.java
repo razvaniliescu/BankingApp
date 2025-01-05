@@ -119,4 +119,13 @@ public class User {
         }
         throw new CardNotFoundException();
     }
+
+    /**
+     * Calculates the age of the user
+     */
+    public int getAge() {
+        String[] ymd = birthDate.split("-");
+        int year = Integer.parseInt(ymd[0]);
+        return 2025 - year;
+    }
 }

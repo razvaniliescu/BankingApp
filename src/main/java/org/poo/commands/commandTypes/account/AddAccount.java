@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.Getter;
 import lombok.Setter;
+import org.poo.commerciants.Commerciant;
 import org.poo.core.accounts.Account;
+import org.poo.core.accounts.BusinessAccount;
 import org.poo.core.accounts.SavingsAccount;
 import org.poo.core.User;
 import org.poo.commands.Command;
@@ -40,7 +42,7 @@ public class AddAccount extends Command {
      */
     @Override
     public void execute(final ObjectMapper objectMapper, final ArrayNode arrayNode,
-                        final ArrayList<User> users, final ExchangeGraph rates) {
+                        final ArrayList<User> users, final ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
         for (User u : users) {
             if (Objects.equals(u.getEmail(), this.user)) {
                 Account account = null;
@@ -49,6 +51,9 @@ public class AddAccount extends Command {
                 } else if (Objects.equals(type, "savings")) {
                     account = new SavingsAccount(currency, type, interestRate, u);
                     u.addSavingsAccount((SavingsAccount) account);
+                } else if (Objects.equals(type, "business")) {
+                    account = new BusinessAccount(currency, type, u);
+                    u.addAccount(account);
                 }
                 u.addAccount(account);
                 Transaction t = new Transaction.Builder(timestamp, "New account created")

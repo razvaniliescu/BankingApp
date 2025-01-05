@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.Getter;
 import lombok.Setter;
+import org.poo.commerciants.Commerciant;
 import org.poo.core.User;
 import org.poo.core.exchange.ExchangeGraph;
 import org.poo.fileio.CommandInput;
@@ -23,11 +24,13 @@ public abstract class Command {
 
     /**
      * Executes the command and adds its result to the output
+     *
      * @param objectMapper used to create JSON objects
-     * @param output the array node that will be written in the output file
-     * @param users the list of all users
-     * @param rates the exchange rate graph
+     * @param output       the array node that will be written in the output file
+     * @param users        the list of all users
+     * @param rates        the exchange rate graph
+     * @param commerciants
      */
     public abstract void execute(ObjectMapper objectMapper, ArrayNode output,
-                                 ArrayList<User> users, ExchangeGraph rates);
+                                 ArrayList<User> users, ExchangeGraph rates, ArrayList<Commerciant> commerciants);
 }

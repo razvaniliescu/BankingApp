@@ -3,6 +3,7 @@ package org.poo.commands.commandTypes.debug;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.poo.commerciants.Commerciant;
 import org.poo.core.User;
 import org.poo.commands.Command;
 import org.poo.core.exchange.ExchangeGraph;
@@ -28,7 +29,7 @@ public class PrintTransactions extends Command {
      */
     @Override
     public void execute(final ObjectMapper objectMapper, final ArrayNode output,
-                        final ArrayList<User> users, final ExchangeGraph rates) {
+                        final ArrayList<User> users, final ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
         ObjectNode node = objectMapper.createObjectNode();
         node.put("command", command);
         ArrayNode transactionsArray = objectMapper.createArrayNode();

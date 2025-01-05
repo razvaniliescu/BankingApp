@@ -3,6 +3,7 @@ package org.poo.commands.commandTypes.reports;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.poo.commerciants.Commerciant;
 import org.poo.core.accounts.Account;
 import org.poo.core.accounts.SavingsAccount;
 import org.poo.core.User;
@@ -30,12 +31,12 @@ public class SpendingsReport extends Report {
      */
     @Override
     public void execute(final ObjectMapper objectMapper, final ArrayNode output,
-                        final ArrayList<User> users, final ExchangeGraph rates) {
+                        final ArrayList<User> users, final ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
         try {
             ObjectNode node = objectMapper.createObjectNode();
             node.put("command", command);
             ObjectNode result = objectMapper.createObjectNode();
-            Map<String, Double> commerciants = new TreeMap<>();
+            Map<String, Double> commerciantsMap = new TreeMap<>();
             for (User user : users) {
                 for (SavingsAccount account : user.getSavingsAccounts()) {
                     if (account.getIban().equals(iban)) {
@@ -52,13 +53,13 @@ public class SpendingsReport extends Report {
                             if (transaction.getTimestamp() >= startTimestamp
                                     && transaction.getTimestamp() <= endTimestamp) {
                                 transaction.print(objectMapper, transactions);
-                                commerciants.merge(transaction.getCommerciant(),
+                                commerciantsMap.merge(transaction.getCommerciant(),
                                         transaction.getAmount(), Double::sum);
                             }
                         }
                         result.set("transactions", transactions);
                         ArrayNode commerciantArray = objectMapper.createArrayNode();
-                        for (Map.Entry<String, Double> entry : commerciants.entrySet()) {
+                        for (Map.Entry<String, Double> entry : commerciantsMap.entrySet()) {
                             // Added this approximation because of
                             // a precision error in the last test
                             BigDecimal roundedValue = BigDecimal.valueOf(entry.getValue())

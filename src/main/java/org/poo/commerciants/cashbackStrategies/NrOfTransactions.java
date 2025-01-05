@@ -7,18 +7,14 @@ import org.poo.core.accounts.Account;
 
 @Getter @Setter
 public class NrOfTransactions implements CashbackStrategy {
-    private int foodTransactions;
-    private int clothesTransactions;
-    private int techTransactions;
-
     @Override
     public void cashback(Account account, double amount) {
-        if (foodTransactions == 2) {
-            account.addFunds(amount * 0.02);
-        } else if (clothesTransactions == 5) {
-            account.addFunds(amount * 0.05);
-        } else if (techTransactions == 10) {
-            account.addFunds(amount * 0.10);
+        int onlineTransactions = account.getCashbackDetails().getNrOfTransactions();
+        switch (onlineTransactions) {
+            case 2: account.getCashbackDetails().setFoodCashback(true); return;
+            case 5: account.getCashbackDetails().setClothesCashback(true); return;
+            case 10: account.getCashbackDetails().setTechCashback(true); return;
+            default: return;
         }
     }
 }

@@ -121,7 +121,7 @@ public final class Main {
         // ...and execute them
         for (Command command : commandList) {
             if (command != null) {
-                command.execute(objectMapper, output, userList, exchangeRates);
+                command.execute(objectMapper, output, userList, exchangeRates, commerciantList);
             }
         }
 

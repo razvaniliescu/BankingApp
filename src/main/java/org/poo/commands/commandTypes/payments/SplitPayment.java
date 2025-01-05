@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.Getter;
 import lombok.Setter;
+import org.poo.commerciants.Commerciant;
 import org.poo.core.accounts.Account;
 import org.poo.core.User;
 import org.poo.commands.Command;
@@ -39,7 +40,7 @@ public class SplitPayment extends Command {
      */
     @Override
     public void execute(final ObjectMapper objectMapper, final ArrayNode output,
-                        final ArrayList<User> users, final ExchangeGraph rates) {
+                        final ArrayList<User> users, final ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
         Account errorAccount = null;
         int accountsNum = accounts.size();
         Map<Account, User> userAccountMap = new HashMap<>();
@@ -67,7 +68,7 @@ public class SplitPayment extends Command {
                         .amount(amount)
                         .build();
                 double rate = rates.getExchangeRate(currency, account.getCurrency());
-                account.payOnline(amount / accountsNum, rate);
+                account.payOnline(amount / accountsNum, rates, this.currency);
                 userAccountMap.get(account).addTransaction(t);
                 account.addTransaction(t);
             }

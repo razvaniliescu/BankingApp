@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
 import lombok.Setter;
+import org.poo.core.ServicePlans;
 import org.poo.core.accounts.Account;
 
 import java.util.List;
@@ -32,8 +33,11 @@ public class Transaction {
     private String account;
     private List<Account> accounts;
     private String errorMessage;
+    private ServicePlans.Plans newPlanType;
 
-
+    /**
+     * Builder for the transaction class
+     */
     public static class Builder {
         protected int timestamp;
         protected String description;
@@ -50,6 +54,7 @@ public class Transaction {
         private String account = null;
         private List<Account> accounts = null;
         private String errorMessage = null;
+        private ServicePlans.Plans newPlanType = null;
 
         public Builder(int timestamp, String description) {
             this.timestamp = timestamp;
@@ -121,6 +126,11 @@ public class Transaction {
             return this;
         }
 
+        public Builder newPlanType(ServicePlans.Plans newPlanType) {
+            this.newPlanType = newPlanType;
+            return this;
+        }
+
         public Transaction build() {
             return new Transaction(this);
         }
@@ -142,6 +152,7 @@ public class Transaction {
         this.account = builder.account;
         this.accounts = builder.accounts;
         this.errorMessage = builder.errorMessage;
+        this.newPlanType = builder.newPlanType;
     }
 
     /**
@@ -157,20 +168,19 @@ public class Transaction {
         if (receiverIBAN != null) {
             node.put("receiverIBAN", receiverIBAN);
         }
-        if (amount != 0.0) {
+        if (amount != 0.0 && currency != null) {
+            node.put("amount", amount + " " + currency);
+        } else if (amount != 0.0) {
             node.put("amount", amount);
         }
-        if (currency != null) {
-            node.put("currency", currency);
-        }
         if (type != null) {
-            node.put("type", type);
+            node.put("transferType", type);
         }
         if (commerciant != null) {
             node.put("commerciant", commerciant);
         }
         if (iban != null) {
-            node.put("iban", iban);
+            node.put("accountIBAN", iban);
         }
         if (card != null) {
             node.put("card", card);
@@ -193,6 +203,9 @@ public class Transaction {
         }
         if (errorMessage != null) {
             node.put("error", errorMessage);
+        }
+        if (newPlanType != null) {
+            node.put("newPlanType", newPlanType.toString());
         }
         arrayNode.add(node);
     }

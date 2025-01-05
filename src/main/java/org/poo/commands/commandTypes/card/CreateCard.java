@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.Getter;
 import lombok.Setter;
+import org.poo.commerciants.Commerciant;
 import org.poo.core.accounts.Account;
 import org.poo.core.cards.Card;
 import org.poo.core.User;
@@ -35,8 +36,8 @@ public class CreateCard extends Command {
      * creates a card associated to it
      */
     @Override
-    public void execute(final ObjectMapper objectMapper,  final ArrayNode arrayNode,
-                        final ArrayList<User> users, final ExchangeGraph rates) {
+    public void execute(final ObjectMapper objectMapper, final ArrayNode arrayNode,
+                        final ArrayList<User> users, final ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
         for (User user : users) {
             for (Account account : user.getAccounts()) {
                 if (account.getIban().equals(iban)) {
