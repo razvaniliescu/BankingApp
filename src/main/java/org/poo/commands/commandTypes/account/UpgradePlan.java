@@ -68,7 +68,9 @@ public class UpgradePlan extends Command {
                         return;
                     }
                     account.setBalance(account.getBalance() - fee);
-                    account.setPlan(plan);
+                    for (Account acc : user.getAccounts()) {
+                        acc.setPlan(plan);
+                    }
                     Transaction t = new Transaction.Builder(timestamp, "Upgrade plan")
                             .iban(iban)
                             .newPlanType(plan)

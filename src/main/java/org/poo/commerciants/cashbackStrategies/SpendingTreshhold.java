@@ -1,11 +1,14 @@
 package org.poo.commerciants.cashbackStrategies;
 
 import org.poo.commerciants.CashbackStrategy;
+import org.poo.commerciants.Commerciant;
 import org.poo.core.accounts.Account;
+import org.poo.core.exchange.ExchangeGraph;
 
 public class SpendingTreshhold implements CashbackStrategy {
     @Override
-    public void cashback(Account account, double amount) {
+    public void cashback(Account account, double amount, Commerciant commerciant, ExchangeGraph rates, String currency) {
+        amount *= rates.getExchangeRate(currency, account.getCurrency());
         double spending = account.getCashbackDetails().getAmountSpentOnline();
         if (spending >= 100 && spending < 300) {
             switch (account.getPlan()) {

@@ -8,6 +8,9 @@ import org.poo.commands.commandTypes.card.DeleteCard;
 import org.poo.commands.commandTypes.debug.PrintTransactions;
 import org.poo.commands.commandTypes.debug.PrintUsers;
 import org.poo.commands.commandTypes.payments.*;
+import org.poo.commands.commandTypes.payments.splitPayment.AcceptSplitPayment;
+import org.poo.commands.commandTypes.payments.splitPayment.RejectSplitPayment;
+import org.poo.commands.commandTypes.payments.splitPayment.SplitPayment;
 import org.poo.commands.commandTypes.reports.Report;
 import org.poo.commands.commandTypes.reports.SpendingsReport;
 import org.poo.fileio.CommandInput;
@@ -44,6 +47,8 @@ public final class CommandFactory {
             case "upgradePlan" -> new UpgradePlan(input);
             case "withdrawSavings" -> new WithdrawSavings(input);
             case "cashWithdrawal" -> new CashWithdrawal(input);
+            case "acceptSplitPayment" -> new AcceptSplitPayment(input);
+            case "rejectSplitPayment" -> new RejectSplitPayment(input);
             default -> null;
         };
     }

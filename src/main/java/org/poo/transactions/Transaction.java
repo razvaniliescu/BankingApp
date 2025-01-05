@@ -17,7 +17,7 @@ import java.util.List;
  */
 @Setter
 @Getter
-public class Transaction {
+public class Transaction implements Comparable<Transaction> {
     protected int timestamp;
     protected String description;
     private String senderIBAN;
@@ -34,6 +34,15 @@ public class Transaction {
     private List<Account> accounts;
     private String errorMessage;
     private ServicePlans.Plans newPlanType;
+    private boolean currencyFormat;
+    private List<Double> amountForUsers;
+    private String splitPaymentType;
+    private String splitPaymentCurrency;
+
+    @Override
+    public int compareTo(Transaction o) {
+        return this.timestamp - o.timestamp;
+    }
 
     /**
      * Builder for the transaction class
@@ -55,6 +64,10 @@ public class Transaction {
         private List<Account> accounts = null;
         private String errorMessage = null;
         private ServicePlans.Plans newPlanType = null;
+        private boolean currencyFormat = false;
+        private List<Double> amountForUsers = null;
+        private String splitPaymentType = null;
+        private String splitPaymentCurrency = null;
 
         public Builder(int timestamp, String description) {
             this.timestamp = timestamp;
@@ -131,6 +144,26 @@ public class Transaction {
             return this;
         }
 
+        public Builder currencyFormat(boolean currencyFormat) {
+            this.currencyFormat = currencyFormat;
+            return this;
+        }
+
+        public Builder amountForUsers(List<Double> amountForUsers) {
+            this.amountForUsers = amountForUsers;
+            return this;
+        }
+
+        public Builder splitPaymentType(String splitPaymentType) {
+            this.splitPaymentType = splitPaymentType;
+            return this;
+        }
+
+        public Builder splitPaymentCurrency(String splitPaymentCurrency) {
+            this.splitPaymentCurrency = splitPaymentCurrency;
+            return this;
+        }
+
         public Transaction build() {
             return new Transaction(this);
         }
@@ -153,6 +186,10 @@ public class Transaction {
         this.accounts = builder.accounts;
         this.errorMessage = builder.errorMessage;
         this.newPlanType = builder.newPlanType;
+        this.currencyFormat = builder.currencyFormat;
+        this.amountForUsers = builder.amountForUsers;
+        this.splitPaymentType = builder.splitPaymentType;
+        this.splitPaymentCurrency = builder.splitPaymentCurrency;
     }
 
     /**
@@ -168,10 +205,13 @@ public class Transaction {
         if (receiverIBAN != null) {
             node.put("receiverIBAN", receiverIBAN);
         }
-        if (amount != 0.0 && currency != null) {
-            node.put("amount", amount + " " + currency);
+        if (amount != 0.0 && currency != null && !currencyFormat) {
+            node.put("amount", Math.round(amount * 100) / 100.0 + " " + currency);
+        } else if (amount != 0.0 && currency != null) {
+            node.put("amount", Math.round(amount * 100) / 100.0);
+            node.put("currency", currency);
         } else if (amount != 0.0) {
-            node.put("amount", amount);
+            node.put("amount", Math.round(amount * 100) / 100.0);
         }
         if (type != null) {
             node.put("transferType", type);
@@ -206,6 +246,19 @@ public class Transaction {
         }
         if (newPlanType != null) {
             node.put("newPlanType", newPlanType.toString());
+        }
+        if (amountForUsers != null) {
+            ArrayNode amountArray = objectMapper.createArrayNode();
+            for (Double amount : amountForUsers) {
+                amountArray.add(Math.round(amount * 100) / 100.0);
+            }
+            node.set("amountForUsers", amountArray);
+        }
+        if (splitPaymentType != null) {
+            node.put("splitPaymentType", splitPaymentType);
+        }
+        if (splitPaymentCurrency != null) {
+            node.put("currency", splitPaymentCurrency);
         }
         arrayNode.add(node);
     }

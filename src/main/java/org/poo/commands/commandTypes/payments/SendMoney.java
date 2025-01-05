@@ -95,6 +95,7 @@ public class SendMoney extends Command {
                 senderAccount.addTransaction(tSent);
                 receiver.addTransaction(tReceived);
                 receiverAccount.addTransaction(tReceived);
+                senderAccount.checkForUpgrade(amount, rates, currency);
             } else {
                 Transaction tSent = new Transaction.Builder(timestamp, "Insufficient funds").build();
                 sender.addTransaction(tSent);

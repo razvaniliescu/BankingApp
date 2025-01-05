@@ -3,12 +3,14 @@ package org.poo.commands.commandTypes.payments;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.poo.commerciants.Commerciant;
+import org.poo.core.accounts.Account;
 import org.poo.core.accounts.SavingsAccount;
 import org.poo.core.User;
 import org.poo.commands.Command;
 import org.poo.exceptions.SavingsAccountException;
 import org.poo.core.exchange.ExchangeGraph;
 import org.poo.fileio.CommandInput;
+import org.poo.transactions.Transaction;
 
 import java.util.ArrayList;
 
@@ -31,9 +33,24 @@ public class AddInterest extends Command {
                         final ArrayList<User> users, final ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
         try {
             for (User user : users) {
-                SavingsAccount account = user.checkSavingsAccounts(iban);
-                account.addInterest();
-                return;
+                for (SavingsAccount savingsAccount : user.getSavingsAccounts()) {
+                    if (savingsAccount.getIban().equals(iban)) {
+                        double interest = savingsAccount.addInterest();
+                        Transaction t = new Transaction.Builder(timestamp, "Interest rate income")
+                                .currencyFormat(true)
+                                .amount(interest)
+                                .currency(savingsAccount.getCurrency())
+                                .build();
+                        savingsAccount.addTransaction(t);
+                        user.addTransaction(t);
+                        return;
+                    }
+                }
+                for (Account account : user.getAccounts()) {
+                    if (account.getIban().equals(iban)) {
+                        throw new SavingsAccountException();
+                    }
+                }
             }
         } catch (SavingsAccountException e) {
             e.printException(objectMapper, output, command, timestamp);

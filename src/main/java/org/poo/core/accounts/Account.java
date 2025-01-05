@@ -2,6 +2,7 @@ package org.poo.core.accounts;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.poo.commands.commandTypes.payments.splitPayment.SplitPayment;
 import org.poo.commerciants.CashbackDetails;
 import org.poo.commerciants.CashbackStrategy;
 import org.poo.core.ServicePlans;
@@ -13,8 +14,7 @@ import org.poo.exceptions.SavingsAccountException;
 import org.poo.transactions.Transaction;
 import org.poo.utils.Utils;
 
-import java.util.ArrayList;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Class for account elements and operations
@@ -26,21 +26,22 @@ public class Account {
     protected double balance;
     protected String currency;
     protected String type;
-    protected ArrayList<Card> cards;
+    protected List<Card> cards;
     protected ServicePlans.Plans plan;
     protected double minBalance;
-    protected ArrayList<Transaction> transactions;
-    protected ArrayList<Transaction> onlineTransactions;
+    protected Set<Transaction> transactions;
+    protected Set<Transaction> onlineTransactions;
     protected User user;
     protected CashbackDetails cashbackDetails;
+    protected int largeSilverTransactions;
 
     public Account(final String currency, final String type, final User user) {
         this.iban = Utils.generateIBAN();
         this.currency = currency;
         this.type = type;
         this.cards = new ArrayList<>();
-        transactions = new ArrayList<>();
-        onlineTransactions = new ArrayList<>();
+        transactions = new TreeSet<>();
+        onlineTransactions = new TreeSet<>();
         this.user = user;
         if (Objects.equals(user.getOccupation(), "student")) {
             this.plan = ServicePlans.Plans.student;
@@ -84,6 +85,15 @@ public class Account {
             this.balance -= (amount + getCommission(amount, rates)) * rate;
             this.cashbackDetails.setAmountSpentOnline(cashbackDetails.getAmountSpentOnline()
                     + (amount + getCommission(amount, rates)) * rate);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean payWithoutCommision(final double amount, final ExchangeGraph rates, String currency) {
+        double rate = rates.getExchangeRate(currency, this.currency);
+        if (this.balance >= amount * rate + minBalance) {
+            this.balance -= amount * rate;
             return true;
         }
         return false;
@@ -169,5 +179,18 @@ public class Account {
              }
         }
         return 0;
+    }
+
+    /**
+     * Checks if the account is eligible for an
+     * automatic plan upgrade from silver to gold
+     */
+    public void checkForUpgrade(double amount, final ExchangeGraph rates, String currency) {
+        if (amount * rates.getExchangeRate(currency, "RON") >= 300 && plan == ServicePlans.Plans.silver) {
+            largeSilverTransactions++;
+            if (largeSilverTransactions == 5) {
+                plan = ServicePlans.Plans.gold;
+            }
+        }
     }
 }

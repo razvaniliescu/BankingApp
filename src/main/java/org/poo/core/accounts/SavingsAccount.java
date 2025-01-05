@@ -18,7 +18,9 @@ public class SavingsAccount extends Account {
     /**
      * Adds interest to the account
      */
-    public void addInterest() {
-        balance += interestRate * balance;
+    public double addInterest() {
+        double interest = interestRate * balance;
+        balance += interest;
+        return interest;
     }
 }

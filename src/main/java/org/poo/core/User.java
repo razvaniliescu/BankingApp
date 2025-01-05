@@ -2,6 +2,7 @@ package org.poo.core;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.poo.commands.commandTypes.payments.splitPayment.SplitPayment;
 import org.poo.core.accounts.Account;
 import org.poo.core.accounts.SavingsAccount;
 import org.poo.core.cards.Card;
@@ -11,9 +12,7 @@ import org.poo.exceptions.SavingsAccountException;
 import org.poo.fileio.UserInput;
 import org.poo.transactions.Transaction;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Class for user elements and operations
@@ -26,10 +25,11 @@ public class User {
     private String email;
     private String birthDate;
     private String occupation;
-    private ArrayList<Account> accounts;
-    private ArrayList<SavingsAccount> savingsAccounts;
+    private List<Account> accounts;
+    private List<SavingsAccount> savingsAccounts;
     private Map<String, Account> aliases;
-    private ArrayList<Transaction> transactions;
+    private Set<Transaction> transactions;
+    protected List<SplitPayment> pendingPayments;
 
     public User(final UserInput user) {
         this.firstName = user.getFirstName();
@@ -40,7 +40,8 @@ public class User {
         accounts = new ArrayList<>();
         savingsAccounts = new ArrayList<>();
         aliases = new HashMap<>();
-        transactions = new ArrayList<>();
+        transactions = new TreeSet<>();
+        pendingPayments = new ArrayList<>();
     }
 
     /**
@@ -98,6 +99,11 @@ public class User {
         for (SavingsAccount savingsAccount : savingsAccounts) {
             if (savingsAccount.getIban().equals(iban)) {
                 return savingsAccount;
+            }
+        }
+        for (Account account : accounts) {
+            if (account.getIban().equals(iban)) {
+                throw new SavingsAccountException();
             }
         }
         throw new SavingsAccountException();

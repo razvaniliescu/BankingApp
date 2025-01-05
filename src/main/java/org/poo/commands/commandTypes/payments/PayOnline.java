@@ -76,6 +76,11 @@ public class PayOnline extends Command {
                         card.pay(timestamp);
                         for (Commerciant commerciant : commerciants) {
                             if (this.commerciant.equals(commerciant.getCommerciant())) {
+                                if (!account.getCashbackDetails().getCommerciantTransactions().containsKey(this.commerciant)) {
+                                    account.getCashbackDetails().getCommerciantTransactions().put(this.commerciant, 1);
+                                } else {
+                                    account.getCashbackDetails().getCommerciantTransactions().merge(this.commerciant, 1, Integer::sum);
+                                }
                                 double cashback = 0;
                                 if (commerciant.getType().equals("food") && account.getCashbackDetails().isFoodCashback()) {
                                     cashback += 0.02;
@@ -92,9 +97,9 @@ public class PayOnline extends Command {
                                 } else if (commerciant.getCashbackStrategy().equals("nrOfTransactions")) {
                                     setCashbackStrategy(new NrOfTransactions());
                                 }
-                                cashbackStrategy.cashback(account, amount);
-                                account.addFunds(amount * cashback);
-                                account.getCashbackDetails().transaction();
+                                cashbackStrategy.cashback(account, amount, commerciant, rates, currency);
+                                account.addFunds(amount / rate * cashback);
+                                account.checkForUpgrade(amount, rates, currency);
                             }
                         }
                     } else {
