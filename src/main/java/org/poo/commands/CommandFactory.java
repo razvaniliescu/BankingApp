@@ -1,6 +1,9 @@
 package org.poo.commands;
 
 import org.poo.commands.commandTypes.account.*;
+import org.poo.commands.commandTypes.business.AddNewBusinessAssociate;
+import org.poo.commands.commandTypes.business.ChangeDepositLimit;
+import org.poo.commands.commandTypes.business.ChangeSpendingLimit;
 import org.poo.commands.commandTypes.card.CheckCardStatus;
 import org.poo.commands.commandTypes.card.CreateCard;
 import org.poo.commands.commandTypes.card.CreateOneTimeCard;
@@ -11,6 +14,7 @@ import org.poo.commands.commandTypes.payments.*;
 import org.poo.commands.commandTypes.payments.splitPayment.AcceptSplitPayment;
 import org.poo.commands.commandTypes.payments.splitPayment.RejectSplitPayment;
 import org.poo.commands.commandTypes.payments.splitPayment.SplitPayment;
+import org.poo.commands.commandTypes.reports.BusinessReport;
 import org.poo.commands.commandTypes.reports.Report;
 import org.poo.commands.commandTypes.reports.SpendingsReport;
 import org.poo.fileio.CommandInput;
@@ -49,6 +53,10 @@ public final class CommandFactory {
             case "cashWithdrawal" -> new CashWithdrawal(input);
             case "acceptSplitPayment" -> new AcceptSplitPayment(input);
             case "rejectSplitPayment" -> new RejectSplitPayment(input);
+            case "addNewBusinessAssociate" -> new AddNewBusinessAssociate(input);
+            case "changeDepositLimit" -> new ChangeDepositLimit(input);
+            case "changeSpendingLimit" -> new ChangeSpendingLimit(input);
+            case "businessReport" -> new BusinessReport(input);
             default -> null;
         };
     }

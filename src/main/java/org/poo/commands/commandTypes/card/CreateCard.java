@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.poo.commerciants.Commerciant;
 import org.poo.core.accounts.Account;
+import org.poo.core.accounts.BusinessAccount;
 import org.poo.core.cards.Card;
 import org.poo.core.User;
 import org.poo.commands.Command;
@@ -42,7 +43,7 @@ public class CreateCard extends Command {
             for (Account account : user.getAccounts()) {
                 if (account.getIban().equals(iban)) {
                     if (user.getEmail().equals(email)) {
-                        this.card = new Card(account);
+                        this.card = new Card(account, email);
                         account.addCard(card);
                         Transaction t = new Transaction.Builder(timestamp, "New card created")
                                 .card(card.getCardNumber())

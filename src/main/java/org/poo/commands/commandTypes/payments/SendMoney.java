@@ -67,6 +67,31 @@ public class SendMoney extends Command {
                     break;
                 }
             }
+            if (senderAccount != null && receiverAccount == null) {
+                for (Commerciant commerciant : commerciants) {
+                    if (commerciant.getAccount().equals(this.receiverIban)) {
+                        if (senderAccount.payOnline(amount, rates, senderAccount.getCurrency())) {
+                            Transaction tSent = new Transaction.Builder(timestamp, description)
+                                    .senderIBAN(senderIban)
+                                    .receiverIBAN(receiverIban)
+                                    .commerciant(commerciant.getCommerciant())
+                                    .amount(amount)
+                                    .user(sender)
+                                    .currency(currency)
+                                    .type("sent")
+                                    .build();
+                            senderAccount.addTransaction(tSent);
+                            senderAccount.getUser().addTransaction(tSent);
+                            return;
+                        } else {
+                            Transaction tSent = new Transaction.Builder(timestamp, "Insufficient funds").build();
+                            sender.addTransaction(tSent);
+                            senderAccount.addTransaction(tSent);
+                        }
+                        return;
+                    }
+                }
+            }
             if (senderAccount == null || receiverAccount == null) {
                 throw new UserNotFoundException();
             }

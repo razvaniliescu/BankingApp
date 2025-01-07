@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.poo.commerciants.Commerciant;
 import org.poo.core.accounts.Account;
+import org.poo.core.accounts.BusinessAccount;
 import org.poo.core.cards.Card;
 import org.poo.core.User;
 import org.poo.commands.Command;
@@ -41,21 +42,32 @@ public class DeleteCard extends Command {
                         final ArrayList<User> users, final ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
         for (User user : users) {
             for (Account account : user.getAccounts()) {
-                for (Card card : account.getCards()) {
-                    if (card.getCardNumber().equals(this.cardNumber)) {
-                        this.iban = account.getIban();
-                        account.deleteCard(card);
-                        Transaction t = new Transaction.Builder(timestamp, "The card has been destroyed")
-                                .card(card.getCardNumber())
-                                .account(this.iban)
-                                .cardHolder(this.email)
-                                .build();
-                        user.addTransaction(t);
-                        account.addTransaction(t);
-                        return;
+                if (account.getIban().equals(this.iban)) {
+                    for (Card card : account.getCards()) {
+                        if (card.getCardNumber().equals(this.cardNumber)) {
+                            if (account.getType().equals("business")) {
+                                if (((BusinessAccount) account).getEmployees().contains(user) && !card.getEmail().equals(this.email)) {
+                                    user.addTransaction(new Transaction.Builder(timestamp,
+                                            "You are not authorized to make this transaction.")
+                                            .build());
+                                    return;
+                                }
+                            }
+                            this.iban = account.getIban();
+                            account.deleteCard(card);
+                            Transaction t = new Transaction.Builder(timestamp, "The card has been destroyed")
+                                    .card(card.getCardNumber())
+                                    .account(this.iban)
+                                    .cardHolder(this.email)
+                                    .build();
+                            user.addTransaction(t);
+                            account.addTransaction(t);
+                            return;
+                        }
                     }
                 }
             }
         }
     }
 }
+

@@ -8,8 +8,8 @@ import org.poo.utils.Utils;
  * Subclass for specific one-time card operation
  */
 public class OneTimeCard extends Card {
-    public OneTimeCard(final Account account) {
-        super(account);
+    public OneTimeCard(final Account account, final String email) {
+        super(account, email);
     }
 
     /**
@@ -23,7 +23,7 @@ public class OneTimeCard extends Card {
                 .account(account.getIban())
                 .cardHolder(account.getUser().getEmail())
                 .build();
-        account.getTransactions().add(del);
+        account.addTransaction(del);
         account.getUser().addTransaction(del);
         cardNumber = Utils.generateCardNumber();
         Transaction create = new Transaction.Builder(timestamp, "New card created")
@@ -31,7 +31,7 @@ public class OneTimeCard extends Card {
                 .cardHolder(account.getUser().getEmail())
                 .account(account.getIban())
                 .build();
-        account.getTransactions().add(create);
+        account.addTransaction(create);
         account.getUser().addTransaction(create);
     }
 }

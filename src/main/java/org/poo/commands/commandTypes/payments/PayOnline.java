@@ -10,6 +10,7 @@ import org.poo.commerciants.cashbackStrategies.NoCashback;
 import org.poo.commerciants.cashbackStrategies.NrOfTransactions;
 import org.poo.commerciants.cashbackStrategies.SpendingTreshhold;
 import org.poo.core.accounts.Account;
+import org.poo.core.accounts.BusinessAccount;
 import org.poo.core.cards.Card;
 import org.poo.core.User;
 import org.poo.commands.Command;
@@ -52,6 +53,9 @@ public class PayOnline extends Command {
     @Override
     public void execute(final ObjectMapper objectMapper, final ArrayNode output,
                         final ArrayList<User> users, final ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
+        if (amount == 0.0) {
+            return;
+        }
         try {
             for (User user : users) {
                 if (user.getEmail().equals(email)) {
@@ -61,13 +65,20 @@ public class PayOnline extends Command {
                         user.addTransaction(new Transaction.Builder(timestamp, "Card is frozen").build());
                         return;
                     }
-                    double rate = rates.getExchangeRate(this.currency, account.getCurrency());
-                    boolean ok = account.payOnline(amount, rates, this.currency);
+                    double rate = rates.getExchangeRate(currency, account.getCurrency());
+                    if (account.getType().equals("business")) {
+                        if (amount * rate > ((BusinessAccount) account).getSpendingLimit()) {
+                            user.addTransaction(new Transaction.Builder(timestamp,
+                                    "You are not authorized to make this transaction.").build());
+                        }
+                    }
+                    boolean ok = account.payOnline(amount, rates, currency);
                     amount *= rate;
                     Transaction t;
                     if (ok) {
                         t = new Transaction.Builder(timestamp, "Card payment")
                                 .amount(amount)
+                                .user(user)
                                 .commerciant(commerciant)
                                 .build();
                         account.addOnlineTransaction(t);
@@ -76,11 +87,6 @@ public class PayOnline extends Command {
                         card.pay(timestamp);
                         for (Commerciant commerciant : commerciants) {
                             if (this.commerciant.equals(commerciant.getCommerciant())) {
-                                if (!account.getCashbackDetails().getCommerciantTransactions().containsKey(this.commerciant)) {
-                                    account.getCashbackDetails().getCommerciantTransactions().put(this.commerciant, 1);
-                                } else {
-                                    account.getCashbackDetails().getCommerciantTransactions().merge(this.commerciant, 1, Integer::sum);
-                                }
                                 double cashback = 0;
                                 if (commerciant.getType().equals("food") && account.getCashbackDetails().isFoodCashback()) {
                                     cashback += 0.02;
@@ -93,12 +99,25 @@ public class PayOnline extends Command {
                                     account.getCashbackDetails().setTechCashback(false);
                                 }
                                 if (commerciant.getCashbackStrategy().equals("spendingThreshold")) {
+                                    if (!account.getCashbackDetails().getAmountSpentOnline().containsKey(this.commerciant)) {
+                                        account.getCashbackDetails().getAmountSpentOnline().put(this.commerciant,
+                                                (amount + account.getCommission(amount, rates)) * rates.getExchangeRate(currency, "RON"));
+                                    } else {
+                                        account.getCashbackDetails().getAmountSpentOnline().merge(this.commerciant,
+                                                (amount + account.getCommission(amount, rates)) * rates.getExchangeRate(currency, "RON"),
+                                        Double::sum);
+                                    }
                                     setCashbackStrategy(new SpendingTreshhold());
                                 } else if (commerciant.getCashbackStrategy().equals("nrOfTransactions")) {
+                                    if (!account.getCashbackDetails().getCommerciantTransactions().containsKey(this.commerciant)) {
+                                        account.getCashbackDetails().getCommerciantTransactions().put(this.commerciant, 1);
+                                    } else {
+                                        account.getCashbackDetails().getCommerciantTransactions().merge(this.commerciant, 1, Integer::sum);
+                                    }
                                     setCashbackStrategy(new NrOfTransactions());
                                 }
                                 cashbackStrategy.cashback(account, amount, commerciant, rates, currency);
-                                account.addFunds(amount / rate * cashback);
+                                account.addFunds(amount * cashback);
                                 account.checkForUpgrade(amount, rates, currency);
                             }
                         }

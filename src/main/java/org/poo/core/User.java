@@ -19,7 +19,7 @@ import java.util.*;
  */
 @Setter
 @Getter
-public class User {
+public class User implements Comparable<User> {
     private String firstName;
     private String lastName;
     private String email;
@@ -29,7 +29,8 @@ public class User {
     private List<SavingsAccount> savingsAccounts;
     private Map<String, Account> aliases;
     private Set<Transaction> transactions;
-    protected List<SplitPayment> pendingPayments;
+    private ServicePlans.Plans basePlan;
+    private List<SplitPayment> pendingPayments;
 
     public User(final UserInput user) {
         this.firstName = user.getFirstName();
@@ -42,6 +43,25 @@ public class User {
         aliases = new HashMap<>();
         transactions = new TreeSet<>();
         pendingPayments = new ArrayList<>();
+        if (occupation.equals("student")) {
+            basePlan = ServicePlans.Plans.student;
+        } else {
+            basePlan = ServicePlans.Plans.standard;
+        }
+    }
+
+    public User(final User user) {
+        this.firstName = user.getFirstName();
+        this.lastName = user.getLastName();
+        this.email = user.getEmail();
+        this.birthDate = user.getBirthDate();
+        this.occupation = user.getOccupation();
+        accounts = new ArrayList<>();
+        savingsAccounts = new ArrayList<>();
+        aliases = new HashMap<>();
+        transactions = new TreeSet<>();
+        pendingPayments = new ArrayList<>();
+
     }
 
     /**
@@ -133,5 +153,10 @@ public class User {
         String[] ymd = birthDate.split("-");
         int year = Integer.parseInt(ymd[0]);
         return 2025 - year;
+    }
+
+    @Override
+    public int compareTo(User o) {
+        return this.getFirstName().compareTo(o.getFirstName());
     }
 }

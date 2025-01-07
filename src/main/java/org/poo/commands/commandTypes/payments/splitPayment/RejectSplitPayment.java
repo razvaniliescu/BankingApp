@@ -22,8 +22,10 @@ public class RejectSplitPayment extends Command {
     public void execute(ObjectMapper objectMapper, ArrayNode output, ArrayList<User> users, ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
         for (User user : users) {
             if (email.equals(user.getEmail())) {
-                SplitPayment pendingPayment = user.getPendingPayments().getFirst();
-                pendingPayment.rejectPayment(objectMapper, output, users);
+                if (!user.getPendingPayments().isEmpty()) {
+                    SplitPayment pendingPayment = user.getPendingPayments().getFirst();
+                    pendingPayment.rejectPayment(objectMapper, output, users);
+                }
             }
         }
     }

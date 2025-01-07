@@ -14,11 +14,13 @@ public class Card {
     protected String cardNumber;
     protected String status;
     protected Account account;
+    protected String email;
 
-    public Card(final Account account) {
+    public Card(final Account account, final String email) {
         this.cardNumber = Utils.generateCardNumber();
         this.status = "active";
         this.account = account;
+        this.email = email;
     }
 
     /**

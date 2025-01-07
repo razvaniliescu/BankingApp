@@ -8,12 +8,14 @@ import org.poo.core.exchange.ExchangeGraph;
 public class SpendingTreshhold implements CashbackStrategy {
     @Override
     public void cashback(Account account, double amount, Commerciant commerciant, ExchangeGraph rates, String currency) {
-        amount *= rates.getExchangeRate(currency, account.getCurrency());
-        double spending = account.getCashbackDetails().getAmountSpentOnline();
+        double rate = rates.getExchangeRate(account.getCurrency(), "RON");
+        amount *= rate;
+        double spending = account.getCashbackDetails().getAmountSpentOnline().get(commerciant.getCommerciant());
+        spending *= rate;
         if (spending >= 100 && spending < 300) {
             switch (account.getPlan()) {
-                case standard, student: account.addFunds(amount * 0.001); break;
-                case silver: account.addFunds(amount * 0.003); break;
+                case standard, student: account.addFunds(amount / rate * 0.001); break;
+                case silver: account.addFunds(amount / rate * 0.003); break;
                 case gold: account.addFunds(amount * 0.005); break;
             }
         } else if (spending >= 300 && spending < 500) {

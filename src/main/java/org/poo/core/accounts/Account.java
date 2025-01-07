@@ -2,9 +2,7 @@ package org.poo.core.accounts;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.poo.commands.commandTypes.payments.splitPayment.SplitPayment;
 import org.poo.commerciants.CashbackDetails;
-import org.poo.commerciants.CashbackStrategy;
 import org.poo.core.ServicePlans;
 import org.poo.core.cards.Card;
 import org.poo.core.User;
@@ -34,6 +32,7 @@ public class Account {
     protected User user;
     protected CashbackDetails cashbackDetails;
     protected int largeSilverTransactions;
+    protected Set<Transaction> deposits;
 
     public Account(final String currency, final String type, final User user) {
         this.iban = Utils.generateIBAN();
@@ -43,12 +42,9 @@ public class Account {
         transactions = new TreeSet<>();
         onlineTransactions = new TreeSet<>();
         this.user = user;
-        if (Objects.equals(user.getOccupation(), "student")) {
-            this.plan = ServicePlans.Plans.student;
-        } else {
-            this.plan = ServicePlans.Plans.standard;
-        }
+        this.plan = user.getBasePlan();
         this.cashbackDetails = new CashbackDetails();
+        this.deposits = new TreeSet<>();
     }
 
     /**
@@ -83,20 +79,16 @@ public class Account {
         double rate = rates.getExchangeRate(currency, this.currency);
         if (this.balance >= amount * rate + minBalance) {
             this.balance -= (amount + getCommission(amount, rates)) * rate;
-            this.cashbackDetails.setAmountSpentOnline(cashbackDetails.getAmountSpentOnline()
-                    + (amount + getCommission(amount, rates)) * rate);
             return true;
         }
         return false;
     }
 
-    public boolean payWithoutCommision(final double amount, final ExchangeGraph rates, String currency) {
+    public void payWithoutCommision(final double amount, final ExchangeGraph rates, String currency) {
         double rate = rates.getExchangeRate(currency, this.currency);
         if (this.balance >= amount * rate + minBalance) {
             this.balance -= amount * rate;
-            return true;
         }
-        return false;
     }
 
     /**
@@ -107,7 +99,7 @@ public class Account {
      */
     public boolean sendMoney(final Account receiver, final double amount, final double rate, final ExchangeGraph rates) {
         double receivedAmount = amount * rate;
-        if (this.balance >= amount + minBalance) {
+        if (this.balance >= amount + getCommission(amount, rates) + minBalance) {
             this.balance -= (amount + getCommission(amount, rates));
             receiver.balance += receivedAmount;
             return true;
@@ -130,6 +122,10 @@ public class Account {
      */
     public void addTransaction(final Transaction t) {
         transactions.add(t);
+    }
+
+    public void addDeposit(final Transaction t) {
+        deposits.add(t);
     }
 
     /**

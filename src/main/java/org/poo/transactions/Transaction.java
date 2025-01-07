@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
 import lombok.Setter;
 import org.poo.core.ServicePlans;
+import org.poo.core.User;
 import org.poo.core.accounts.Account;
 
 import java.util.List;
@@ -38,6 +39,8 @@ public class Transaction implements Comparable<Transaction> {
     private List<Double> amountForUsers;
     private String splitPaymentType;
     private String splitPaymentCurrency;
+    private User user;
+    private boolean deposit;
 
     @Override
     public int compareTo(Transaction o) {
@@ -68,6 +71,8 @@ public class Transaction implements Comparable<Transaction> {
         private List<Double> amountForUsers = null;
         private String splitPaymentType = null;
         private String splitPaymentCurrency = null;
+        private User user = null;
+        private boolean deposit = false;
 
         public Builder(int timestamp, String description) {
             this.timestamp = timestamp;
@@ -164,6 +169,16 @@ public class Transaction implements Comparable<Transaction> {
             return this;
         }
 
+        public Builder user(User user) {
+            this.user = user;
+            return this;
+        }
+
+        public Builder deposit(boolean deposit) {
+            this.deposit = deposit;
+            return this;
+        }
+
         public Transaction build() {
             return new Transaction(this);
         }
@@ -190,6 +205,8 @@ public class Transaction implements Comparable<Transaction> {
         this.amountForUsers = builder.amountForUsers;
         this.splitPaymentType = builder.splitPaymentType;
         this.splitPaymentCurrency = builder.splitPaymentCurrency;
+        this.user = builder.user;
+        this.deposit = builder.deposit;
     }
 
     /**

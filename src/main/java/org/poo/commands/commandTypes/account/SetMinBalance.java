@@ -10,6 +10,7 @@ import org.poo.core.User;
 import org.poo.commands.Command;
 import org.poo.core.exchange.ExchangeGraph;
 import org.poo.fileio.CommandInput;
+import org.poo.transactions.Transaction;
 
 import java.util.ArrayList;
 
@@ -21,11 +22,13 @@ import java.util.ArrayList;
 public class SetMinBalance extends Command {
     private double amount;
     private String iban;
+    private String email;
 
     public SetMinBalance(final CommandInput input) {
         super(input);
         this.amount = input.getAmount();
         this.iban = input.getAccount();
+        this.email = input.getAccount();
     }
 
     /**
@@ -38,6 +41,12 @@ public class SetMinBalance extends Command {
         for (User user : users) {
             for (Account account : user.getAccounts()) {
                 if (account.getIban().equals(iban)) {
+                    if (account.getType().equals("business") && !account.getUser().getEmail().equals(email)) {
+                        user.addTransaction(new Transaction.Builder(timestamp,
+                                "You are not authorized to make this transaction.")
+                                .build());
+                        return;
+                    }
                     account.setMinBalance(amount);
                     return;
                 }

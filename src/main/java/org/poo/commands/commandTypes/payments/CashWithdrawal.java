@@ -11,6 +11,7 @@ import org.poo.core.accounts.Account;
 import org.poo.core.cards.Card;
 import org.poo.core.exchange.ExchangeGraph;
 import org.poo.exceptions.CardNotFoundException;
+import org.poo.exceptions.UserNotFoundException;
 import org.poo.fileio.CommandInput;
 import org.poo.transactions.Transaction;
 
@@ -35,45 +36,47 @@ public class CashWithdrawal extends Command {
     public void execute(ObjectMapper objectMapper, ArrayNode output, ArrayList<User> users, ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
         try {
             for (User user : users) {
-                for (Account account : user.getAccounts()) {
-                    for (Card card : account.getCards()) {
-                        if (card.getCardNumber().equals(cardNumber)) {
-                            if (card.getStatus().equals("frozen")) {
-                                Transaction t = new Transaction.Builder(timestamp, "The card is frozen").build();
-                                user.addTransaction(t);
-                                account.addTransaction(t);
-                                return;
-                            }
-                            double oldAmount = amount;
-                            amount *= rates.getExchangeRate("RON", account.getCurrency());
-                            if (account.getBalance() - amount < 0) {
-                                Transaction t = new Transaction.Builder(timestamp, "Insufficient funds").build();
-                                user.addTransaction(t);
-                                account.addTransaction(t);
-                                return;
-                            }
-                            if (account.getBalance() - amount < account.getMinBalance() && account.getMinBalance() > 0) {
-                                Transaction t = new Transaction.Builder(timestamp,
-                                        "Cannot perform payment due to a minimum balance being set")
+                if (user.getEmail().equals(email)) {
+                    for (Account account : user.getAccounts()) {
+                        for (Card card : account.getCards()) {
+                            if (card.getCardNumber().equals(cardNumber)) {
+                                if (card.getStatus().equals("frozen")) {
+                                    Transaction t = new Transaction.Builder(timestamp, "The card is frozen").build();
+                                    user.addTransaction(t);
+                                    account.addTransaction(t);
+                                    return;
+                                }
+                                double oldAmount = amount;
+                                amount *= rates.getExchangeRate("RON", account.getCurrency());
+                                if (account.getBalance() - amount < 0) {
+                                    Transaction t = new Transaction.Builder(timestamp, "Insufficient funds").build();
+                                    user.addTransaction(t);
+                                    account.addTransaction(t);
+                                    return;
+                                }
+                                if (account.getBalance() - amount < account.getMinBalance() && account.getMinBalance() > 0) {
+                                    Transaction t = new Transaction.Builder(timestamp,
+                                            "Cannot perform payment due to a minimum balance being set")
+                                            .build();
+                                    user.addTransaction(t);
+                                    account.addTransaction(t);
+                                    return;
+                                }
+
+                                Transaction t = new Transaction.Builder(timestamp, "Cash withdrawal of " + oldAmount)
+                                        .amount(oldAmount)
                                         .build();
                                 user.addTransaction(t);
                                 account.addTransaction(t);
+                                amount += account.getCommission(amount, rates);
+                                account.setBalance(account.getBalance() - amount);
                                 return;
                             }
-
-                            Transaction t = new Transaction.Builder(timestamp, "Cash withdrawal of " + oldAmount)
-                                    .amount(oldAmount)
-                                    .build();
-                            user.addTransaction(t);
-                            account.addTransaction(t);
-                            amount += account.getCommission(amount, rates);
-                            account.setBalance(account.getBalance() - amount);
-                            return;
                         }
-                    }
+                    } throw new CardNotFoundException();
                 }
-            } throw new CardNotFoundException();
-        } catch (CardNotFoundException e) {
+            } throw new UserNotFoundException();
+        } catch (CardNotFoundException | UserNotFoundException e) {
             e.printException(objectMapper, output, command, timestamp);
         }
     }

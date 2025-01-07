@@ -23,10 +23,12 @@ import java.util.ArrayList;
 @Getter
 public class DeleteAccount extends Command {
     private String iban;
+    private String email;
 
     public DeleteAccount(final CommandInput input) {
         super(input);
         this.iban = input.getAccount();
+        this.email = input.getEmail();
     }
 
     /**
@@ -44,9 +46,16 @@ public class DeleteAccount extends Command {
             for (User user : users) {
                 for (Account account : user.getAccounts()) {
                     if (account.getIban().equals(this.iban)) {
-                        accountUser = user;
-                        user.deleteAccount(account);
-                        break;
+                        if (account.getType().equals("business") && !account.getUser().getEmail().equals(email)) {
+                            user.addTransaction(new Transaction.Builder(timestamp,
+                                    "You are not authorized to make this transaction.")
+                                    .build());
+                            return;
+                        } else {
+                            accountUser = user;
+                            user.deleteAccount(account);
+                            break;
+                        }
                     }
                 }
             }

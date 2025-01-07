@@ -76,6 +76,7 @@ public final class Main {
      */
     public static void action(final String filePath1,
                               final String filePath2) throws IOException {
+        System.out.println("ok");
         ObjectMapper objectMapper = new ObjectMapper();
         File file = new File(CheckerConstants.TESTS_PATH + filePath1);
         ObjectInput inputData = objectMapper.readValue(file, ObjectInput.class);
@@ -128,6 +129,7 @@ public final class Main {
         // Write the output in the output
         ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
         objectWriter.writeValue(new File(filePath2), output);
+
     }
 
     /**

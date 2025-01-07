@@ -127,9 +127,10 @@ public class SplitPayment extends Command {
                 for (Account account: involvedAccounts) {
                     Transaction t = new Transaction.Builder(timestamp,
                             String.format("Split payment of %.2f %s", amount, currency))
+                            .amountForUsers(amountForUsers)
+                            .splitPaymentType(type)
+                            .splitPaymentCurrency(currency)
                             .accounts(involvedAccounts)
-                            .currency(currency)
-                            .amount(amount)
                             .errorMessage("Account " + errorAccount.getIban() + " has insufficient funds for a split payment.")
                             .build();
                     userAccountMap.get(account).addTransaction(t);

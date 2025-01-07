@@ -8,7 +8,7 @@ import java.util.Map;
 
 @Getter @Setter
 public class CashbackDetails {
-    private double amountSpentOnline;
+    private Map<String, Double> amountSpentOnline;
     private Map<String, Integer> commerciantTransactions;
     private boolean foodCashback;
     private boolean clothesCashback;
@@ -19,5 +19,6 @@ public class CashbackDetails {
 
     public CashbackDetails() {
         commerciantTransactions = new HashMap<>();
+        amountSpentOnline = new HashMap<>();
     }
 }

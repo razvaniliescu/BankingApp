@@ -52,8 +52,7 @@ public class AddAccount extends Command {
                     account = new SavingsAccount(currency, type, interestRate, u);
                     u.addSavingsAccount((SavingsAccount) account);
                 } else if (Objects.equals(type, "business")) {
-                    account = new BusinessAccount(currency, type, u);
-                    u.addAccount(account);
+                    account = new BusinessAccount(currency, type, u, rates);
                 }
                 u.addAccount(account);
                 Transaction t = new Transaction.Builder(timestamp, "New account created")

@@ -8,8 +8,10 @@ import org.poo.commerciants.Commerciant;
 import org.poo.core.accounts.Account;
 import org.poo.core.User;
 import org.poo.commands.Command;
+import org.poo.core.accounts.BusinessAccount;
 import org.poo.core.exchange.ExchangeGraph;
 import org.poo.fileio.CommandInput;
+import org.poo.transactions.Transaction;
 
 import java.util.ArrayList;
 
@@ -21,11 +23,13 @@ import java.util.ArrayList;
 public class AddFunds extends Command {
     private String iban;
     private double funds;
+    private String email;
 
     public AddFunds(final CommandInput input) {
         super(input);
         this.iban = input.getAccount();
         this.funds = input.getAmount();
+        this.email = input.getEmail();
     }
 
     /**
@@ -38,8 +42,33 @@ public class AddFunds extends Command {
         for (User user: users) {
             for (Account account : user.getAccounts()) {
                 if (account.getIban().equals(this.iban)) {
-                    account.addFunds(this.funds);
-                    return;
+                    if (account.getType().equals("classic") || account.getType().equals("savings")) {
+                        account.addFunds(this.funds);
+                        account.addDeposit(new Transaction.Builder(timestamp, "Deposit")
+                                .amount(funds)
+                                .user(user)
+                                .build());
+                        return;
+                    } else if (account.getType().equals("business") && user.getEmail().equals(this.email)) {
+                        if (account.getUser().getEmail().equals(user.getEmail())
+                                || ((BusinessAccount) account).getManagers().contains(user)) {
+                            account.addFunds(this.funds);
+                            account.addDeposit(new Transaction.Builder(timestamp, "Deposit")
+                                    .amount(funds)
+                                    .user(user)
+                                    .build());
+                            return;
+                        } else if (((BusinessAccount) account).getEmployees().contains(user)) {
+                            if (((BusinessAccount) account).getDepositLimit() >= this.funds) {
+                                account.addFunds(this.funds);
+                                account.addDeposit(new Transaction.Builder(timestamp, "Deposit")
+                                        .amount(funds)
+                                        .user(user)
+                                        .build());
+                                return;
+                            }
+                        }
+                    }
                 }
             }
         }
