@@ -40,22 +40,19 @@ public class ChangeInterestRate extends Command {
                         final ArrayList<User> users, final ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
         try {
             for (User user : users) {
-                System.out.println(user.getSavingsAccounts().size());
                 for (SavingsAccount account : user.getSavingsAccounts()) {
-                    System.out.println(account.getIban() + " " + iban);
                     if (account.getIban().equals(iban)) {
                         account.setInterestRate(interestRate);
-                        user.addTransaction(new Transaction.Builder(timestamp,
+                        Transaction t = new Transaction.Builder(timestamp,
                                 "Interest rate of the account changed to " + interestRate)
-                                .build());
-                        System.out.println("found account");
+                                .build();
+                        user.addTransaction(t);
+                        account.addTransaction(t);
                         return;
                     }
                 }
                 for (Account account : user.getAccounts()) {
-                    System.out.println(account.getIban() + " " + iban);
                     if (account.getIban().equals(iban)) {
-                        System.out.println("found not savings");
                         System.out.println(user.getEmail());
                         throw new SavingsAccountException();
                     }

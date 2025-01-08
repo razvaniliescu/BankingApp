@@ -39,8 +39,8 @@ public class BusinessReport extends Report {
                     result.put("currency", account.getCurrency());
                     result.put("spending limit", Math.round(((BusinessAccount) account).getSpendingLimit() * 100) / 100.0);
                     result.put("deposit limit", Math.round(((BusinessAccount) account).getDepositLimit() * 100) / 100.0);
+                    result.put("statistics type", type);
                     if (type.equals("transaction")) {
-                        result.put("statistics type", type);
                         @Getter @Setter
                         class UserInfo {
                             private double spent;

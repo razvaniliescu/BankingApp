@@ -74,10 +74,9 @@ public class SendMoney extends Command {
                             Transaction tSent = new Transaction.Builder(timestamp, description)
                                     .senderIBAN(senderIban)
                                     .receiverIBAN(receiverIban)
-                                    .commerciant(commerciant.getCommerciant())
                                     .amount(amount)
                                     .user(sender)
-                                    .currency(currency)
+                                    .currency(senderAccount.getCurrency())
                                     .type("sent")
                                     .build();
                             senderAccount.addTransaction(tSent);
@@ -120,7 +119,7 @@ public class SendMoney extends Command {
                 senderAccount.addTransaction(tSent);
                 receiver.addTransaction(tReceived);
                 receiverAccount.addTransaction(tReceived);
-                senderAccount.checkForUpgrade(amount, rates, currency);
+                senderAccount.checkForUpgrade(amount, rates, currency, timestamp);
             } else {
                 Transaction tSent = new Transaction.Builder(timestamp, "Insufficient funds").build();
                 sender.addTransaction(tSent);

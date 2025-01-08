@@ -1,5 +1,6 @@
 package org.poo.core.cards;
 
+import org.poo.core.User;
 import org.poo.core.accounts.Account;
 import org.poo.transactions.Transaction;
 import org.poo.utils.Utils;
@@ -8,8 +9,8 @@ import org.poo.utils.Utils;
  * Subclass for specific one-time card operation
  */
 public class OneTimeCard extends Card {
-    public OneTimeCard(final Account account, final String email) {
-        super(account, email);
+    public OneTimeCard(final Account account, final User user) {
+        super(account, user);
     }
 
     /**
@@ -24,7 +25,7 @@ public class OneTimeCard extends Card {
                 .cardHolder(account.getUser().getEmail())
                 .build();
         account.addTransaction(del);
-        account.getUser().addTransaction(del);
+        user.addTransaction(del);
         cardNumber = Utils.generateCardNumber();
         Transaction create = new Transaction.Builder(timestamp, "New card created")
                 .card(cardNumber)
@@ -32,6 +33,6 @@ public class OneTimeCard extends Card {
                 .account(account.getIban())
                 .build();
         account.addTransaction(create);
-        account.getUser().addTransaction(create);
+        user.addTransaction(create);
     }
 }

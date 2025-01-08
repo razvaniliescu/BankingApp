@@ -42,11 +42,14 @@ public class AddNewBusinessAssociate extends Command {
             for (User user : users) {
                 if (user.getEmail().equals(this.email)) {
                     user.addAccount(businessAccount);
-                    if (role.equals("manager")) {
-                        businessAccount.addManager(user);
-                    } else if (role.equals("employee")) {
-                        businessAccount.addEmployee(user);
+                    if (!(businessAccount.getManagers().contains(user) || businessAccount.getEmployees().contains(user))) {
+                        if (role.equals("manager")) {
+                            businessAccount.addManager(user);
+                        } else if (role.equals("employee")) {
+                            businessAccount.addEmployee(user);
+                        }
                     }
+
                 }
             }
         }

@@ -43,7 +43,7 @@ public class CreateCard extends Command {
             for (Account account : user.getAccounts()) {
                 if (account.getIban().equals(iban)) {
                     if (user.getEmail().equals(email)) {
-                        this.card = new Card(account, email);
+                        this.card = new Card(account, user);
                         account.addCard(card);
                         Transaction t = new Transaction.Builder(timestamp, "New card created")
                                 .card(card.getCardNumber())

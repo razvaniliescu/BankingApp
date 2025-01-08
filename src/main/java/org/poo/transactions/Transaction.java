@@ -41,6 +41,9 @@ public class Transaction implements Comparable<Transaction> {
     private String splitPaymentCurrency;
     private User user;
     private boolean deposit;
+    private List<String> accountsInvolved;
+    private String classicAccountIban;
+    private String savingsAccountIban;
 
     @Override
     public int compareTo(Transaction o) {
@@ -73,6 +76,9 @@ public class Transaction implements Comparable<Transaction> {
         private String splitPaymentCurrency = null;
         private User user = null;
         private boolean deposit = false;
+        private List<String> accountsInvolved = null;
+        private String classicAccountIban = null;
+        private String savingsAccountIban = null;
 
         public Builder(int timestamp, String description) {
             this.timestamp = timestamp;
@@ -179,6 +185,21 @@ public class Transaction implements Comparable<Transaction> {
             return this;
         }
 
+        public Builder accountsInvolved(List<String> accountsInvolved) {
+            this.accountsInvolved = accountsInvolved;
+            return this;
+        }
+
+        public Builder classicAccountIban(String classicAccountIban) {
+            this.classicAccountIban = classicAccountIban;
+            return this;
+        }
+
+        public Builder savingsAccountIban(String savingsAccountIban) {
+            this.savingsAccountIban = savingsAccountIban;
+            return this;
+        }
+
         public Transaction build() {
             return new Transaction(this);
         }
@@ -207,6 +228,9 @@ public class Transaction implements Comparable<Transaction> {
         this.splitPaymentCurrency = builder.splitPaymentCurrency;
         this.user = builder.user;
         this.deposit = builder.deposit;
+        this.accountsInvolved = builder.accountsInvolved;
+        this.classicAccountIban = builder.classicAccountIban;
+        this.savingsAccountIban = builder.savingsAccountIban;
     }
 
     /**
@@ -223,12 +247,12 @@ public class Transaction implements Comparable<Transaction> {
             node.put("receiverIBAN", receiverIBAN);
         }
         if (amount != 0.0 && currency != null && !currencyFormat) {
-            node.put("amount", Math.round(amount * 100) / 100.0 + " " + currency);
+            node.put("amount", amount + " " + currency);
         } else if (amount != 0.0 && currency != null) {
-            node.put("amount", Math.round(amount * 100) / 100.0);
+            node.put("amount", amount);
             node.put("currency", currency);
         } else if (amount != 0.0) {
-            node.put("amount", Math.round(amount * 100) / 100.0);
+            node.put("amount", amount);
         }
         if (type != null) {
             node.put("transferType", type);
@@ -267,7 +291,7 @@ public class Transaction implements Comparable<Transaction> {
         if (amountForUsers != null) {
             ArrayNode amountArray = objectMapper.createArrayNode();
             for (Double amount : amountForUsers) {
-                amountArray.add(Math.round(amount * 100) / 100.0);
+                amountArray.add(amount);
             }
             node.set("amountForUsers", amountArray);
         }
@@ -276,6 +300,19 @@ public class Transaction implements Comparable<Transaction> {
         }
         if (splitPaymentCurrency != null) {
             node.put("currency", splitPaymentCurrency);
+        }
+        if (accountsInvolved != null) {
+            ArrayNode accountArray = objectMapper.createArrayNode();
+            for (String account : accountsInvolved) {
+                accountArray.add(account);
+            }
+            node.set("involvedAccounts", accountArray);
+        }
+        if (classicAccountIban != null) {
+            node.put("classicAccountIBAN", classicAccountIban);
+        }
+        if (savingsAccountIban != null) {
+            node.put("savingsAccountIBAN", savingsAccountIban);
         }
         arrayNode.add(node);
     }

@@ -62,7 +62,6 @@ public class CashWithdrawal extends Command {
                                     account.addTransaction(t);
                                     return;
                                 }
-
                                 Transaction t = new Transaction.Builder(timestamp, "Cash withdrawal of " + oldAmount)
                                         .amount(oldAmount)
                                         .build();

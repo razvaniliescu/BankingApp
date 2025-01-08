@@ -8,7 +8,6 @@ import org.poo.core.cards.Card;
 import org.poo.core.User;
 import org.poo.core.exchange.ExchangeGraph;
 import org.poo.exceptions.CardNotFoundException;
-import org.poo.exceptions.SavingsAccountException;
 import org.poo.transactions.Transaction;
 import org.poo.utils.Utils;
 
@@ -78,7 +77,8 @@ public class Account {
     public boolean payOnline(final double amount, final ExchangeGraph rates, String currency) {
         double rate = rates.getExchangeRate(currency, this.currency);
         if (this.balance >= amount * rate + minBalance) {
-            this.balance -= (amount + getCommission(amount, rates)) * rate;
+            double total = (amount + getCommission(amount, rates)) * rate;
+            this.balance -= total;
             return true;
         }
         return false;
@@ -100,7 +100,8 @@ public class Account {
     public boolean sendMoney(final Account receiver, final double amount, final double rate, final ExchangeGraph rates) {
         double receivedAmount = amount * rate;
         if (this.balance >= amount + getCommission(amount, rates) + minBalance) {
-            this.balance -= (amount + getCommission(amount, rates));
+            double total = amount + getCommission(amount, rates);
+            this.balance -= total;
             receiver.balance += receivedAmount;
             return true;
         }
@@ -112,8 +113,10 @@ public class Account {
      * @param amount the amount to pay
      * @param rate the exchange rate
      */
-    public boolean canPay(final double amount, final double rate) {
-        return balance >= amount * rate + minBalance;
+    public boolean cannotPay(final double amount, final double rate) {
+        double total = amount * rate + minBalance;
+        System.out.println(iban + " " + balance + " " + " " + total);
+        return !(balance >= amount * rate + minBalance);
     }
 
     /**
@@ -122,6 +125,10 @@ public class Account {
      */
     public void addTransaction(final Transaction t) {
         transactions.add(t);
+    }
+
+    public void addUserTransaction(final Transaction t) {
+        user.addTransaction(t);
     }
 
     public void addDeposit(final Transaction t) {
@@ -134,17 +141,6 @@ public class Account {
      */
     public void addOnlineTransaction(final Transaction t) {
         onlineTransactions.add(t);
-    }
-
-    /**
-     * Checks if the account is a savings account
-     * @throws SavingsAccountException if it isn't
-     */
-    public boolean isASavingsAccount() throws SavingsAccountException {
-        if (Objects.equals(type, "classic")) {
-            throw new SavingsAccountException();
-        }
-        return true;
     }
 
     /**
@@ -181,11 +177,19 @@ public class Account {
      * Checks if the account is eligible for an
      * automatic plan upgrade from silver to gold
      */
-    public void checkForUpgrade(double amount, final ExchangeGraph rates, String currency) {
+    public void checkForUpgrade(double amount, final ExchangeGraph rates, String currency, final int timestamp) {
         if (amount * rates.getExchangeRate(currency, "RON") >= 300 && plan == ServicePlans.Plans.silver) {
             largeSilverTransactions++;
             if (largeSilverTransactions == 5) {
-                plan = ServicePlans.Plans.gold;
+                for (Account account : this.getUser().getAccounts()) {
+                    account.setPlan(ServicePlans.Plans.gold);
+                }
+                Transaction t = new Transaction.Builder(timestamp, "Upgrade plan")
+                        .newPlanType(ServicePlans.Plans.gold)
+                        .iban(this.iban)
+                        .build();
+                addTransaction(t);
+                user.addTransaction(t);
             }
         }
     }

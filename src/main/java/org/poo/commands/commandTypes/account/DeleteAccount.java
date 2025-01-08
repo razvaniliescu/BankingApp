@@ -52,6 +52,7 @@ public class DeleteAccount extends Command {
                                     .build());
                             return;
                         } else {
+                            System.out.println(account.getBalance() + " " + timestamp);
                             accountUser = user;
                             user.deleteAccount(account);
                             break;

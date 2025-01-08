@@ -32,7 +32,15 @@ public class BusinessAccount extends Account {
         managers.add(user);
     }
 
+    public void removeManager(User user) {
+        managers.remove(user);
+    }
+
     public void addEmployee(User user) {
         employees.add(user);
+    }
+
+    public void removeEmployee(User user) {
+        employees.remove(user);
     }
 }

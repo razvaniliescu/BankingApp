@@ -2,6 +2,7 @@ package org.poo.core.cards;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.poo.core.User;
 import org.poo.core.accounts.Account;
 import org.poo.utils.Utils;
 
@@ -14,13 +15,13 @@ public class Card {
     protected String cardNumber;
     protected String status;
     protected Account account;
-    protected String email;
+    protected User user;
 
-    public Card(final Account account, final String email) {
+    public Card(final Account account, final User user) {
         this.cardNumber = Utils.generateCardNumber();
         this.status = "active";
         this.account = account;
-        this.email = email;
+        this.user = user;
     }
 
     /**

@@ -46,7 +46,7 @@ public class DeleteCard extends Command {
                     for (Card card : account.getCards()) {
                         if (card.getCardNumber().equals(this.cardNumber)) {
                             if (account.getType().equals("business")) {
-                                if (((BusinessAccount) account).getEmployees().contains(user) && !card.getEmail().equals(this.email)) {
+                                if (((BusinessAccount) account).getEmployees().contains(user) && !card.getUser().getEmail().equals(this.email)) {
                                     user.addTransaction(new Transaction.Builder(timestamp,
                                             "You are not authorized to make this transaction.")
                                             .build());

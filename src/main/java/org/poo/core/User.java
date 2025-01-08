@@ -28,7 +28,7 @@ public class User implements Comparable<User> {
     private List<Account> accounts;
     private List<SavingsAccount> savingsAccounts;
     private Map<String, Account> aliases;
-    private Set<Transaction> transactions;
+    private List<Transaction> transactions;
     private ServicePlans.Plans basePlan;
     private List<SplitPayment> pendingPayments;
 
@@ -41,27 +41,13 @@ public class User implements Comparable<User> {
         accounts = new ArrayList<>();
         savingsAccounts = new ArrayList<>();
         aliases = new HashMap<>();
-        transactions = new TreeSet<>();
+        transactions = new ArrayList<>();
         pendingPayments = new ArrayList<>();
         if (occupation.equals("student")) {
             basePlan = ServicePlans.Plans.student;
         } else {
             basePlan = ServicePlans.Plans.standard;
         }
-    }
-
-    public User(final User user) {
-        this.firstName = user.getFirstName();
-        this.lastName = user.getLastName();
-        this.email = user.getEmail();
-        this.birthDate = user.getBirthDate();
-        this.occupation = user.getOccupation();
-        accounts = new ArrayList<>();
-        savingsAccounts = new ArrayList<>();
-        aliases = new HashMap<>();
-        transactions = new TreeSet<>();
-        pendingPayments = new ArrayList<>();
-
     }
 
     /**
@@ -88,6 +74,9 @@ public class User implements Comparable<User> {
     public void deleteAccount(final Account account) throws BalanceNotEmptyException {
         if (account.getBalance() == 0) {
             accounts.remove(account);
+            if (account.getType().equals("savings")) {
+                savingsAccounts.remove(account);
+            }
         } else {
             throw new BalanceNotEmptyException();
         }
@@ -108,6 +97,7 @@ public class User implements Comparable<User> {
      */
     public void addTransaction(final Transaction transaction) {
         transactions.add(transaction);
+        transactions.sort(Comparator.comparing(Transaction::getTimestamp));
     }
 
     /**

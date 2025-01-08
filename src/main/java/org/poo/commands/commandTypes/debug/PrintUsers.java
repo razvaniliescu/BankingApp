@@ -37,20 +37,22 @@ public class PrintUsers extends Command {
             userNode.put("email", user.getEmail());
             ArrayNode accountsArray = objectMapper.createArrayNode();
             for (Account account : user.getAccounts()) {
-                ObjectNode accountNode = objectMapper.createObjectNode();
-                accountNode.put("IBAN", account.getIban());
-                accountNode.put("balance", Math.round(account.getBalance() * 100) / 100.0);
-                accountNode.put("currency", account.getCurrency());
-                accountNode.put("type", account.getType());
-                ArrayNode cardsArray = objectMapper.createArrayNode();
-                for (Card card: account.getCards()) {
-                    ObjectNode cardNode = objectMapper.createObjectNode();
-                    cardNode.put("cardNumber", card.getCardNumber());
-                    cardNode.put("status", card.getStatus());
-                    cardsArray.add(cardNode);
+                if (!(account.getType().equals("business") && account.getUser() != user)) {
+                    ObjectNode accountNode = objectMapper.createObjectNode();
+                    accountNode.put("IBAN", account.getIban());
+                    accountNode.put("balance", account.getBalance());
+                    accountNode.put("currency", account.getCurrency());
+                    accountNode.put("type", account.getType());
+                    ArrayNode cardsArray = objectMapper.createArrayNode();
+                    for (Card card: account.getCards()) {
+                        ObjectNode cardNode = objectMapper.createObjectNode();
+                        cardNode.put("cardNumber", card.getCardNumber());
+                        cardNode.put("status", card.getStatus());
+                        cardsArray.add(cardNode);
+                    }
+                    accountNode.set("cards", cardsArray);
+                    accountsArray.add(accountNode);
                 }
-                accountNode.set("cards", cardsArray);
-                accountsArray.add(accountNode);
             }
             userNode.set("accounts", accountsArray);
             usersArray.add(userNode);

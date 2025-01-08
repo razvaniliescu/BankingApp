@@ -36,8 +36,6 @@ public class UpgradePlan extends Command {
                     if (account.getIban().equals(this.getIban())) {
                         if (plan == account.getPlan()) {
                             Transaction t = new Transaction.Builder(timestamp, "The user already has the " + plan.toString() + " plan.")
-                                    .iban(iban)
-                                    .newPlanType(plan)
                                     .build();
                             account.addTransaction(t);
                             user.addTransaction(t);
@@ -62,8 +60,6 @@ public class UpgradePlan extends Command {
                         fee *= rates.getExchangeRate("RON", account.getCurrency());
                         if (account.getBalance() - fee < account.getMinBalance()) {
                             Transaction t = new Transaction.Builder(timestamp, "Insufficient funds")
-                                    .iban(iban)
-                                    .newPlanType(plan)
                                     .build();
                             account.addTransaction(t);
                             user.addTransaction(t);
@@ -72,6 +68,9 @@ public class UpgradePlan extends Command {
                         account.setBalance(account.getBalance() - fee);
                         user.setBasePlan(plan);
                         for (Account acc : user.getAccounts()) {
+                            if (acc.getType().equals("business") && !acc.getUser().equals(user)) {
+                                continue;
+                            }
                             acc.setPlan(plan);
                         }
                         Transaction t = new Transaction.Builder(timestamp, "Upgrade plan")

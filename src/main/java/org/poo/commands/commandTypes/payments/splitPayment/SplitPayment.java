@@ -28,6 +28,7 @@ public class SplitPayment extends Command {
     private String currency;
     private String type;
     private List<Double> amountForUsers;
+    private List<User> usersInvolved;
     private int usersToAccept;
 
     public SplitPayment(final CommandInput input) {
@@ -37,6 +38,7 @@ public class SplitPayment extends Command {
         this.currency = input.getCurrency();
         this.type = input.getSplitPaymentType();
         this.amountForUsers = input.getAmountForUsers();
+        this.usersInvolved = new ArrayList<>();
         usersToAccept = accounts.size();
     }
 
@@ -63,14 +65,20 @@ public class SplitPayment extends Command {
     }
 
 
-    public void rejectPayment(final ObjectMapper objectMapper, final ArrayNode output,
-                              final ArrayList<User> users) {
+    public void rejectPayment(final ArrayList<User> users) {
         for (String iban : accounts) {
             for (User user : users) {
                 for (Account account : user.getAccounts()) {
                     if (iban.equals(account.getIban())) {
                         user.getPendingPayments().remove(this);
-                        Transaction t = new Transaction.Builder(timestamp, "One user rejected the payment").build();
+                        Transaction t = new Transaction.Builder(timestamp,
+                                String.format("Split payment of %.2f %s", amount, currency))
+                                .amountForUsers(amountForUsers)
+                                .accountsInvolved(accounts)
+                                .splitPaymentType(type)
+                                .splitPaymentCurrency(currency)
+                                .errorMessage("One user rejected the payment.")
+                                .build();
                         user.addTransaction(t);
                         account.addTransaction(t);
                     }
@@ -99,42 +107,50 @@ public class SplitPayment extends Command {
                             involvedAccounts.add(account);
                             userAccountMap.put(account, user);
                             double rate = rates.getExchangeRate(currency, account.getCurrency());
-                            if (!account.canPay(amountForUsers.get(index), rate)) {
-                                errorAccount = account;
+                            if (account.cannotPay(amountForUsers.get(index), rate)) {
+                                if (errorAccount == null) {
+                                    errorAccount = account;
+                                }
                             }
                             index++;
                         }
                     }
                 }
             }
+
             index = 0;
             if (errorAccount == null) {
+                Transaction t = new Transaction.Builder(timestamp,
+                        String.format("Split payment of %.2f %s", amount, currency))
+                        .amountForUsers(amountForUsers)
+                        .splitPaymentType(type)
+                        .accounts(involvedAccounts)
+                        .currency(currency)
+                        .splitPaymentCurrency(currency)
+                        .build();
                 for (Account account : involvedAccounts) {
-                    Transaction t = new Transaction.Builder(timestamp,
-                            String.format("Split payment of %.2f %s", amount, currency))
-                            .amountForUsers(amountForUsers)
-                            .splitPaymentType(type)
-                            .accounts(involvedAccounts)
-                            .currency(currency)
-                            .splitPaymentCurrency(currency)
-                            .build();
                     account.payWithoutCommision(amountForUsers.get(index), rates, this.currency);
-                    userAccountMap.get(account).addTransaction(t);
                     account.addTransaction(t);
                     index++;
                 }
+                for (User user : usersInvolved) {
+                    user.addTransaction(t);
+                }
             } else {
+                System.out.println(errorAccount.getIban() + " cant pay");
+                Transaction t = new Transaction.Builder(timestamp,
+                        String.format("Split payment of %.2f %s", amount, currency))
+                        .amountForUsers(amountForUsers)
+                        .splitPaymentType(type)
+                        .splitPaymentCurrency(currency)
+                        .accounts(involvedAccounts)
+                        .errorMessage("Account " + errorAccount.getIban() + " has insufficient funds for a split payment.")
+                        .build();
                 for (Account account: involvedAccounts) {
-                    Transaction t = new Transaction.Builder(timestamp,
-                            String.format("Split payment of %.2f %s", amount, currency))
-                            .amountForUsers(amountForUsers)
-                            .splitPaymentType(type)
-                            .splitPaymentCurrency(currency)
-                            .accounts(involvedAccounts)
-                            .errorMessage("Account " + errorAccount.getIban() + " has insufficient funds for a split payment.")
-                            .build();
-                    userAccountMap.get(account).addTransaction(t);
                     account.addTransaction(t);
+                }
+                for (User user : usersInvolved) {
+                    user.addTransaction(t);
                 }
             }
         } else {
@@ -145,39 +161,42 @@ public class SplitPayment extends Command {
                             involvedAccounts.add(account);
                             userAccountMap.put(account, user);
                             double rate = rates.getExchangeRate(currency, account.getCurrency());
-                            if (!account.canPay(amount / accountsNum, rate)) {
-                                errorAccount = account;
+                            if (account.cannotPay(amount / accountsNum, rate)) {
+                                if (errorAccount == null) {
+                                    errorAccount = account;
+                                }
                             }
                         }
                     }
                 }
             }
             if (errorAccount == null) {
+                Transaction t = new Transaction.Builder(timestamp,
+                        String.format("Split payment of %.2f %s", amount, currency))
+                        .accounts(involvedAccounts)
+                        .splitPaymentType("equal")
+                        .currency(currency)
+                        .amount(amount)
+                        .build();
                 for (Account account: involvedAccounts) {
-                    Transaction t = new Transaction.Builder(timestamp,
-                            String.format("Split payment of %.2f %s", amount, currency))
-                            .accounts(involvedAccounts)
-                            .splitPaymentType("equal")
-                            .currency(currency)
-                            .amount(amount)
-                            .build();
                     account.payWithoutCommision(amount / accountsNum, rates, this.currency);
-                    userAccountMap.get(account).addTransaction(t);
                     account.addTransaction(t);
                 }
             } else {
+                Transaction t = new Transaction.Builder(timestamp,
+                        String.format("Split payment of %.2f %s", amount, currency))
+                        .accounts(involvedAccounts)
+                        .currency(currency)
+                        .splitPaymentType("equal")
+                        .amount(amount / accountsNum)
+                        .currencyFormat(true)
+                        .errorMessage("Account " + errorAccount.getIban() + " has insufficient funds for a split payment.")
+                        .build();
                 for (Account account: involvedAccounts) {
-                    Transaction t = new Transaction.Builder(timestamp,
-                            String.format("Split payment of %.2f %s", amount, currency))
-                            .accounts(involvedAccounts)
-                            .currency(currency)
-                            .splitPaymentType("equal")
-                            .amount(amount / accountsNum)
-                            .currencyFormat(true)
-                            .errorMessage("Account " + errorAccount.getIban() + " has insufficient funds for a split payment.")
-                            .build();
-                    userAccountMap.get(account).addTransaction(t);
                     account.addTransaction(t);
+                }
+                for (User user : usersInvolved) {
+                    user.addTransaction(t);
                 }
             }
         }

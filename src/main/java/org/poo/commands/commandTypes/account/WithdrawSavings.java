@@ -30,7 +30,6 @@ public class WithdrawSavings extends Command {
 
     @Override
     public void execute(ObjectMapper objectMapper, ArrayNode output, ArrayList<User> users, ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
-
             for (User user : users) {
                 for (SavingsAccount savingsAccount : user.getSavingsAccounts()) {
                     if (savingsAccount.getIban().equals(account)) {
@@ -40,28 +39,39 @@ public class WithdrawSavings extends Command {
                             user.addTransaction(t);
                             return;
                         }
-                        if (user.getAccounts().size() - user.getSavingsAccounts().size() == 0) {
+                        if (user.getAccounts().size() - user.getSavingsAccounts().size() <= 0) {
                             Transaction t = new Transaction.Builder(timestamp, "You do not have a classic account.").build();
                             savingsAccount.addTransaction(t);
                             user.addTransaction(t);
                             return;
                         }
+                        double oldAmount = amount;
                         amount *= rates.getExchangeRate(savingsAccount.getCurrency(), currency);
                         for (Account account : user.getAccounts()) {
-                            if (account.getCurrency().equals(currency)) {
-                                if (account.getBalance() - amount < savingsAccount.getMinBalance()) {
+                            if (account.getCurrency().equals(currency) && account.getType().equals("classic")) {
+                                if (savingsAccount.getBalance() - amount < savingsAccount.getMinBalance()) {
                                     Transaction t = new Transaction.Builder(timestamp, "Insufficient funds").build();
                                     user.addTransaction(t);
                                     return;
                                 }
                                 savingsAccount.setBalance(savingsAccount.getBalance() - amount);
-                                account.setBalance(account.getBalance() + amount);
-                                Transaction t = new Transaction.Builder(timestamp, "Savings withdrawal").build();
+                                account.setBalance(account.getBalance() + oldAmount);
+                                Transaction t = new Transaction.Builder(timestamp, "Savings withdrawal")
+                                        .amount(oldAmount)
+                                        .savingsAccountIban(savingsAccount.getIban())
+                                        .classicAccountIban(account.getIban())
+                                        .build();
+                                account.addTransaction(t);
                                 savingsAccount.addTransaction(t);
+                                user.addTransaction(t);
                                 user.addTransaction(t);
                                 return;
                             }
                         }
+                        Transaction t = new Transaction.Builder(timestamp, "You do not have a classic account.").build();
+                        savingsAccount.addTransaction(t);
+                        user.addTransaction(t);
+                        return;
                     }
                 }
                 for (Account account : user.getAccounts()) {

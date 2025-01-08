@@ -35,10 +35,11 @@ public class ChangeDepositLimit extends Command {
                 if (account.getIban().equals(this.account) && account.getType().equals("business")) {
                     if (user.equals(account.getUser())) {
                         ((BusinessAccount) account).setDepositLimit(amount);
+                        return;
                     } else {
-                        user.addTransaction(new Transaction.Builder(timestamp,
-                                "You are not authorized to make this transaction.")
-                                .build());
+//                        user.addTransaction(new Transaction.Builder(timestamp,
+//                                "You are not authorized to make this transaction.")
+//                                .build());
                     }
                 }
             }

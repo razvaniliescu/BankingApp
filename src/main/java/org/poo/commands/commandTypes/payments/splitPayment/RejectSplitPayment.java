@@ -6,6 +6,7 @@ import org.poo.commands.Command;
 import org.poo.commerciants.Commerciant;
 import org.poo.core.User;
 import org.poo.core.exchange.ExchangeGraph;
+import org.poo.exceptions.MyException;
 import org.poo.fileio.CommandInput;
 
 import java.util.ArrayList;
@@ -20,13 +21,19 @@ public class RejectSplitPayment extends Command {
 
     @Override
     public void execute(ObjectMapper objectMapper, ArrayNode output, ArrayList<User> users, ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
-        for (User user : users) {
-            if (email.equals(user.getEmail())) {
-                if (!user.getPendingPayments().isEmpty()) {
-                    SplitPayment pendingPayment = user.getPendingPayments().getFirst();
-                    pendingPayment.rejectPayment(objectMapper, output, users);
+        try {
+            for (User user : users) {
+                if (email.equals(user.getEmail())) {
+                    if (!user.getPendingPayments().isEmpty()) {
+                        SplitPayment pendingPayment = user.getPendingPayments().getFirst();
+                        pendingPayment.rejectPayment(users);
+                        return;
+                    }
                 }
-            }
+            } throw new MyException("User not found");
+        } catch (MyException e) {
+            e.printException(objectMapper, output, command, timestamp);
         }
+
     }
 }
