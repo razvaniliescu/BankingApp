@@ -46,7 +46,7 @@ public class SpendingsReport extends Report {
                 for (Account account : user.getAccounts()) {
                     if (account.getIban().equals(iban)) {
                         result.put("IBAN", iban);
-                        result.put("balance", Math.round(account.getBalance() * 100) / 100.0);
+                        result.put("balance", account.getBalance());
                         result.put("currency", account.getCurrency());
                         ArrayNode transactions = objectMapper.createArrayNode();
                         for (Transaction transaction: account.getOnlineTransactions()) {

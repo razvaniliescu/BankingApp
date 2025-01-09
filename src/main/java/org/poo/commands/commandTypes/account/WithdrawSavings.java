@@ -65,6 +65,7 @@ public class WithdrawSavings extends Command {
                                 savingsAccount.addTransaction(t);
                                 user.addTransaction(t);
                                 user.addTransaction(t);
+                                System.out.println("Withdrawn " + oldAmount + " " + account.getCurrency() + " from " + savingsAccount.getIban());
                                 return;
                             }
                         }

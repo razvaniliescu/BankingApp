@@ -14,6 +14,10 @@ import org.poo.fileio.CommandInput;
 import org.poo.transactions.Transaction;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of the addFunds command
@@ -39,38 +43,80 @@ public class AddFunds extends Command {
     @Override
     public void execute(final ObjectMapper objectMapper, final ArrayNode arrayNode,
                         final ArrayList<User> users, final ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
-        for (User user: users) {
-            for (Account account : user.getAccounts()) {
-                if (account.getIban().equals(this.iban)) {
-                    if (account.getType().equals("classic") || account.getType().equals("savings")) {
+        User userAddingFunds = null;
+        for (User user : users) {
+            if (user.getEmail().equals(this.email)) {
+                userAddingFunds = user;
+            }
+        }
+        if (userAddingFunds == null) {
+            return;
+        }
+        Set<Account> accounts = users.stream().map(User::getAccounts).flatMap(Collection::stream).collect(Collectors.toSet());
+        for (Account account : accounts) {
+            if (account.getIban().equals(iban)) {
+                if (account.getType().equals("classic") || account.getType().equals("savings")
+                            || (account.getType().equals("business")
+                        && !((BusinessAccount) account).isInvolvedInAccount(userAddingFunds))) {
+                    account.addFunds(this.funds);
+                    return;
+                } else if (account.getType().equals("business") && userAddingFunds.getEmail().equals(this.email)) {
+                    if (account.getUser().getEmail().equals(userAddingFunds.getEmail())
+                            || ((BusinessAccount) account).getManagers().contains(userAddingFunds)) {
                         account.addFunds(this.funds);
                         account.addDeposit(new Transaction.Builder(timestamp, "Deposit")
                                 .amount(funds)
-                                .user(user)
+                                .user(userAddingFunds)
                                 .build());
                         return;
-                    } else if (account.getType().equals("business") && user.getEmail().equals(this.email)) {
-                        if (account.getUser().getEmail().equals(user.getEmail())
-                                || ((BusinessAccount) account).getManagers().contains(user)) {
+                    } else if (((BusinessAccount) account).getEmployees().contains(userAddingFunds)) {
+                        if (((BusinessAccount) account).getDepositLimit() >= this.funds) {
                             account.addFunds(this.funds);
                             account.addDeposit(new Transaction.Builder(timestamp, "Deposit")
                                     .amount(funds)
-                                    .user(user)
+                                    .user(userAddingFunds)
                                     .build());
                             return;
-                        } else if (((BusinessAccount) account).getEmployees().contains(user)) {
-                            if (((BusinessAccount) account).getDepositLimit() >= this.funds) {
-                                account.addFunds(this.funds);
-                                account.addDeposit(new Transaction.Builder(timestamp, "Deposit")
-                                        .amount(funds)
-                                        .user(user)
-                                        .build());
-                                return;
-                            }
                         }
                     }
                 }
             }
         }
+//        for (User user: users) {
+//            for (Account account : user.getAccounts()) {
+//                if (account.getIban().equals(this.iban)) {
+//                    if (account.getType().equals("classic") || account.getType().equals("savings")) {
+//                        account.addFunds(this.funds);
+//                        account.addDeposit(new Transaction.Builder(timestamp, "Deposit")
+//                                .amount(funds)
+//                                .user(user)
+//                                .build());
+//                        return;
+//                    } else if (account.getType().equals("business") && ((BusinessAccount) account).isInvolvedInAccount(user.getEmail())) {
+//                        account.addFunds(this.funds);
+//                        return;
+//                    } else if (account.getType().equals("business") && user.getEmail().equals(this.email)) {
+//                        if (account.getUser().getEmail().equals(user.getEmail())
+//                                || ((BusinessAccount) account).getManagers().contains(user)) {
+//                            account.addFunds(this.funds);
+//                            account.addDeposit(new Transaction.Builder(timestamp, "Deposit")
+//                                    .amount(funds)
+//                                    .user(user)
+//                                    .build());
+//                            return;
+//                        } else if (((BusinessAccount) account).getEmployees().contains(user)) {
+//                            if (((BusinessAccount) account).getDepositLimit() >= this.funds) {
+//                                account.addFunds(this.funds);
+//                                account.addDeposit(new Transaction.Builder(timestamp, "Deposit")
+//                                        .amount(funds)
+//                                        .user(user)
+//                                        .build());
+//                                return;
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
     }
 }

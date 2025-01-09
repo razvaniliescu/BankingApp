@@ -6,23 +6,20 @@ import org.poo.commerciants.Commerciant;
 import org.poo.core.User;
 import org.poo.core.exchange.ExchangeGraph;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 @Getter @Setter
 public class BusinessAccount extends Account {
-    private Set<User> employees;
-    private Set<User> managers;
+    private List<User> employees;
+    private List<User> managers;
     private double spendingLimit;
     private double depositLimit;
     private Map<String, Commerciant> commerciantAliases;
 
     public BusinessAccount(String currency, String type, User user, ExchangeGraph rates) {
         super(currency, type, user);
-        this.employees = new TreeSet<>();
-        this.managers = new TreeSet<>();
+        this.employees = new ArrayList<>();
+        this.managers = new ArrayList<>();
         this.commerciantAliases = new HashMap<>();
         this.spendingLimit = 500 * rates.getExchangeRate("RON", currency);
         this.depositLimit = 500 * rates.getExchangeRate("RON", currency);
@@ -42,5 +39,9 @@ public class BusinessAccount extends Account {
 
     public void removeEmployee(User user) {
         employees.remove(user);
+    }
+
+    public boolean isInvolvedInAccount(User user) {
+        return employees.contains(user) || managers.contains(user) || this.user.equals(user);
     }
 }

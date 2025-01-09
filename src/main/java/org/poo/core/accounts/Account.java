@@ -26,12 +26,12 @@ public class Account {
     protected List<Card> cards;
     protected ServicePlans.Plans plan;
     protected double minBalance;
-    protected Set<Transaction> transactions;
-    protected Set<Transaction> onlineTransactions;
+    protected TreeSet<Transaction> transactions;
+    protected TreeSet<Transaction> onlineTransactions;
     protected User user;
     protected CashbackDetails cashbackDetails;
     protected int largeSilverTransactions;
-    protected Set<Transaction> deposits;
+    protected TreeSet<Transaction> deposits;
 
     public Account(final String currency, final String type, final User user) {
         this.iban = Utils.generateIBAN();
@@ -60,6 +60,7 @@ public class Account {
      */
     public void addFunds(final double funds) {
         this.balance += funds;
+        System.out.println(iban + " Added funds " + funds + " New Balance " + balance);
     }
 
     /**
@@ -79,6 +80,7 @@ public class Account {
         if (this.balance >= amount * rate + minBalance) {
             double total = (amount + getCommission(amount, rates)) * rate;
             this.balance -= total;
+            System.out.println(iban + " Pay online: paid " + total + " remaining balance " + this.balance);
             return true;
         }
         return false;
@@ -103,6 +105,7 @@ public class Account {
             double total = amount + getCommission(amount, rates);
             this.balance -= total;
             receiver.balance += receivedAmount;
+            System.out.println(iban + " Send money: paid " + total + " remaining balance " + this.balance);
             return true;
         }
         return false;
@@ -114,8 +117,6 @@ public class Account {
      * @param rate the exchange rate
      */
     public boolean cannotPay(final double amount, final double rate) {
-        double total = amount * rate + minBalance;
-        System.out.println(iban + " " + balance + " " + " " + total);
         return !(balance >= amount * rate + minBalance);
     }
 

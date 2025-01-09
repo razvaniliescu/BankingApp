@@ -10,6 +10,7 @@ import org.poo.core.User;
 import org.poo.core.accounts.Account;
 import org.poo.core.accounts.BusinessAccount;
 import org.poo.core.exchange.ExchangeGraph;
+import org.poo.exceptions.MyException;
 import org.poo.fileio.CommandInput;
 import org.poo.transactions.Transaction;
 
@@ -30,19 +31,27 @@ public class ChangeDepositLimit extends Command {
 
     @Override
     public void execute(ObjectMapper objectMapper, ArrayNode output, ArrayList<User> users, ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
-        for (User user : users) {
-            for (Account account : user.getAccounts()) {
-                if (account.getIban().equals(this.account) && account.getType().equals("business")) {
-                    if (user.equals(account.getUser())) {
-                        ((BusinessAccount) account).setDepositLimit(amount);
-                        return;
-                    } else {
-//                        user.addTransaction(new Transaction.Builder(timestamp,
-//                                "You are not authorized to make this transaction.")
-//                                .build());
+        try {
+            for (User user : users) {
+                if (user.getEmail().equals(email)) {
+                    for (Account account : user.getAccounts()) {
+                        if (account.getIban().equals(this.account)) {
+                            if (account.getType().equals("business")) {
+                                if (user.equals(account.getUser())) {
+                                    ((BusinessAccount) account).setDepositLimit(amount);
+                                    return;
+                                } else {
+                                    throw new MyException("You must be owner in order to change deposit limit.");
+                                }
+                            } else {
+                                throw new MyException("This is not a business account");
+                            }
+                        }
                     }
                 }
             }
+        } catch (MyException e) {
+            e.printException(objectMapper, output, command, timestamp);
         }
     }
 }

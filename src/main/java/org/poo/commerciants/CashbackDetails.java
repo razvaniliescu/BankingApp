@@ -16,6 +16,7 @@ public class CashbackDetails {
     private boolean receivedFoodCashback;
     private boolean receivedClothesCashback;
     private boolean receivedTechCashback;
+    private double futureCashback;
 
     public CashbackDetails() {
         commerciantTransactions = new HashMap<>();

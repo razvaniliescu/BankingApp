@@ -11,19 +11,20 @@ public class SpendingTreshhold implements CashbackStrategy {
         double rate = rates.getExchangeRate(account.getCurrency(), "RON");
         double spending = account.getCashbackDetails().getAmountSpentOnline().get(commerciant.getCommerciant());
         spending *= rate;
-        if (spending > 100 && spending <= 300) {
+        System.out.println(spending + " " + account.getPlan());
+        if (spending >= 100 && spending < 300) {
             switch (account.getPlan()) {
                 case standard, student: account.addFunds(amount * 0.001); break;
                 case silver: account.addFunds(amount * 0.003); break;
                 case gold: account.addFunds(amount * 0.005); break;
             }
-        } else if (spending > 300 && spending <= 500) {
+        } else if (spending >= 300 && spending < 500) {
             switch (account.getPlan()) {
                 case standard, student: account.addFunds(amount * 0.002); break;
                 case silver: account.addFunds(amount * 0.004); break;
                 case gold: account.addFunds(amount * 0.0055); break;
             }
-        } else if (spending > 500) {
+        } else if (spending >= 500) {
             switch (account.getPlan()) {
                 case standard, student: account.addFunds(amount * 0.0025); break;
                 case silver: account.addFunds(amount * 0.005); break;

@@ -67,10 +67,11 @@ public class PayOnline extends Command {
                                     return;
                                 }
                                 double rate = rates.getExchangeRate(currency, account.getCurrency());
-                                if (account.getType().equals("business")) {
+                                if (account.getType().equals("business") && ((BusinessAccount) account).getEmployees().contains(user)) {
                                     if (amount * rate > ((BusinessAccount) account).getSpendingLimit()) {
                                         user.addTransaction(new Transaction.Builder(timestamp,
                                                 "You are not authorized to make this transaction.").build());
+                                        return;
                                     }
                                 }
                                 boolean ok = account.payOnline(amount, rates, currency);

@@ -137,7 +137,6 @@ public class SplitPayment extends Command {
                     user.addTransaction(t);
                 }
             } else {
-                System.out.println(errorAccount.getIban() + " cant pay");
                 Transaction t = new Transaction.Builder(timestamp,
                         String.format("Split payment of %.2f %s", amount, currency))
                         .amountForUsers(amountForUsers)
@@ -175,18 +174,21 @@ public class SplitPayment extends Command {
                         String.format("Split payment of %.2f %s", amount, currency))
                         .accounts(involvedAccounts)
                         .splitPaymentType("equal")
-                        .currency(currency)
-                        .amount(amount)
+                        .splitPaymentCurrency(currency)
+                        .amount(amount / accountsNum)
                         .build();
                 for (Account account: involvedAccounts) {
                     account.payWithoutCommision(amount / accountsNum, rates, this.currency);
                     account.addTransaction(t);
                 }
+                for (User user : usersInvolved) {
+                    user.addTransaction(t);
+                }
             } else {
                 Transaction t = new Transaction.Builder(timestamp,
                         String.format("Split payment of %.2f %s", amount, currency))
                         .accounts(involvedAccounts)
-                        .currency(currency)
+                        .splitPaymentCurrency(currency)
                         .splitPaymentType("equal")
                         .amount(amount / accountsNum)
                         .currencyFormat(true)

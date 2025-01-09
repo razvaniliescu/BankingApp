@@ -4,7 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.Getter;
 import lombok.Setter;
+import org.poo.commerciants.CashbackStrategy;
 import org.poo.commerciants.Commerciant;
+import org.poo.commerciants.cashbackStrategies.NoCashback;
+import org.poo.commerciants.cashbackStrategies.NrOfTransactions;
+import org.poo.commerciants.cashbackStrategies.SpendingTreshhold;
 import org.poo.core.accounts.Account;
 import org.poo.core.User;
 import org.poo.commands.Command;
@@ -26,6 +30,7 @@ public class SendMoney extends Command {
     private String receiverIban;
     private String description;
     private String currency;
+    private CashbackStrategy cashbackStrategy;
 
     public SendMoney(final CommandInput input) {
         super(input);
@@ -33,6 +38,7 @@ public class SendMoney extends Command {
         this.amount = input.getAmount();
         this.receiverIban = input.getReceiver();
         this.description = input.getDescription();
+        this.cashbackStrategy = new NoCashback();
     }
 
     /**
@@ -58,6 +64,9 @@ public class SendMoney extends Command {
                         receiverAccount = account;
                     }
                 }
+                if (!senderIban.startsWith("RO")) {
+                    return;
+                }
                 if (user.getAliases().containsKey(senderIban)) {
                     return;
                 }
@@ -81,6 +90,38 @@ public class SendMoney extends Command {
                                     .build();
                             senderAccount.addTransaction(tSent);
                             senderAccount.getUser().addTransaction(tSent);
+                            double cashback = 0;
+                            if (commerciant.getType().equals("food") && senderAccount.getCashbackDetails().isFoodCashback()) {
+                                cashback += 0.02;
+                                senderAccount.getCashbackDetails().setFoodCashback(false);
+                            } else if (commerciant.getType().equals("clothes") && senderAccount.getCashbackDetails().isClothesCashback()) {
+                                cashback += 0.05;
+                                senderAccount.getCashbackDetails().setClothesCashback(false);
+                            } else if (commerciant.getType().equals("tech") && senderAccount.getCashbackDetails().isTechCashback()) {
+                                cashback += 0.1;
+                                senderAccount.getCashbackDetails().setTechCashback(false);
+                            }
+                            if (commerciant.getCashbackStrategy().equals("spendingThreshold")) {
+                                if (!senderAccount.getCashbackDetails().getAmountSpentOnline().containsKey(commerciant.getCommerciant())) {
+                                    senderAccount.getCashbackDetails().getAmountSpentOnline().put(commerciant.getCommerciant(),
+                                            amount + senderAccount.getCommission(amount, rates));
+                                } else {
+                                    senderAccount.getCashbackDetails().getAmountSpentOnline().merge(commerciant.getCommerciant(),
+                                            (amount + senderAccount.getCommission(amount, rates)),
+                                            Double::sum);
+                                }
+                                setCashbackStrategy(new SpendingTreshhold());
+                            } else if (commerciant.getCashbackStrategy().equals("nrOfTransactions")) {
+                                if (!senderAccount.getCashbackDetails().getCommerciantTransactions().containsKey(commerciant.getCommerciant())) {
+                                    senderAccount.getCashbackDetails().getCommerciantTransactions().put(commerciant.getCommerciant(), 1);
+                                } else {
+                                    senderAccount.getCashbackDetails().getCommerciantTransactions().merge(commerciant.getCommerciant(), 1, Integer::sum);
+                                }
+                                setCashbackStrategy(new NrOfTransactions());
+                            }
+                            cashbackStrategy.cashback(senderAccount, amount, commerciant, rates, currency);
+                            senderAccount.addFunds(amount * cashback);
+                            senderAccount.checkForUpgrade(amount, rates, senderAccount.getCurrency(), timestamp);
                             return;
                         } else {
                             Transaction tSent = new Transaction.Builder(timestamp, "Insufficient funds").build();

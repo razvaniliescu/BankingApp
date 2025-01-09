@@ -21,6 +21,7 @@ public class SavingsAccount extends Account {
     public double addInterest() {
         double interest = interestRate * balance;
         balance += interest;
+        System.out.println(iban + " Added interest " + interest + " New balance: " + balance);
         return interest;
     }
 }

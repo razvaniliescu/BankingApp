@@ -35,12 +35,16 @@ public class ChangeSpendingLimit extends Command {
             for (User user : users) {
                 if (user.getEmail().equals(email)) {
                     for (Account account : user.getAccounts()) {
-                        if (account.getIban().equals(this.account) && account.getType().equals("business")) {
-                            if (user.equals(account.getUser())) {
-                                ((BusinessAccount) account).setSpendingLimit(amount);
-                                return;
+                        if (account.getIban().equals(this.account)) {
+                            if (account.getType().equals("business")) {
+                                if (user.equals(account.getUser())) {
+                                    ((BusinessAccount) account).setSpendingLimit(amount);
+                                    return;
+                                } else {
+                                    throw new MyException("You must be owner in order to change spending limit.");
+                                }
                             } else {
-                                throw new MyException("You must be owner in order to change spending limit.");
+                                throw new MyException("This is not a business account");
                             }
                         }
                     }

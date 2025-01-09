@@ -11,6 +11,7 @@ import org.poo.core.User;
 import org.poo.commands.Command;
 import org.poo.exceptions.CardNotFoundException;
 import org.poo.core.exchange.ExchangeGraph;
+import org.poo.exceptions.MyException;
 import org.poo.fileio.CommandInput;
 import org.poo.transactions.Transaction;
 import org.poo.utils.Utils;
@@ -41,23 +42,26 @@ public class CheckCardStatus extends Command {
         try {
             for (User user : users) {
                 for (Account account : user.getAccounts()) {
-                    Card card = account.checkCard(this.cardNumber);
-                    if (account.getBalance() <= account.getMinBalance()
-                            && !Objects.equals(card.getStatus(), "frozen")) {
-                        card.setStatus("frozen");
-                        user.addTransaction(new Transaction.Builder(timestamp,
-                                "You have reached the minimum amount of funds, the card will be frozen")
-                                .build());
-                        return;
-                    } else if (account.getBalance() <= account.getMinBalance()
-                            + Utils.WARNING_BALANCE) {
-                        card.setStatus("warning");
-                        return;
+                    for (Card card : account.getCards()) {
+                        if (card.getCardNumber().equals(cardNumber)) {
+                            if (account.getBalance() <= account.getMinBalance()
+                                    && !Objects.equals(card.getStatus(), "frozen")) {
+                                card.setStatus("frozen");
+                                user.addTransaction(new Transaction.Builder(timestamp,
+                                        "You have reached the minimum amount of funds, the card will be frozen")
+                                        .build());
+                                return;
+                            } else if (account.getBalance() <= account.getMinBalance()
+                                    + Utils.WARNING_BALANCE) {
+                                card.setStatus("warning");
+                                return;
+                            }
+                            return;
+                        }
                     }
-                    return;
                 }
-            }
-        } catch (CardNotFoundException e) {
+            } throw new MyException("Card not found");
+        } catch (MyException e) {
             e.printException(objectMapper, output, command, timestamp);
         }
     }
