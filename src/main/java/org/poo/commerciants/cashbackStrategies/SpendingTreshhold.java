@@ -9,7 +9,7 @@ public class SpendingTreshhold implements CashbackStrategy {
     @Override
     public void cashback(Account account, double amount, Commerciant commerciant, ExchangeGraph rates, String currency) {
         double rate = rates.getExchangeRate(account.getCurrency(), "RON");
-        double spending = account.getCashbackDetails().getAmountSpentOnline().get(commerciant.getCommerciant());
+        double spending = account.getCashbackDetails().getTotalAmountSpentOnline();
         spending *= rate;
         System.out.println(spending + " " + account.getPlan());
         if (spending >= 100 && spending < 300) {

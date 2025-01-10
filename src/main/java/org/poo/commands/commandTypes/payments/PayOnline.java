@@ -105,14 +105,7 @@ public class PayOnline extends Command {
                                                 System.out.println("Set tech cashback to false");
                                             }
                                             if (commerciant.getCashbackStrategy().equals("spendingThreshold")) {
-                                                if (!account.getCashbackDetails().getAmountSpentOnline().containsKey(this.commerciant)) {
-                                                    account.getCashbackDetails().getAmountSpentOnline().put(this.commerciant,
-                                                            amount + account.getCommission(amount, rates));
-                                                } else {
-                                                    account.getCashbackDetails().getAmountSpentOnline().merge(this.commerciant,
-                                                            (amount + account.getCommission(amount, rates)),
-                                                            Double::sum);
-                                                }
+                                                account.getCashbackDetails().spendOnline(amount + account.getCommission(amount, rates));
                                                 setCashbackStrategy(new SpendingTreshhold());
                                             } else if (commerciant.getCashbackStrategy().equals("nrOfTransactions")) {
                                                 if (!account.getCashbackDetails().getCommerciantTransactions().containsKey(this.commerciant)) {
