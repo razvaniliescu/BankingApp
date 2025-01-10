@@ -39,8 +39,8 @@ public class AcceptSplitPayment extends Command {
                                 return;
                             }
                         }
-                        return;
                     }
+                    return;
                 }
             } throw new MyException("User not found");
         } catch (MyException e) {

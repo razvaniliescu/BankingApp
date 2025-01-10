@@ -13,10 +13,12 @@ import java.util.ArrayList;
 
 public class RejectSplitPayment extends Command {
     private String email;
+    private String type;
 
     public RejectSplitPayment(CommandInput input) {
         super(input);
         email = input.getEmail();
+        type = input.getSplitPaymentType();
     }
 
     @Override
@@ -25,10 +27,14 @@ public class RejectSplitPayment extends Command {
             for (User user : users) {
                 if (email.equals(user.getEmail())) {
                     if (!user.getPendingPayments().isEmpty()) {
-                        SplitPayment pendingPayment = user.getPendingPayments().getFirst();
-                        pendingPayment.rejectPayment(users);
-                        return;
+                        for (int i = 0; i < user.getPendingPayments().size(); i++) {
+                            if (user.getPendingPayments().get(i).getType().equals(type)) {
+                                user.getPendingPayments().get(i).rejectPayment(users);
+                                return;
+                            }
+                        }
                     }
+                    return;
                 }
             } throw new MyException("User not found");
         } catch (MyException e) {

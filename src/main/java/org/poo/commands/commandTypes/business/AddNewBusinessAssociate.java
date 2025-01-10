@@ -45,12 +45,10 @@ public class AddNewBusinessAssociate extends Command {
                         return;
                     }
                     user.addAccount(businessAccount);
-                    if (role.equals("manager")) {
+                    if (role.equals("manager") && !businessAccount.getManagers().contains(user)) {
                         businessAccount.addManager(user);
-                        businessAccount.removeEmployee(user);
-                    } else if (role.equals("employee")) {
+                    } else if (role.equals("employee") && !businessAccount.getEmployees().contains(user)) {
                         businessAccount.addEmployee(user);
-                        businessAccount.removeManager(user);
                     }
                     return;
                 }
