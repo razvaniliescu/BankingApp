@@ -90,15 +90,19 @@ public class PayOnline extends Command {
                                     for (Commerciant commerciant : commerciants) {
                                         if (this.commerciant.equals(commerciant.getCommerciant())) {
                                             double cashback = 0;
-                                            if (commerciant.getType().equals("food") && account.getCashbackDetails().isFoodCashback()) {
+                                            System.out.println(commerciant.getCommerciant() + " " + commerciant.getType() + " " + account.getCashbackDetails().isTechCashback());
+                                            if (commerciant.getType().equals("Food") && account.getCashbackDetails().isFoodCashback()) {
                                                 cashback += 0.02;
                                                 account.getCashbackDetails().setFoodCashback(false);
-                                            } else if (commerciant.getType().equals("clothes") && account.getCashbackDetails().isClothesCashback()) {
+                                                System.out.println("Set food cashback to false");
+                                            } else if (commerciant.getType().equals("Clothes") && account.getCashbackDetails().isClothesCashback()) {
                                                 cashback += 0.05;
                                                 account.getCashbackDetails().setClothesCashback(false);
-                                            } else if (commerciant.getType().equals("tech") && account.getCashbackDetails().isTechCashback()) {
+                                                System.out.println("Set clothes cashback to false");
+                                            } else if (commerciant.getType().equals("Tech") && account.getCashbackDetails().isTechCashback()) {
                                                 cashback += 0.1;
                                                 account.getCashbackDetails().setTechCashback(false);
+                                                System.out.println("Set tech cashback to false");
                                             }
                                             if (commerciant.getCashbackStrategy().equals("spendingThreshold")) {
                                                 if (!account.getCashbackDetails().getAmountSpentOnline().containsKey(this.commerciant)) {
@@ -116,6 +120,7 @@ public class PayOnline extends Command {
                                                 } else {
                                                     account.getCashbackDetails().getCommerciantTransactions().merge(this.commerciant, 1, Integer::sum);
                                                 }
+                                                System.out.println("Transactions made at " + this.commerciant + " " + account.getCashbackDetails().getCommerciantTransactions().get(this.commerciant));
                                                 setCashbackStrategy(new NrOfTransactions());
                                             }
                                             cashbackStrategy.cashback(account, amount, commerciant, rates, currency);

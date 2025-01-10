@@ -28,7 +28,7 @@ public class SpendingTreshhold implements CashbackStrategy {
             switch (account.getPlan()) {
                 case standard, student: account.addFunds(amount * 0.0025); break;
                 case silver: account.addFunds(amount * 0.005); break;
-                case gold: account.addFunds(amount * 0.0075); break;
+                case gold: account.addFunds(amount * 0.007); break;
             }
         }
     }

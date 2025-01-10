@@ -179,8 +179,10 @@ public class Account {
      * automatic plan upgrade from silver to gold
      */
     public void checkForUpgrade(double amount, final ExchangeGraph rates, String currency, final int timestamp) {
+        System.out.println("Amount " + amount * rates.getExchangeRate(currency, "RON") + " current plan " + plan);
         if (amount * rates.getExchangeRate(currency, "RON") >= 300 && plan == ServicePlans.Plans.silver) {
             largeSilverTransactions++;
+            System.out.println("Adding large silver transaction. New total: " + largeSilverTransactions);
             if (largeSilverTransactions == 5) {
                 for (Account account : this.getUser().getAccounts()) {
                     account.setPlan(ServicePlans.Plans.gold);

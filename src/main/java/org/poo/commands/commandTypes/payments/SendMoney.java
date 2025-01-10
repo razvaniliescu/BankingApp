@@ -91,13 +91,13 @@ public class SendMoney extends Command {
                             senderAccount.addTransaction(tSent);
                             senderAccount.getUser().addTransaction(tSent);
                             double cashback = 0;
-                            if (commerciant.getType().equals("food") && senderAccount.getCashbackDetails().isFoodCashback()) {
+                            if (commerciant.getType().equals("Food") && senderAccount.getCashbackDetails().isFoodCashback()) {
                                 cashback += 0.02;
                                 senderAccount.getCashbackDetails().setFoodCashback(false);
-                            } else if (commerciant.getType().equals("clothes") && senderAccount.getCashbackDetails().isClothesCashback()) {
+                            } else if (commerciant.getType().equals("Clothes") && senderAccount.getCashbackDetails().isClothesCashback()) {
                                 cashback += 0.05;
                                 senderAccount.getCashbackDetails().setClothesCashback(false);
-                            } else if (commerciant.getType().equals("tech") && senderAccount.getCashbackDetails().isTechCashback()) {
+                            } else if (commerciant.getType().equals("Tech") && senderAccount.getCashbackDetails().isTechCashback()) {
                                 cashback += 0.1;
                                 senderAccount.getCashbackDetails().setTechCashback(false);
                             }
