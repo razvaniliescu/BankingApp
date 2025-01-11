@@ -10,6 +10,7 @@ import org.poo.core.User;
 import org.poo.core.accounts.Account;
 import org.poo.core.accounts.BusinessAccount;
 import org.poo.core.exchange.ExchangeGraph;
+import org.poo.exceptions.MyException;
 import org.poo.fileio.CommandInput;
 
 import java.util.ArrayList;
@@ -45,9 +46,14 @@ public class AddNewBusinessAssociate extends Command {
                         return;
                     }
                     user.addAccount(businessAccount);
-                    if (role.equals("manager") && !businessAccount.getManagers().contains(user)) {
+                    if (businessAccount.getManagers().contains(user)
+                            || businessAccount.getEmployees().contains(user)
+                            || businessAccount.getUser().equals(user)) {
+                        return;
+                    }
+                    if (role.equals("manager")) {
                         businessAccount.addManager(user);
-                    } else if (role.equals("employee") && !businessAccount.getEmployees().contains(user)) {
+                    } else if (role.equals("employee")) {
                         businessAccount.addEmployee(user);
                     }
                     return;

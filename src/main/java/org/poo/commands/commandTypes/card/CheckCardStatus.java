@@ -51,10 +51,6 @@ public class CheckCardStatus extends Command {
                                         "You have reached the minimum amount of funds, the card will be frozen")
                                         .build());
                                 return;
-                            } else if (account.getBalance() <= account.getMinBalance()
-                                    + Utils.WARNING_BALANCE) {
-                                card.setStatus("warning");
-                                return;
                             }
                             return;
                         }

@@ -78,7 +78,7 @@ public class Account {
     public boolean payOnline(final double amount, final ExchangeGraph rates, String currency) {
         double rate = rates.getExchangeRate(currency, this.currency);
         if (this.balance >= amount * rate + minBalance) {
-            double total = (amount + getCommission(amount, rates)) * rate;
+            double total = (amount + getCommission(amount, rates, currency)) * rate;
             this.balance -= total;
             System.out.println(iban + " Pay online: paid " + total + " remaining balance " + this.balance);
             return true;
@@ -101,8 +101,8 @@ public class Account {
      */
     public boolean sendMoney(final Account receiver, final double amount, final double rate, final ExchangeGraph rates) {
         double receivedAmount = amount * rate;
-        if (this.balance >= amount + getCommission(amount, rates) + minBalance) {
-            double total = amount + getCommission(amount, rates);
+        if (this.balance >= amount + getCommission(amount, rates, currency) + minBalance) {
+            double total = amount + getCommission(amount, rates, currency);
             this.balance -= total;
             receiver.balance += receivedAmount;
             System.out.println(iban + " Send money: paid " + total + " remaining balance " + this.balance);
@@ -161,7 +161,8 @@ public class Account {
     /**
      * Adds a commission to a payment based on the account's plan
      */
-    public double getCommission(final double amount, final ExchangeGraph rates) {
+    public double getCommission(final double amount, final ExchangeGraph rates, final String currency) {
+        System.out.println("Calculating commission: " + plan + " " + amount * rates.getExchangeRate(currency, "RON"));
          switch (plan) {
              case student, gold: return 0;
              case standard: return amount * 0.002;

@@ -72,7 +72,8 @@ public class BusinessReport extends Report {
                                                 new UserInfo(transaction.getAmount(), 0),
                                                 (a, b) -> new UserInfo(a.getSpent() + b.getSpent(),
                                                         a.getDeposited() + b.getDeposited()));
-                                    } else {
+                                    }
+                                    if (((BusinessAccount) account).getManagers().contains(transaction.getUser())) {
                                         managerStatistics.merge(transaction.getUser(),
                                                 new UserInfo(transaction.getAmount(), 0),
                                                 (a, b) -> new UserInfo(a.getSpent() + b.getSpent(),
@@ -89,7 +90,8 @@ public class BusinessReport extends Report {
                                                 new UserInfo(0, deposit.getAmount()),
                                                 (a, b) -> new UserInfo(a.getSpent() + b.getSpent(),
                                                         a.getDeposited() + b.getDeposited()));
-                                    } else {
+                                    }
+                                    if (((BusinessAccount) account).getManagers().contains(deposit.getUser())) {
                                         managerStatistics.merge(deposit.getUser(),
                                                 new UserInfo(0, deposit.getAmount()),
                                                 (a, b) -> new UserInfo(a.getSpent() + b.getSpent(),

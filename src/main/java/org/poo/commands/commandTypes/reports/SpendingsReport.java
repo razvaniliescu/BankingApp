@@ -60,13 +60,9 @@ public class SpendingsReport extends Report {
                         result.set("transactions", transactions);
                         ArrayNode commerciantArray = objectMapper.createArrayNode();
                         for (Map.Entry<String, Double> entry : commerciantsMap.entrySet()) {
-                            // Added this approximation because of
-                            // a precision error in the last test
-                            BigDecimal roundedValue = BigDecimal.valueOf(entry.getValue())
-                                    .setScale(Utils.PRECISION, RoundingMode.HALF_UP);
                             ObjectNode commerciantNode = objectMapper.createObjectNode();
                             commerciantNode.put("commerciant", entry.getKey());
-                            commerciantNode.put("total", roundedValue);
+                            commerciantNode.put("total", entry.getValue());
                             commerciantArray.add(commerciantNode);
                         }
                         result.set("commerciants", commerciantArray);

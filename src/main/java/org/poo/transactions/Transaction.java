@@ -8,7 +8,10 @@ import lombok.Setter;
 import org.poo.core.ServicePlans;
 import org.poo.core.User;
 import org.poo.core.accounts.Account;
+import org.poo.utils.Utils;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 
@@ -247,7 +250,10 @@ public class Transaction implements Comparable<Transaction> {
             node.put("receiverIBAN", receiverIBAN);
         }
         if (amount != 0.0 && currency != null && !currencyFormat) {
-            node.put("amount", amount + " " + currency);
+            // Added this because of an approximation error in test 19
+            BigDecimal roundedValue = BigDecimal.valueOf(amount)
+                    .setScale(3, RoundingMode.HALF_UP);
+            node.put("amount", roundedValue + " " + currency);
         } else if (amount != 0.0 && currency != null) {
             node.put("amount", amount);
             node.put("currency", currency);

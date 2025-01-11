@@ -67,7 +67,7 @@ public class CashWithdrawal extends Command {
                                         .build();
                                 user.addTransaction(t);
                                 account.addTransaction(t);
-                                amount += account.getCommission(amount, rates);
+                                amount += account.getCommission(amount, rates, account.getCurrency());
                                 account.setBalance(account.getBalance() - amount);
                                 return;
                             }

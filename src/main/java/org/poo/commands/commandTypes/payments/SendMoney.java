@@ -102,7 +102,7 @@ public class SendMoney extends Command {
                                 senderAccount.getCashbackDetails().setTechCashback(false);
                             }
                             if (commerciant.getCashbackStrategy().equals("spendingThreshold")) {
-                                senderAccount.getCashbackDetails().spendOnline(amount + senderAccount.getCommission(amount, rates));
+                                senderAccount.getCashbackDetails().spendOnline(amount + senderAccount.getCommission(amount, rates, senderAccount.getCurrency()));
                                 setCashbackStrategy(new SpendingTreshhold());
                             } else if (commerciant.getCashbackStrategy().equals("nrOfTransactions")) {
                                 if (!senderAccount.getCashbackDetails().getCommerciantTransactions().containsKey(commerciant.getCommerciant())) {
