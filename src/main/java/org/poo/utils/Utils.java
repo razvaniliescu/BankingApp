@@ -14,12 +14,49 @@ public final class Utils {
     private static final String RO_STR = "RO";
     private static final String POO_STR = "POOB";
 
-    public static final int PRECISION = 4;
-    public static final int WARNING_BALANCE = 30;
-
     private static Random ibanRandom = new Random(IBAN_SEED);
     private static Random cardRandom = new Random(CARD_SEED);
 
+    public static final int CURRENT_YEAR = 2025;
+    public static final int MINIMUM_AGE = 21;
+
+    public static final int STANDARD_PLAN_VALUE = 0;
+    public static final int SILVER_PLAN_VALUE = 1;
+    public static final int GOLD_PLAN_VALUE = 3;
+    public static final double SILVER_TRANSACTION_THRESHOLD = 300;
+    public static final int SILVER_TRANSACTIONS = 5;
+    public static final double SILVER_COMMISSION_THRESHOLD = 500;
+    public static final double SILVER_FEE = 100;
+    public static final double GOLD_FEE = 250;
+
+    public static final double STANDARD_COMMISSION = 0.002;
+    public static final double SILVER_COMMISSION = 0.001;
+
+    public static final int FOOD_TRANSACTIONS = 2;
+    public static final int CLOTHES_TRANSACTIONS = 5;
+    public static final int TECH_TRANSACTIONS = 10;
+
+    public static final double FOOD_CASHBACK = 0.02;
+    public static final double CLOTHES_CASHBACK = 0.05;
+    public static final double TECH_CASHBACK = 0.1;
+
+    public static final double SMALL_SPENDING_THRESHOLD = 100;
+    public static final double MEDIUM_SPENDING_THRESHOLD = 300;
+    public static final double LARGE_SPENDING_THRESHOLD = 500;
+
+    public static final double SMALL_STANDARD_CASHBACK = 0.001;
+    public static final double MEDIUM_STANDARD_CASHBACK = 0.003;
+    public static final double LARGE_STANDARD_CASHBACK = 0.005;
+    public static final double SMALL_SILVER_CASHBACK = 0.002;
+    public static final double MEDIUM_SILVER_CASHBACK = 0.004;
+    public static final double LARGE_SILVER_CASHBACK = 0.0055;
+    public static final double SMALL_GOLD_CASHBACK = 0.0025;
+    public static final double MEDIUM_GOLD_CASHBACK = 0.005;
+    public static final double LARGE_GOLD_CASHBACK = 0.007;
+
+    public static final int PRECISION = 3;
+
+    public static final double INITIAL_LIMIT = 500;
     /**
      * Utility method for generating an IBAN code.
      *

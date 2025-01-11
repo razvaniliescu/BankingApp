@@ -26,7 +26,8 @@ public class PrintUsers extends Command {
      */
     @Override
     public void execute(final ObjectMapper objectMapper, final ArrayNode output,
-                        final ArrayList<User> users, final ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
+                        final ArrayList<User> users, final ExchangeGraph rates,
+                        final ArrayList<Commerciant> commerciants) {
         ObjectNode node = objectMapper.createObjectNode();
         node.put("command", command);
         ArrayNode usersArray = objectMapper.createArrayNode();

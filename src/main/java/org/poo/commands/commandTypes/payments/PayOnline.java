@@ -14,10 +14,11 @@ import org.poo.core.accounts.BusinessAccount;
 import org.poo.core.cards.Card;
 import org.poo.core.User;
 import org.poo.commands.Command;
-import org.poo.exceptions.CardNotFoundException;
 import org.poo.core.exchange.ExchangeGraph;
+import org.poo.exceptions.MyException;
 import org.poo.fileio.CommandInput;
 import org.poo.transactions.Transaction;
+import org.poo.utils.Utils;
 
 import java.util.ArrayList;
 
@@ -52,7 +53,8 @@ public class PayOnline extends Command {
      */
     @Override
     public void execute(final ObjectMapper objectMapper, final ArrayNode output,
-                        final ArrayList<User> users, final ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
+                        final ArrayList<User> users, final ExchangeGraph rates,
+                        final ArrayList<Commerciant> commerciants) {
         if (amount == 0) {
             return;
         }
@@ -63,14 +65,20 @@ public class PayOnline extends Command {
                         for (Card card : account.getCards()) {
                             if (card.getCardNumber().equals(cardNumber)) {
                                 if (card.getStatus().equals("frozen")) {
-                                    user.addTransaction(new Transaction.Builder(timestamp, "Card is frozen").build());
+                                    user.addTransaction(new Transaction.Builder(timestamp,
+                                            "Card is frozen").build());
                                     return;
                                 }
-                                double rate = rates.getExchangeRate(currency, account.getCurrency());
-                                if (account.getType().equals("business") && ((BusinessAccount) account).getEmployees().contains(user)) {
-                                    if (amount * rate > ((BusinessAccount) account).getSpendingLimit()) {
+                                double rate = rates.getExchangeRate(currency,
+                                        account.getCurrency());
+                                if (account.getType().equals("business")
+                                        && ((BusinessAccount) account).getEmployees()
+                                        .contains(user)) {
+                                    if (amount * rate > ((BusinessAccount) account)
+                                            .getSpendingLimit()) {
                                         user.addTransaction(new Transaction.Builder(timestamp,
-                                                "You are not authorized to make this transaction.").build());
+                                                "You are not authorized to "
+                                                        + "make this transaction.").build());
                                         return;
                                     }
                                 }
@@ -87,38 +95,56 @@ public class PayOnline extends Command {
                                     user.addTransaction(t);
                                     account.addTransaction(t);
                                     card.pay(timestamp);
-                                    for (Commerciant commerciant : commerciants) {
-                                        if (this.commerciant.equals(commerciant.getCommerciant())) {
+                                    for (Commerciant com : commerciants) {
+                                        if (this.commerciant.equals(com.getCommerciant())) {
                                             double cashback = 0;
-                                            System.out.println(commerciant.getCommerciant() + " " + commerciant.getType() + " " + account.getCashbackDetails().isTechCashback());
-                                            if (commerciant.getType().equals("Food") && account.getCashbackDetails().isFoodCashback()) {
-                                                cashback += 0.02;
-                                                account.getCashbackDetails().setFoodCashback(false);
-                                                System.out.println("Set food cashback to false");
-                                            } else if (commerciant.getType().equals("Clothes") && account.getCashbackDetails().isClothesCashback()) {
-                                                cashback += 0.05;
-                                                account.getCashbackDetails().setClothesCashback(false);
-                                                System.out.println("Set clothes cashback to false");
-                                            } else if (commerciant.getType().equals("Tech") && account.getCashbackDetails().isTechCashback()) {
-                                                cashback += 0.1;
-                                                account.getCashbackDetails().setTechCashback(false);
-                                                System.out.println("Set tech cashback to false");
+                                            if (com.getType().equals("Food")
+                                                    && account.getCashbackDetails()
+                                                    .isFoodCashback()) {
+                                                cashback += Utils.FOOD_CASHBACK;
+                                                account.getCashbackDetails()
+                                                        .setFoodCashback(false);
+                                            } else if (com.getType().equals("Clothes")
+                                                    && account.getCashbackDetails()
+                                                    .isClothesCashback()) {
+                                                cashback += Utils.CLOTHES_CASHBACK;
+                                                account.getCashbackDetails()
+                                                        .setClothesCashback(false);
+                                            } else if (com.getType().equals("Tech")
+                                                    && account
+                                                    .getCashbackDetails()
+                                                    .isTechCashback()) {
+                                                cashback += Utils.TECH_CASHBACK;
+                                                account.getCashbackDetails()
+                                                        .setTechCashback(false);
                                             }
-                                            if (commerciant.getCashbackStrategy().equals("spendingThreshold")) {
-                                                account.getCashbackDetails().spendOnline(amount + account.getCommission(amount, rates, account.getCurrency()));
+                                            if (com.getCashbackStrategy()
+                                                    .equals("spendingThreshold")) {
+                                                account.getCashbackDetails().spendOnline(amount
+                                                        + account.getCommission(amount,
+                                                        rates, account.getCurrency()));
                                                 setCashbackStrategy(new SpendingTreshhold());
-                                            } else if (commerciant.getCashbackStrategy().equals("nrOfTransactions")) {
-                                                if (!account.getCashbackDetails().getCommerciantTransactions().containsKey(this.commerciant)) {
-                                                    account.getCashbackDetails().getCommerciantTransactions().put(this.commerciant, 1);
+                                            } else if (com.getCashbackStrategy()
+                                                    .equals("nrOfTransactions")) {
+                                                if (!account.getCashbackDetails()
+                                                        .getCommerciantTransactions()
+                                                        .containsKey(this.commerciant)) {
+                                                    account.getCashbackDetails()
+                                                            .getCommerciantTransactions()
+                                                            .put(this.commerciant, 1);
                                                 } else {
-                                                    account.getCashbackDetails().getCommerciantTransactions().merge(this.commerciant, 1, Integer::sum);
+                                                    account.getCashbackDetails()
+                                                            .getCommerciantTransactions()
+                                                            .merge(this.commerciant,
+                                                                    1, Integer::sum);
                                                 }
-                                                System.out.println("Transactions made at " + this.commerciant + " " + account.getCashbackDetails().getCommerciantTransactions().get(this.commerciant));
                                                 setCashbackStrategy(new NrOfTransactions());
                                             }
-                                            cashbackStrategy.cashback(account, amount, commerciant, rates, currency);
+                                            cashbackStrategy.cashback(account, amount,
+                                                    com, rates, currency);
                                             account.addFunds(amount * cashback);
-                                            account.checkForUpgrade(amount, rates, currency, timestamp);
+                                            account.checkForUpgrade(amount, rates,
+                                                    currency, timestamp);
                                         }
                                     }
                                 } else {
@@ -130,10 +156,10 @@ public class PayOnline extends Command {
                                 return;
                             }
                         }
-                    } throw new CardNotFoundException();
+                    } throw new MyException("Card not found");
                 }
             }
-        } catch (CardNotFoundException e) {
+        } catch (MyException e) {
             e.printException(objectMapper, output, command, timestamp);
         }
     }

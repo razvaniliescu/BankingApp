@@ -39,14 +39,16 @@ public class DeleteCard extends Command {
      */
     @Override
     public void execute(final ObjectMapper objectMapper, final ArrayNode arrayNode,
-                        final ArrayList<User> users, final ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
+                        final ArrayList<User> users, final ExchangeGraph rates,
+                        final ArrayList<Commerciant> commerciants) {
         for (User user : users) {
             for (Account account : user.getAccounts()) {
                 if (account.getIban().equals(this.iban)) {
                     for (Card card : account.getCards()) {
                         if (card.getCardNumber().equals(this.cardNumber)) {
                             if (account.getType().equals("business")) {
-                                if (((BusinessAccount) account).getEmployees().contains(user) && !card.getUser().getEmail().equals(this.email)) {
+                                if (((BusinessAccount) account).getEmployees().contains(user)
+                                        && !card.getUser().getEmail().equals(this.email)) {
                                     user.addTransaction(new Transaction.Builder(timestamp,
                                             "You are not authorized to make this transaction.")
                                             .build());
@@ -55,7 +57,8 @@ public class DeleteCard extends Command {
                             }
                             this.iban = account.getIban();
                             account.deleteCard(card);
-                            Transaction t = new Transaction.Builder(timestamp, "The card has been destroyed")
+                            Transaction t = new Transaction.Builder(timestamp,
+                                    "The card has been destroyed")
                                     .card(card.getCardNumber())
                                     .account(this.iban)
                                     .cardHolder(this.email)

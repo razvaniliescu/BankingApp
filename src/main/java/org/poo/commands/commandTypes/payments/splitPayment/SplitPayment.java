@@ -52,7 +52,8 @@ public class SplitPayment extends Command {
      */
     @Override
     public void execute(final ObjectMapper objectMapper, final ArrayNode output,
-                             final ArrayList<User> users, final ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
+                        final ArrayList<User> users, final ExchangeGraph rates,
+                        final ArrayList<Commerciant> commerciants) {
         for (String iban : accounts) {
             for (User user : users) {
                 for (Account account : user.getAccounts()) {
@@ -64,7 +65,10 @@ public class SplitPayment extends Command {
         }
     }
 
-
+    /**
+     * Finds all the accounts involved in this payment
+     * and removes this from their pending list
+     */
     public void rejectPayment(final ArrayList<User> users) {
         for (String iban : accounts) {
             for (User user : users) {
@@ -92,8 +96,7 @@ public class SplitPayment extends Command {
      * Finds all the accounts involved in the payment,
      * checks them and makes the transactions
      */
-    public void processPayment(final ObjectMapper objectMapper, final ArrayNode output,
-                        final ArrayList<User> users, final ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
+    public void processPayment(final ArrayList<User> users, final ExchangeGraph rates) {
         Account errorAccount = null;
         int accountsNum = accounts.size();
         Map<Account, User> userAccountMap = new HashMap<>();
@@ -117,7 +120,6 @@ public class SplitPayment extends Command {
                     }
                 }
             }
-
             index = 0;
             if (errorAccount == null) {
                 Transaction t = new Transaction.Builder(timestamp,
@@ -143,7 +145,8 @@ public class SplitPayment extends Command {
                         .splitPaymentType(type)
                         .splitPaymentCurrency(currency)
                         .accounts(involvedAccounts)
-                        .errorMessage("Account " + errorAccount.getIban() + " has insufficient funds for a split payment.")
+                        .errorMessage("Account " + errorAccount.getIban()
+                                + " has insufficient funds for a split payment.")
                         .build();
                 for (Account account: involvedAccounts) {
                     account.addTransaction(t);
@@ -192,7 +195,8 @@ public class SplitPayment extends Command {
                         .splitPaymentType("equal")
                         .amount(amount / accountsNum)
                         .currencyFormat(true)
-                        .errorMessage("Account " + errorAccount.getIban() + " has insufficient funds for a split payment.")
+                        .errorMessage("Account " + errorAccount.getIban()
+                                + " has insufficient funds for a split payment.")
                         .build();
                 for (Account account: involvedAccounts) {
                     account.addTransaction(t);

@@ -15,7 +15,6 @@ import org.poo.transactions.Transaction;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -42,7 +41,8 @@ public class AddFunds extends Command {
      */
     @Override
     public void execute(final ObjectMapper objectMapper, final ArrayNode arrayNode,
-                        final ArrayList<User> users, final ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
+                        final ArrayList<User> users, final ExchangeGraph rates,
+                        final ArrayList<Commerciant> commerciants) {
         User userAddingFunds = null;
         for (User user : users) {
             if (user.getEmail().equals(this.email)) {

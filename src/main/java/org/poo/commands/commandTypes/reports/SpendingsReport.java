@@ -7,16 +7,12 @@ import org.poo.commerciants.Commerciant;
 import org.poo.core.accounts.Account;
 import org.poo.core.accounts.SavingsAccount;
 import org.poo.core.User;
-import org.poo.exceptions.AccountNotFoundException;
 import org.poo.exceptions.AccountTypeException;
 import org.poo.exceptions.MyException;
 import org.poo.core.exchange.ExchangeGraph;
 import org.poo.fileio.CommandInput;
 import org.poo.transactions.Transaction;
-import org.poo.utils.Utils;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
@@ -31,7 +27,8 @@ public class SpendingsReport extends Report {
      */
     @Override
     public void execute(final ObjectMapper objectMapper, final ArrayNode output,
-                        final ArrayList<User> users, final ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
+                        final ArrayList<User> users, final ExchangeGraph rates,
+                        final ArrayList<Commerciant> commerciants) {
         try {
             ObjectNode node = objectMapper.createObjectNode();
             node.put("command", command);
@@ -73,7 +70,7 @@ public class SpendingsReport extends Report {
                     }
                 }
             }
-            throw new AccountNotFoundException();
+            throw new MyException("Account not found");
         } catch (MyException e) {
             e.printException(objectMapper, output, command, timestamp);
         }

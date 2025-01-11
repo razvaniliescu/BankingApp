@@ -26,7 +26,8 @@ public class CreateOneTimeCard extends CreateCard {
      */
     @Override
     public void execute(final ObjectMapper objectMapper, final ArrayNode arrayNode,
-                        final ArrayList<User> users, final ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
+                        final ArrayList<User> users, final ExchangeGraph rates,
+                        final ArrayList<Commerciant> commerciants) {
         for (User user : users) {
             for (Account account : user.getAccounts()) {
                 if (account.getIban().equals(iban)) {
@@ -42,7 +43,6 @@ public class CreateOneTimeCard extends CreateCard {
                         account.addTransaction(t);
                         return;
                     }
-
                 }
             }
         }

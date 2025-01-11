@@ -11,18 +11,27 @@ import org.poo.fileio.CommandInput;
 
 import java.util.ArrayList;
 
+/**
+ * Implementation of the rejectSplitPayment command
+ */
 public class RejectSplitPayment extends Command {
     private String email;
     private String type;
 
-    public RejectSplitPayment(CommandInput input) {
+    public RejectSplitPayment(final CommandInput input) {
         super(input);
         email = input.getEmail();
         type = input.getSplitPaymentType();
     }
 
+    /**
+     * Rejects the specified user's next split payment of its kind
+     * and adds a transaction to everyone involved
+     */
     @Override
-    public void execute(ObjectMapper objectMapper, ArrayNode output, ArrayList<User> users, ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
+    public void execute(final ObjectMapper objectMapper, final ArrayNode output,
+                        final ArrayList<User> users, final ExchangeGraph rates,
+                        final ArrayList<Commerciant> commerciants) {
         try {
             for (User user : users) {
                 if (email.equals(user.getEmail())) {

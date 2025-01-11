@@ -5,9 +5,13 @@ import lombok.Setter;
 import org.poo.commerciants.Commerciant;
 import org.poo.core.User;
 import org.poo.core.exchange.ExchangeGraph;
+import org.poo.utils.Utils;
 
 import java.util.*;
 
+/**
+ * Class for the business account
+ */
 @Getter @Setter
 public class BusinessAccount extends Account {
     private List<User> employees;
@@ -16,32 +20,27 @@ public class BusinessAccount extends Account {
     private double depositLimit;
     private Map<String, Commerciant> commerciantAliases;
 
-    public BusinessAccount(String currency, String type, User user, ExchangeGraph rates) {
+    public BusinessAccount(final String currency, final String type,
+                           final User user, final ExchangeGraph rates) {
         super(currency, type, user);
         this.employees = new ArrayList<>();
         this.managers = new ArrayList<>();
         this.commerciantAliases = new HashMap<>();
-        this.spendingLimit = 500 * rates.getExchangeRate("RON", currency);
-        this.depositLimit = 500 * rates.getExchangeRate("RON", currency);
+        this.spendingLimit = Utils.INITIAL_LIMIT * rates.getExchangeRate("RON", currency);
+        this.depositLimit = Utils.INITIAL_LIMIT * rates.getExchangeRate("RON", currency);
     }
 
-    public void addManager(User user) {
+    /**
+     * Adds a manager to the account
+     */
+    public void addManager(final User user) {
         managers.add(user);
     }
 
-    public void removeManager(User user) {
-        managers.remove(user);
-    }
-
-    public void addEmployee(User user) {
+    /**
+     * Adds an employee to the account
+     */
+    public void addEmployee(final User user) {
         employees.add(user);
-    }
-
-    public void removeEmployee(User user) {
-        employees.remove(user);
-    }
-
-    public boolean isInvolvedInAccount(User user) {
-        return employees.contains(user) || managers.contains(user) || this.user.equals(user);
     }
 }

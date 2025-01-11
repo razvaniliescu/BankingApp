@@ -7,7 +7,9 @@ import org.poo.core.exchange.ExchangeGraph;
 
 public class NoCashback implements CashbackStrategy {
     @Override
-    public void cashback(Account account, double amount, Commerciant commerciant, ExchangeGraph rates, String currency) {
+    public final void cashback(final Account account, final double amount,
+                               final Commerciant commerciant, final ExchangeGraph rates,
+                               final String currency) {
 
     }
 }

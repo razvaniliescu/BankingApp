@@ -7,7 +7,6 @@ import org.poo.core.ServicePlans;
 import org.poo.core.cards.Card;
 import org.poo.core.User;
 import org.poo.core.exchange.ExchangeGraph;
-import org.poo.exceptions.CardNotFoundException;
 import org.poo.transactions.Transaction;
 import org.poo.utils.Utils;
 
@@ -75,19 +74,27 @@ public class Account {
      * Pay online to a commerciant
      * @param amount the amount to pay
      */
-    public boolean payOnline(final double amount, final ExchangeGraph rates, String currency) {
-        double rate = rates.getExchangeRate(currency, this.currency);
+    public boolean payOnline(final double amount, final ExchangeGraph rates,
+                             final String transactionCurrency) {
+        double rate = rates.getExchangeRate(transactionCurrency, this.currency);
         if (this.balance >= amount * rate + minBalance) {
-            double total = (amount + getCommission(amount, rates, currency)) * rate;
+            double total = (amount + getCommission(amount, rates, transactionCurrency)) * rate;
             this.balance -= total;
-            System.out.println(iban + " Pay online: paid " + total + " remaining balance " + this.balance);
+            System.out.println(iban + " Pay online: paid "
+                    + total + " remaining balance " + this.balance);
             return true;
         }
         return false;
     }
 
-    public void payWithoutCommision(final double amount, final ExchangeGraph rates, String currency) {
-        double rate = rates.getExchangeRate(currency, this.currency);
+    /**
+     * Pay online without commission.
+     * Used for the split payment
+     * @param amount the amount to pay
+     */
+    public void payWithoutCommision(final double amount, final ExchangeGraph rates,
+                                    final String transactionCurrency) {
+        double rate = rates.getExchangeRate(transactionCurrency, this.currency);
         if (this.balance >= amount * rate + minBalance) {
             this.balance -= amount * rate;
         }
@@ -99,13 +106,15 @@ public class Account {
      * @param amount the amount to send
      * @param rate the exchange rate
      */
-    public boolean sendMoney(final Account receiver, final double amount, final double rate, final ExchangeGraph rates) {
+    public boolean sendMoney(final Account receiver, final double amount,
+                             final double rate, final ExchangeGraph rates) {
         double receivedAmount = amount * rate;
         if (this.balance >= amount + getCommission(amount, rates, currency) + minBalance) {
             double total = amount + getCommission(amount, rates, currency);
             this.balance -= total;
             receiver.balance += receivedAmount;
-            System.out.println(iban + " Send money: paid " + total + " remaining balance " + this.balance);
+            System.out.println(iban + " Send money: paid "
+                    + total + " remaining balance " + this.balance);
             return true;
         }
         return false;
@@ -128,10 +137,10 @@ public class Account {
         transactions.add(t);
     }
 
-    public void addUserTransaction(final Transaction t) {
-        user.addTransaction(t);
-    }
-
+    /**
+     * Adds a new deposit to the account
+     * @param t the deposit to add
+     */
     public void addDeposit(final Transaction t) {
         deposits.add(t);
     }
@@ -145,46 +154,39 @@ public class Account {
     }
 
     /**
-     * Checks if the card exists in the accounts list
-     * @param cardNumber the number of the card
-     * @throws CardNotFoundException if the card doesn't exist
-     */
-    public Card checkCard(final String cardNumber) throws CardNotFoundException {
-        for (Card card : cards) {
-            if (card.getCardNumber().equals(cardNumber)) {
-                return card;
-            }
-        }
-        throw new CardNotFoundException();
-    }
-
-    /**
      * Adds a commission to a payment based on the account's plan
      */
-    public double getCommission(final double amount, final ExchangeGraph rates, final String currency) {
-        System.out.println("Calculating commission: " + plan + " " + amount * rates.getExchangeRate(currency, "RON"));
+    public double getCommission(final double amount, final ExchangeGraph rates,
+                                final String transactionCurrency) {
+        System.out.println("Calculating commission: " + plan + " "
+                + amount * rates.getExchangeRate(transactionCurrency, "RON"));
          switch (plan) {
-             case student, gold: return 0;
-             case standard: return amount * 0.002;
-             case silver: if (amount * rates.getExchangeRate(currency, "RON") < 500) {
+             case standard: return amount * Utils.STANDARD_COMMISSION;
+             case silver: if (amount * rates.getExchangeRate(transactionCurrency, "RON")
+                     < Utils.SILVER_COMMISSION_THRESHOLD) {
                 return 0;
              } else {
-                return amount * 0.001;
+                return amount * Utils.SILVER_COMMISSION;
              }
+             default: return 0;
         }
-        return 0;
     }
 
     /**
      * Checks if the account is eligible for an
      * automatic plan upgrade from silver to gold
      */
-    public void checkForUpgrade(double amount, final ExchangeGraph rates, String currency, final int timestamp) {
-        System.out.println("Amount " + amount * rates.getExchangeRate(currency, "RON") + " current plan " + plan);
-        if (amount * rates.getExchangeRate(currency, "RON") >= 300 && plan == ServicePlans.Plans.silver) {
+    public void checkForUpgrade(final double amount, final ExchangeGraph rates,
+                                final String transactionCurrency, final int timestamp) {
+        System.out.println("Amount " + amount * rates.getExchangeRate(transactionCurrency, "RON")
+                + " current plan " + plan);
+        if (amount * rates.getExchangeRate(transactionCurrency, "RON")
+                >= Utils.SILVER_TRANSACTION_THRESHOLD
+                && plan == ServicePlans.Plans.silver) {
             largeSilverTransactions++;
-            System.out.println("Adding large silver transaction. New total: " + largeSilverTransactions);
-            if (largeSilverTransactions == 5) {
+            System.out.println("Adding large silver transaction. New total: "
+                    + largeSilverTransactions);
+            if (largeSilverTransactions == Utils.SILVER_TRANSACTIONS) {
                 for (Account account : this.getUser().getAccounts()) {
                     account.setPlan(ServicePlans.Plans.gold);
                 }

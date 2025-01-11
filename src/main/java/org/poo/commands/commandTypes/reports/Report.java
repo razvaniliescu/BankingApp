@@ -10,6 +10,7 @@ import org.poo.core.accounts.Account;
 import org.poo.core.User;
 import org.poo.commands.Command;
 import org.poo.core.exchange.ExchangeGraph;
+import org.poo.exceptions.MyException;
 import org.poo.fileio.CommandInput;
 import org.poo.transactions.Transaction;
 
@@ -34,7 +35,8 @@ public class Report extends Command {
      */
     @Override
     public void execute(final ObjectMapper objectMapper, final ArrayNode output,
-                        final ArrayList<User> users, final ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
+                        final ArrayList<User> users, final ExchangeGraph rates,
+                        final ArrayList<Commerciant> commerciants) {
         try {
             ObjectNode node = objectMapper.createObjectNode();
             node.put("command", command);
@@ -60,16 +62,9 @@ public class Report extends Command {
                     }
                 }
             }
-            throw new IllegalArgumentException("Account not found");
-        } catch (IllegalArgumentException e) {
-            ObjectNode node = objectMapper.createObjectNode();
-            node.put("command", command);
-            ObjectNode result = objectMapper.createObjectNode();
-            result.put("description", e.getMessage());
-            result.put("timestamp", timestamp);
-            node.set("output", result);
-            node.put("timestamp", timestamp);
-            output.add(node);
+            throw new MyException("Account not found");
+        } catch (MyException e) {
+            e.printException(objectMapper, output, command, timestamp);
         }
     }
 }

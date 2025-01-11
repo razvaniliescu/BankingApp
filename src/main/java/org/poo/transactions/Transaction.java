@@ -16,14 +16,14 @@ import java.util.List;
 
 
 /**
- * The base form of a transaction, which contains only
- * a timestamp and a description
+ * The class for transactions, containing all
+ * possible fields that a transaction can have
  */
 @Setter
 @Getter
-public class Transaction implements Comparable<Transaction> {
-    protected int timestamp;
-    protected String description;
+public final class Transaction implements Comparable<Transaction> {
+    private int timestamp;
+    private String description;
     private String senderIBAN;
     private String receiverIBAN;
     private double amount;
@@ -37,7 +37,7 @@ public class Transaction implements Comparable<Transaction> {
     private String account;
     private List<Account> accounts;
     private String errorMessage;
-    private ServicePlans.Plans newPlanType;
+    private ServicePlans.Plans planType;
     private boolean currencyFormat;
     private List<Double> amountForUsers;
     private String splitPaymentType;
@@ -48,8 +48,12 @@ public class Transaction implements Comparable<Transaction> {
     private String classicAccountIban;
     private String savingsAccountIban;
 
+    /**
+     * Compares this transaction to another one
+     * based on the timestamp
+     */
     @Override
-    public int compareTo(Transaction o) {
+    public int compareTo(final Transaction o) {
         return this.timestamp - o.timestamp;
     }
 
@@ -72,7 +76,7 @@ public class Transaction implements Comparable<Transaction> {
         private String account = null;
         private List<Account> accounts = null;
         private String errorMessage = null;
-        private ServicePlans.Plans newPlanType = null;
+        private ServicePlans.Plans planType = null;
         private boolean currencyFormat = false;
         private List<Double> amountForUsers = null;
         private String splitPaymentType = null;
@@ -83,132 +87,209 @@ public class Transaction implements Comparable<Transaction> {
         private String classicAccountIban = null;
         private String savingsAccountIban = null;
 
-        public Builder(int timestamp, String description) {
+        /**
+         * Constructor for the builder containing the
+         * mandatory fields for a transaction
+         */
+        public Builder(final int timestamp, final String description) {
             this.timestamp = timestamp;
             this.description = description;
         }
 
-        public Builder senderIBAN(String senderIBAN) {
-            this.senderIBAN = senderIBAN;
+        /**
+         * Sets the sender IBAN field
+         */
+        public final Builder senderIBAN(final String newSenderIBAN) {
+            this.senderIBAN = newSenderIBAN;
             return this;
         }
 
-        public Builder receiverIBAN(String receiverIBAN) {
-            this.receiverIBAN = receiverIBAN;
+        /**
+         * Sets the receiver IBAN field
+         */
+        public Builder receiverIBAN(final String newReceiverIBAN) {
+            this.receiverIBAN = newReceiverIBAN;
             return this;
         }
 
-        public Builder amount(double amount) {
-            this.amount = amount;
+        /**
+         * Sets the amount field
+         */
+        public Builder amount(final double newAmount) {
+            this.amount = newAmount;
             return this;
         }
 
-        public Builder currency(String currency) {
-            this.currency = currency;
+        /**
+         * Sets the currency field
+         */
+        public Builder currency(final String newCurrency) {
+            this.currency = newCurrency;
             return this;
         }
 
-        public Builder type(String type) {
-            this.type = type;
+        /**
+         * Sets the type field for the send money command
+         * (sent or received)
+         */
+        public Builder type(final String newType) {
+            this.type = newType;
             return this;
         }
 
-        public Builder commerciant(String commerciant) {
-            this.commerciant = commerciant;
+        /**
+         * Sets the commerciant field
+         */
+        public Builder commerciant(final String newCommerciant) {
+            this.commerciant = newCommerciant;
             return this;
         }
 
-        public Builder iban(String iban) {
-            this.iban = iban;
+        /**
+         * Sets the IBAN field
+         */
+        public Builder iban(final String newIban) {
+            this.iban = newIban;
             return this;
         }
 
-        public Builder card(String card) {
-            this.card = card;
+        /**
+         * Sets the card field
+         */
+        public Builder card(final String newCard) {
+            this.card = newCard;
             return this;
         }
 
-        public Builder email(String email) {
-            this.email = email;
+        /**
+         * Sets the email field
+         */
+        public Builder email(final String newEmail) {
+            this.email = newEmail;
             return this;
         }
 
-        public Builder cardHolder(String cardHolder) {
-            this.cardHolder = cardHolder;
+        /**
+         * Sets the cardholder field
+         */
+        public Builder cardHolder(final String newCardHolder) {
+            this.cardHolder = newCardHolder;
             return this;
         }
 
-        public Builder account(String account) {
-            this.account = account;
+        /**
+         * Sets the account field
+         */
+        public Builder account(final String newAccount) {
+            this.account = newAccount;
             return this;
         }
 
-        public Builder accounts(List<Account> accounts) {
-            this.accounts = accounts;
+        /**
+         * Sets the accounts field
+         */
+        public Builder accounts(final List<Account> newAccounts) {
+            this.accounts = newAccounts;
             return this;
         }
 
-        public Builder errorMessage(String errorMessage) {
-            this.errorMessage = errorMessage;
+        /**
+         * Sets the error field
+         */
+        public Builder errorMessage(final String newErrorMessage) {
+            this.errorMessage = newErrorMessage;
             return this;
         }
 
-        public Builder newPlanType(ServicePlans.Plans newPlanType) {
-            this.newPlanType = newPlanType;
+        /**
+         * Sets the service plan field
+         */
+        public Builder newPlanType(final ServicePlans.Plans newPlanType) {
+            this.planType = newPlanType;
             return this;
         }
 
-        public Builder currencyFormat(boolean currencyFormat) {
-            this.currencyFormat = currencyFormat;
+        /**
+         * Changes the way the amount and currency is printed
+         */
+        public Builder currencyFormat(final boolean newCurrencyFormat) {
+            this.currencyFormat = newCurrencyFormat;
             return this;
         }
 
-        public Builder amountForUsers(List<Double> amountForUsers) {
-            this.amountForUsers = amountForUsers;
+        /**
+         * Sets the amount for users field
+         */
+        public Builder amountForUsers(final List<Double> newAmountForUsers) {
+            this.amountForUsers = newAmountForUsers;
             return this;
         }
 
-        public Builder splitPaymentType(String splitPaymentType) {
-            this.splitPaymentType = splitPaymentType;
+        /**
+         * Sets the split payment type field
+         */
+        public Builder splitPaymentType(final String newSplitPaymentType) {
+            this.splitPaymentType = newSplitPaymentType;
             return this;
         }
 
-        public Builder splitPaymentCurrency(String splitPaymentCurrency) {
-            this.splitPaymentCurrency = splitPaymentCurrency;
+        /**
+         * Sets the split payment currency field
+         */
+        public Builder splitPaymentCurrency(final String newSplitPaymentCurrency) {
+            this.splitPaymentCurrency = newSplitPaymentCurrency;
             return this;
         }
 
-        public Builder user(User user) {
-            this.user = user;
+        /**
+         * Sets the user field (used for business reports)
+         */
+        public Builder user(final User newUser) {
+            this.user = newUser;
             return this;
         }
 
-        public Builder deposit(boolean deposit) {
-            this.deposit = deposit;
+        /**
+         * Sets the deposit field (used for business reports)
+         */
+        public Builder deposit(final boolean newDeposit) {
+            this.deposit = newDeposit;
             return this;
         }
 
-        public Builder accountsInvolved(List<String> accountsInvolved) {
-            this.accountsInvolved = accountsInvolved;
+        /**
+         * Sets the accounts involved field
+         */
+        public Builder accountsInvolved(final List<String> newAccountsInvolved) {
+            this.accountsInvolved = newAccountsInvolved;
             return this;
         }
 
-        public Builder classicAccountIban(String classicAccountIban) {
-            this.classicAccountIban = classicAccountIban;
+        /**
+         * Sets the classic account IBAN field (withdraw savings)
+         */
+        public Builder classicAccountIban(final String newClassicAccountIban) {
+            this.classicAccountIban = newClassicAccountIban;
             return this;
         }
 
-        public Builder savingsAccountIban(String savingsAccountIban) {
-            this.savingsAccountIban = savingsAccountIban;
+        /**
+         * Sets the savings account IBAN field (withdraw savings)
+         */
+        public Builder savingsAccountIban(final String newSavingsAccountIban) {
+            this.savingsAccountIban = newSavingsAccountIban;
             return this;
         }
 
+        /**
+         * Builds a new transaction based on the set fields
+         */
         public Transaction build() {
             return new Transaction(this);
         }
     }
 
-    private Transaction(Builder builder) {
+    private Transaction(final Builder builder) {
         this.timestamp = builder.timestamp;
         this.description = builder.description;
         this.senderIBAN = builder.senderIBAN;
@@ -224,7 +305,7 @@ public class Transaction implements Comparable<Transaction> {
         this.account = builder.account;
         this.accounts = builder.accounts;
         this.errorMessage = builder.errorMessage;
-        this.newPlanType = builder.newPlanType;
+        this.planType = builder.planType;
         this.currencyFormat = builder.currencyFormat;
         this.amountForUsers = builder.amountForUsers;
         this.splitPaymentType = builder.splitPaymentType;
@@ -252,7 +333,7 @@ public class Transaction implements Comparable<Transaction> {
         if (amount != 0.0 && currency != null && !currencyFormat) {
             // Added this because of an approximation error in test 19
             BigDecimal roundedValue = BigDecimal.valueOf(amount)
-                    .setScale(3, RoundingMode.HALF_UP);
+                    .setScale(Utils.PRECISION, RoundingMode.HALF_UP);
             node.put("amount", roundedValue + " " + currency);
         } else if (amount != 0.0 && currency != null) {
             node.put("amount", amount);
@@ -283,21 +364,21 @@ public class Transaction implements Comparable<Transaction> {
         }
         if (accounts != null) {
             ArrayNode accountArray = objectMapper.createArrayNode();
-            for (Account account : accounts) {
-                accountArray.add(account.getIban());
+            for (Account accountToPrint : accounts) {
+                accountArray.add(accountToPrint.getIban());
             }
             node.set("involvedAccounts", accountArray);
         }
         if (errorMessage != null) {
             node.put("error", errorMessage);
         }
-        if (newPlanType != null) {
-            node.put("newPlanType", newPlanType.toString());
+        if (planType != null) {
+            node.put("newPlanType", planType.toString());
         }
         if (amountForUsers != null) {
             ArrayNode amountArray = objectMapper.createArrayNode();
-            for (Double amount : amountForUsers) {
-                amountArray.add(amount);
+            for (Double amountToPrint : amountForUsers) {
+                amountArray.add(amountToPrint);
             }
             node.set("amountForUsers", amountArray);
         }
@@ -309,8 +390,8 @@ public class Transaction implements Comparable<Transaction> {
         }
         if (accountsInvolved != null) {
             ArrayNode accountArray = objectMapper.createArrayNode();
-            for (String account : accountsInvolved) {
-                accountArray.add(account);
+            for (String accountToPrint : accountsInvolved) {
+                accountArray.add(accountToPrint);
             }
             node.set("involvedAccounts", accountArray);
         }

@@ -36,7 +36,8 @@ public class SetAlias extends Command {
      */
     @Override
     public void execute(final ObjectMapper objectMapper, final ArrayNode output,
-                        final ArrayList<User> users, final ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
+                        final ArrayList<User> users, final ExchangeGraph rates,
+                        final ArrayList<Commerciant> commerciants) {
         for (User user : users) {
             for (Account account : user.getAccounts()) {
                 if (account.getIban().equals(this.iban)) {

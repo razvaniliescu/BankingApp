@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.poo.commerciants.Commerciant;
 import org.poo.core.accounts.Account;
-import org.poo.core.accounts.BusinessAccount;
 import org.poo.core.cards.Card;
 import org.poo.core.User;
 import org.poo.commands.Command;
@@ -38,7 +37,8 @@ public class CreateCard extends Command {
      */
     @Override
     public void execute(final ObjectMapper objectMapper, final ArrayNode arrayNode,
-                        final ArrayList<User> users, final ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
+                        final ArrayList<User> users, final ExchangeGraph rates,
+                        final ArrayList<Commerciant> commerciants) {
         for (User user : users) {
             for (Account account : user.getAccounts()) {
                 if (account.getIban().equals(iban)) {

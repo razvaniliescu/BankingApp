@@ -32,5 +32,6 @@ public abstract class Command {
      * @param commerciants
      */
     public abstract void execute(ObjectMapper objectMapper, ArrayNode output,
-                                 ArrayList<User> users, ExchangeGraph rates, ArrayList<Commerciant> commerciants);
+                                 ArrayList<User> users, ExchangeGraph rates,
+                                 ArrayList<Commerciant> commerciants);
 }

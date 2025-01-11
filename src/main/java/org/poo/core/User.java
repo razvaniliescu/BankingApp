@@ -1,18 +1,20 @@
 package org.poo.core;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
 import lombok.Setter;
 import org.poo.commands.commandTypes.payments.splitPayment.SplitPayment;
 import org.poo.core.accounts.Account;
 import org.poo.core.accounts.SavingsAccount;
-import org.poo.core.cards.Card;
 import org.poo.exceptions.BalanceNotEmptyException;
-import org.poo.exceptions.CardNotFoundException;
-import org.poo.exceptions.SavingsAccountException;
 import org.poo.fileio.UserInput;
 import org.poo.transactions.Transaction;
 
 import java.util.*;
+
+import static org.poo.utils.Utils.CURRENT_YEAR;
 
 /**
  * Class for user elements and operations
@@ -101,52 +103,35 @@ public class User implements Comparable<User> {
     }
 
     /**
-     * Tries to find the savings account
-     * @param iban the accounts IBAN
-     * @throws SavingsAccountException if the account doesn't exist
-     */
-    public SavingsAccount checkSavingsAccounts(final String iban) throws SavingsAccountException {
-        for (SavingsAccount savingsAccount : savingsAccounts) {
-            if (savingsAccount.getIban().equals(iban)) {
-                return savingsAccount;
-            }
-        }
-        for (Account account : accounts) {
-            if (account.getIban().equals(iban)) {
-                throw new SavingsAccountException();
-            }
-        }
-        throw new SavingsAccountException();
-    }
-
-    /**
-     * Tries to find the card
-     * @param cardNumber the card to find
-     * @return the account linked to the card
-     * @throws CardNotFoundException if the card doesn't exist
-     */
-    public Account checkCard(final String cardNumber) throws CardNotFoundException {
-        for (Account account : accounts) {
-            for (Card card : account.getCards()) {
-                if (card.getCardNumber().equals(cardNumber)) {
-                    return account;
-                }
-            }
-        }
-        throw new CardNotFoundException();
-    }
-
-    /**
      * Calculates the age of the user
      */
     public int getAge() {
         String[] ymd = birthDate.split("-");
         int year = Integer.parseInt(ymd[0]);
-        return 2025 - year;
+        return CURRENT_YEAR - year;
     }
 
+    /**
+     * Compares this user to another
+     * based on their first name
+     * @param o the object to be compared.
+     * @return
+     */
     @Override
-    public int compareTo(User o) {
+    public int compareTo(final User o) {
         return this.getFirstName().compareTo(o.getFirstName());
+    }
+
+    /**
+     * Prints the user in a format specific
+     * to the transaction business report
+     */
+    public void printBusinessUser(final ObjectMapper objectMapper, final ArrayNode output,
+                                  final double spent, final double deposited) {
+        ObjectNode userNode = objectMapper.createObjectNode();
+        userNode.put("username", getLastName() + " " + getFirstName());
+        userNode.put("spent", spent);
+        userNode.put("deposited", deposited);
+        output.add(userNode);
     }
 }

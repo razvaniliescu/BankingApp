@@ -7,7 +7,7 @@ import org.poo.core.accounts.Account;
 import org.poo.core.accounts.SavingsAccount;
 import org.poo.core.User;
 import org.poo.commands.Command;
-import org.poo.exceptions.SavingsAccountException;
+import org.poo.exceptions.MyException;
 import org.poo.core.exchange.ExchangeGraph;
 import org.poo.fileio.CommandInput;
 import org.poo.transactions.Transaction;
@@ -30,7 +30,8 @@ public class AddInterest extends Command {
      */
     @Override
     public void execute(final ObjectMapper objectMapper, final ArrayNode output,
-                        final ArrayList<User> users, final ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
+                        final ArrayList<User> users, final ExchangeGraph rates,
+                        final ArrayList<Commerciant> commerciants) {
         try {
             for (User user : users) {
                 for (SavingsAccount savingsAccount : user.getSavingsAccounts()) {
@@ -48,11 +49,11 @@ public class AddInterest extends Command {
                 }
                 for (Account account : user.getAccounts()) {
                     if (account.getIban().equals(iban)) {
-                        throw new SavingsAccountException();
+                        throw new MyException("This is not a savings account");
                     }
                 }
             }
-        } catch (SavingsAccountException e) {
+        } catch (MyException e) {
             e.printException(objectMapper, output, command, timestamp);
         }
     }

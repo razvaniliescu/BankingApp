@@ -12,36 +12,44 @@ import org.poo.core.accounts.BusinessAccount;
 import org.poo.core.exchange.ExchangeGraph;
 import org.poo.exceptions.MyException;
 import org.poo.fileio.CommandInput;
-import org.poo.transactions.Transaction;
 
 import java.util.ArrayList;
 
+/**
+ * Implementation for the changeDepositLimit command
+ */
 @Getter @Setter
 public class ChangeDepositLimit extends Command {
     private String email;
     private String account;
     private double amount;
 
-    public ChangeDepositLimit(CommandInput input) {
+    public ChangeDepositLimit(final CommandInput input) {
         super(input);
         email = input.getEmail();
         account = input.getAccount();
         amount = input.getAmount();
     }
 
+    /**
+     * Changes the deposit limit of the specified business account
+     */
     @Override
-    public void execute(ObjectMapper objectMapper, ArrayNode output, ArrayList<User> users, ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
+    public void execute(final ObjectMapper objectMapper, final ArrayNode output,
+                        final ArrayList<User> users, final ExchangeGraph rates,
+                        final ArrayList<Commerciant> commerciants) {
         try {
             for (User user : users) {
                 if (user.getEmail().equals(email)) {
-                    for (Account account : user.getAccounts()) {
-                        if (account.getIban().equals(this.account)) {
-                            if (account.getType().equals("business")) {
-                                if (user.equals(account.getUser())) {
-                                    ((BusinessAccount) account).setDepositLimit(amount);
+                    for (Account acc : user.getAccounts()) {
+                        if (acc.getIban().equals(this.account)) {
+                            if (acc.getType().equals("business")) {
+                                if (user.equals(acc.getUser())) {
+                                    ((BusinessAccount) acc).setDepositLimit(amount);
                                     return;
                                 } else {
-                                    throw new MyException("You must be owner in order to change deposit limit.");
+                                    throw new MyException("You must be owner in "
+                                            + "order to change deposit limit.");
                                 }
                             } else {
                                 throw new MyException("This is not a business account");

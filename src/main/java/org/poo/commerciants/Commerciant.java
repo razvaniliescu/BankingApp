@@ -4,6 +4,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.poo.fileio.CommerciantInput;
 
+/**
+ * Class that contains information about a commerciant
+ */
 @Getter @Setter
 public class Commerciant {
     private String commerciant;
@@ -12,7 +15,7 @@ public class Commerciant {
     private String type;
     private String cashbackStrategy;
 
-    public Commerciant(CommerciantInput commerciant) {
+    public Commerciant(final CommerciantInput commerciant) {
         this.commerciant = commerciant.getCommerciant();
         this.id = commerciant.getId();
         this.account = commerciant.getAccount();

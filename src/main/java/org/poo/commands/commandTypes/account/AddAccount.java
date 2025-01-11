@@ -42,7 +42,8 @@ public class AddAccount extends Command {
      */
     @Override
     public void execute(final ObjectMapper objectMapper, final ArrayNode arrayNode,
-                        final ArrayList<User> users, final ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
+                        final ArrayList<User> users, final ExchangeGraph rates,
+                        final ArrayList<Commerciant> commerciants) {
         for (User u : users) {
             if (Objects.equals(u.getEmail(), this.user)) {
                 Account account = null;

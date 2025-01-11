@@ -4,31 +4,48 @@ import org.poo.commerciants.CashbackStrategy;
 import org.poo.commerciants.Commerciant;
 import org.poo.core.accounts.Account;
 import org.poo.core.exchange.ExchangeGraph;
+import org.poo.utils.Utils;
 
 public class SpendingTreshhold implements CashbackStrategy {
     @Override
-    public void cashback(Account account, double amount, Commerciant commerciant, ExchangeGraph rates, String currency) {
+    public final void cashback(final Account account, final double amount,
+                         final Commerciant commerciant, final ExchangeGraph rates,
+                         final String currency) {
         double rate = rates.getExchangeRate(account.getCurrency(), "RON");
         double spending = account.getCashbackDetails().getTotalAmountSpentOnline();
         spending *= rate;
         System.out.println(spending + " " + account.getPlan());
-        if (spending >= 100 && spending < 300) {
+        if (spending >= Utils.SMALL_SPENDING_THRESHOLD
+                && spending < Utils.MEDIUM_SPENDING_THRESHOLD) {
             switch (account.getPlan()) {
-                case standard, student: account.addFunds(amount * 0.001); break;
-                case silver: account.addFunds(amount * 0.003); break;
-                case gold: account.addFunds(amount * 0.005); break;
+                case standard, student:
+                    account.addFunds(amount * Utils.SMALL_STANDARD_CASHBACK); break;
+                case silver:
+                    account.addFunds(amount * Utils.MEDIUM_STANDARD_CASHBACK); break;
+                case gold:
+                    account.addFunds(amount * Utils.LARGE_STANDARD_CASHBACK); break;
+                default: break;
             }
-        } else if (spending >= 300 && spending < 500) {
+        } else if (spending >= Utils.MEDIUM_SPENDING_THRESHOLD
+                && spending < Utils.LARGE_SPENDING_THRESHOLD) {
             switch (account.getPlan()) {
-                case standard, student: account.addFunds(amount * 0.002); break;
-                case silver: account.addFunds(amount * 0.004); break;
-                case gold: account.addFunds(amount * 0.0055); break;
+                case standard, student:
+                    account.addFunds(amount * Utils.SMALL_SILVER_CASHBACK); break;
+                case silver:
+                    account.addFunds(amount * Utils.MEDIUM_SILVER_CASHBACK); break;
+                case gold:
+                    account.addFunds(amount * Utils.LARGE_SILVER_CASHBACK); break;
+                default: break;
             }
-        } else if (spending >= 500) {
+        } else if (spending >= Utils.LARGE_SPENDING_THRESHOLD) {
             switch (account.getPlan()) {
-                case standard, student: account.addFunds(amount * 0.0025); break;
-                case silver: account.addFunds(amount * 0.005); break;
-                case gold: account.addFunds(amount * 0.007); break;
+                case standard, student:
+                    account.addFunds(amount * Utils.SMALL_GOLD_CASHBACK); break;
+                case silver:
+                    account.addFunds(amount * Utils.MEDIUM_GOLD_CASHBACK); break;
+                case gold:
+                    account.addFunds(amount * Utils.LARGE_GOLD_CASHBACK); break;
+                default: break;
             }
         }
     }

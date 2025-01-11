@@ -37,7 +37,8 @@ public class DeleteAccount extends Command {
      */
     @Override
     public void execute(final ObjectMapper objectMapper, final ArrayNode output,
-                        final ArrayList<User> users, final ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
+                        final ArrayList<User> users, final ExchangeGraph rates,
+                        final ArrayList<Commerciant> commerciants) {
         ObjectNode node = objectMapper.createObjectNode();
         node.put("command", command);
         ObjectNode result = objectMapper.createObjectNode();
@@ -46,7 +47,8 @@ public class DeleteAccount extends Command {
             for (User user : users) {
                 for (Account account : user.getAccounts()) {
                     if (account.getIban().equals(this.iban)) {
-                        if (account.getType().equals("business") && !account.getUser().getEmail().equals(email)) {
+                        if (account.getType().equals("business")
+                                && !account.getUser().getEmail().equals(email)) {
                             user.addTransaction(new Transaction.Builder(timestamp,
                                     "You are not authorized to make this transaction.")
                                     .build());

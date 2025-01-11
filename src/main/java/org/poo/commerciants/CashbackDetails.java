@@ -6,9 +6,11 @@ import lombok.Setter;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Class that contains information about cashback
+ */
 @Getter @Setter
 public class CashbackDetails {
-    private Map<String, Double> amountSpentOnline;
     private double totalAmountSpentOnline;
     private Map<String, Integer> commerciantTransactions;
     private boolean foodCashback;
@@ -21,10 +23,12 @@ public class CashbackDetails {
 
     public CashbackDetails() {
         commerciantTransactions = new HashMap<>();
-        amountSpentOnline = new HashMap<>();
     }
 
-    public void spendOnline(double amount) {
+    /**
+     * Updates the total amount spent online
+     */
+    public void spendOnline(final double amount) {
         totalAmountSpentOnline += amount;
     }
 }

@@ -13,9 +13,10 @@ import org.poo.core.accounts.Account;
 import org.poo.core.User;
 import org.poo.commands.Command;
 import org.poo.core.exchange.ExchangeGraph;
-import org.poo.exceptions.UserNotFoundException;
+import org.poo.exceptions.MyException;
 import org.poo.fileio.CommandInput;
 import org.poo.transactions.Transaction;
+import org.poo.utils.Utils;
 
 import java.util.ArrayList;
 
@@ -47,7 +48,8 @@ public class SendMoney extends Command {
      */
     @Override
     public void execute(final ObjectMapper objectMapper, final ArrayNode output,
-                        final ArrayList<User> users, final ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
+                        final ArrayList<User> users, final ExchangeGraph rates,
+                        final ArrayList<Commerciant> commerciants) {
         try {
             User sender = null;
             User receiver = null;
@@ -91,33 +93,45 @@ public class SendMoney extends Command {
                             senderAccount.addTransaction(tSent);
                             senderAccount.getUser().addTransaction(tSent);
                             double cashback = 0;
-                            if (commerciant.getType().equals("Food") && senderAccount.getCashbackDetails().isFoodCashback()) {
-                                cashback += 0.02;
+                            if (commerciant.getType().equals("Food")
+                                    && senderAccount.getCashbackDetails().isFoodCashback()) {
+                                cashback += Utils.FOOD_CASHBACK;
                                 senderAccount.getCashbackDetails().setFoodCashback(false);
-                            } else if (commerciant.getType().equals("Clothes") && senderAccount.getCashbackDetails().isClothesCashback()) {
-                                cashback += 0.05;
+                            } else if (commerciant.getType().equals("Clothes")
+                                    && senderAccount.getCashbackDetails().isClothesCashback()) {
+                                cashback += Utils.CLOTHES_CASHBACK;
                                 senderAccount.getCashbackDetails().setClothesCashback(false);
-                            } else if (commerciant.getType().equals("Tech") && senderAccount.getCashbackDetails().isTechCashback()) {
-                                cashback += 0.1;
+                            } else if (commerciant.getType().equals("Tech")
+                                    && senderAccount.getCashbackDetails().isTechCashback()) {
+                                cashback += Utils.TECH_CASHBACK;
                                 senderAccount.getCashbackDetails().setTechCashback(false);
                             }
                             if (commerciant.getCashbackStrategy().equals("spendingThreshold")) {
-                                senderAccount.getCashbackDetails().spendOnline(amount + senderAccount.getCommission(amount, rates, senderAccount.getCurrency()));
+                                senderAccount.getCashbackDetails().spendOnline(amount
+                                        + senderAccount.getCommission(amount, rates,
+                                        senderAccount.getCurrency()));
                                 setCashbackStrategy(new SpendingTreshhold());
-                            } else if (commerciant.getCashbackStrategy().equals("nrOfTransactions")) {
-                                if (!senderAccount.getCashbackDetails().getCommerciantTransactions().containsKey(commerciant.getCommerciant())) {
-                                    senderAccount.getCashbackDetails().getCommerciantTransactions().put(commerciant.getCommerciant(), 1);
+                            } else if (commerciant.getCashbackStrategy()
+                                    .equals("nrOfTransactions")) {
+                                if (!senderAccount.getCashbackDetails().getCommerciantTransactions()
+                                        .containsKey(commerciant.getCommerciant())) {
+                                    senderAccount.getCashbackDetails().getCommerciantTransactions()
+                                            .put(commerciant.getCommerciant(), 1);
                                 } else {
-                                    senderAccount.getCashbackDetails().getCommerciantTransactions().merge(commerciant.getCommerciant(), 1, Integer::sum);
+                                    senderAccount.getCashbackDetails().getCommerciantTransactions()
+                                            .merge(commerciant.getCommerciant(), 1, Integer::sum);
                                 }
                                 setCashbackStrategy(new NrOfTransactions());
                             }
-                            cashbackStrategy.cashback(senderAccount, amount, commerciant, rates, currency);
+                            cashbackStrategy.cashback(senderAccount, amount,
+                                    commerciant, rates, currency);
                             senderAccount.addFunds(amount * cashback);
-                            senderAccount.checkForUpgrade(amount, rates, senderAccount.getCurrency(), timestamp);
+                            senderAccount.checkForUpgrade(amount, rates,
+                                    senderAccount.getCurrency(), timestamp);
                             return;
                         } else {
-                            Transaction tSent = new Transaction.Builder(timestamp, "Insufficient funds").build();
+                            Transaction tSent = new Transaction.Builder(timestamp,
+                                    "Insufficient funds").build();
                             sender.addTransaction(tSent);
                             senderAccount.addTransaction(tSent);
                         }
@@ -126,7 +140,7 @@ public class SendMoney extends Command {
                 }
             }
             if (senderAccount == null || receiverAccount == null) {
-                throw new UserNotFoundException();
+                throw new MyException("User not found");
             }
             this.currency = senderAccount.getCurrency();
             double rate = rates.getExchangeRate(senderAccount.getCurrency(),
@@ -155,11 +169,12 @@ public class SendMoney extends Command {
                 receiverAccount.addTransaction(tReceived);
                 senderAccount.checkForUpgrade(amount, rates, currency, timestamp);
             } else {
-                Transaction tSent = new Transaction.Builder(timestamp, "Insufficient funds").build();
+                Transaction tSent = new Transaction.Builder(timestamp,
+                        "Insufficient funds").build();
                 sender.addTransaction(tSent);
                 senderAccount.addTransaction(tSent);
             }
-        } catch (UserNotFoundException e) {
+        } catch (MyException e) {
             e.printException(objectMapper, output, command, timestamp);
         }
     }

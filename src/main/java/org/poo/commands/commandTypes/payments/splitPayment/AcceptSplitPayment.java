@@ -11,18 +11,27 @@ import org.poo.fileio.CommandInput;
 
 import java.util.ArrayList;
 
+/**
+ * Implementation of the acceptSplitPayment command
+ */
 public class AcceptSplitPayment extends Command {
     private String email;
     private String type;
 
-    public AcceptSplitPayment(CommandInput input) {
+    public AcceptSplitPayment(final CommandInput input) {
         super(input);
         email = input.getEmail();
         type = input.getSplitPaymentType();
     }
 
+    /**
+     * Accepts the specified user's next split payment of its kind
+     * and proceeds to process the payment if everyone accepted
+     */
     @Override
-    public void execute(ObjectMapper objectMapper, ArrayNode output, ArrayList<User> users, ExchangeGraph rates, ArrayList<Commerciant> commerciants) {
+    public void execute(final ObjectMapper objectMapper, final ArrayNode output,
+                        final ArrayList<User> users, final ExchangeGraph rates,
+                        final ArrayList<Commerciant> commerciants) {
         try {
             for (User user : users) {
                 if (email.equals(user.getEmail())) {
@@ -31,9 +40,10 @@ public class AcceptSplitPayment extends Command {
                             if (user.getPendingPayments().get(i).getType().equals(type)) {
                                 SplitPayment pendingPayment = user.getPendingPayments().get(i);
                                 pendingPayment.getUsersInvolved().add(user);
-                                pendingPayment.setUsersToAccept(pendingPayment.getUsersToAccept() - 1);
+                                pendingPayment.setUsersToAccept(pendingPayment
+                                        .getUsersToAccept() - 1);
                                 if (pendingPayment.getUsersToAccept() == 0) {
-                                    pendingPayment.processPayment(objectMapper, output, users, rates, commerciants);
+                                    pendingPayment.processPayment(users, rates);
                                 }
                                 user.getPendingPayments().remove(pendingPayment);
                                 return;

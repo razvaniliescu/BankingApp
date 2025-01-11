@@ -15,19 +15,25 @@ import org.poo.transactions.Transaction;
 
 import java.util.*;
 
+/**
+ * Implementation for the businessReport command
+ */
 @Getter @Setter
 public class BusinessReport extends Report {
     private String type;
 
-    public BusinessReport(CommandInput input) {
+    public BusinessReport(final CommandInput input) {
         super(input);
         type = input.getType();
     }
 
+    /**
+     * Prints a business report for the specified business account
+     */
     @Override
     public void execute(final ObjectMapper objectMapper, final ArrayNode output,
                         final ArrayList<User> users, final ExchangeGraph rates,
-                        ArrayList<Commerciant> commerciants) {
+                        final ArrayList<Commerciant> commerciants) {
         ObjectNode node = objectMapper.createObjectNode();
         node.put("command", command);
         ObjectNode result = objectMapper.createObjectNode();
@@ -46,7 +52,7 @@ public class BusinessReport extends Report {
                             private double spent;
                             private double deposited;
 
-                            public UserInfo(final double spent, final double deposited) {
+                            UserInfo(final double spent, final double deposited) {
                                 this.spent = spent;
                                 this.deposited = deposited;
                             }
@@ -65,15 +71,19 @@ public class BusinessReport extends Report {
                             managerStatistics.put(manager, new UserInfo(0, 0));
                         }
                         for (Transaction transaction : account.getTransactions().descendingSet()) {
-                            if (transaction.getTimestamp() >= startTimestamp && transaction.getTimestamp() <= endTimestamp) {
-                                if (transaction.getUser() != null && transaction.getUser() != account.getUser()) {
-                                    if (((BusinessAccount) account).getEmployees().contains(transaction.getUser())) {
+                            if (transaction.getTimestamp() >= startTimestamp
+                                    && transaction.getTimestamp() <= endTimestamp) {
+                                if (transaction.getUser() != null
+                                        && transaction.getUser() != account.getUser()) {
+                                    if (((BusinessAccount) account).getEmployees()
+                                            .contains(transaction.getUser())) {
                                         employeeStatistics.merge(transaction.getUser(),
                                                 new UserInfo(transaction.getAmount(), 0),
                                                 (a, b) -> new UserInfo(a.getSpent() + b.getSpent(),
                                                         a.getDeposited() + b.getDeposited()));
                                     }
-                                    if (((BusinessAccount) account).getManagers().contains(transaction.getUser())) {
+                                    if (((BusinessAccount) account).getManagers()
+                                            .contains(transaction.getUser())) {
                                         managerStatistics.merge(transaction.getUser(),
                                                 new UserInfo(transaction.getAmount(), 0),
                                                 (a, b) -> new UserInfo(a.getSpent() + b.getSpent(),
@@ -83,15 +93,19 @@ public class BusinessReport extends Report {
                             }
                         }
                         for (Transaction deposit : account.getDeposits().descendingSet()) {
-                            if (deposit.getTimestamp() >= startTimestamp && deposit.getTimestamp() <= endTimestamp) {
-                                if (deposit.getUser() != null && deposit.getUser() != account.getUser()) {
-                                    if (((BusinessAccount) account).getEmployees().contains(deposit.getUser())) {
+                            if (deposit.getTimestamp() >= startTimestamp
+                                    && deposit.getTimestamp() <= endTimestamp) {
+                                if (deposit.getUser() != null
+                                        && deposit.getUser() != account.getUser()) {
+                                    if (((BusinessAccount) account).getEmployees()
+                                            .contains(deposit.getUser())) {
                                         employeeStatistics.merge(deposit.getUser(),
                                                 new UserInfo(0, deposit.getAmount()),
                                                 (a, b) -> new UserInfo(a.getSpent() + b.getSpent(),
                                                         a.getDeposited() + b.getDeposited()));
                                     }
-                                    if (((BusinessAccount) account).getManagers().contains(deposit.getUser())) {
+                                    if (((BusinessAccount) account).getManagers()
+                                            .contains(deposit.getUser())) {
                                         managerStatistics.merge(deposit.getUser(),
                                                 new UserInfo(0, deposit.getAmount()),
                                                 (a, b) -> new UserInfo(a.getSpent() + b.getSpent(),
@@ -105,23 +119,19 @@ public class BusinessReport extends Report {
                         double totalSpent = 0;
                         double totalDeposited = 0;
                         for (User employee : ((BusinessAccount) account).getEmployees()) {
-                            ObjectNode employeeNode = objectMapper.createObjectNode();
-                            employeeNode.put("username", employee.getLastName() + " " + employee.getFirstName());
-                            employeeNode.put("spent", employeeStatistics.get(employee).getSpent());
+                            employee.printBusinessUser(objectMapper, employees,
+                                    employeeStatistics.get(employee).getSpent(),
+                                    employeeStatistics.get(employee).getDeposited());
                             totalSpent += employeeStatistics.get(employee).getSpent();
-                            employeeNode.put("deposited", employeeStatistics.get(employee).getDeposited());
                             totalDeposited += employeeStatistics.get(employee).getDeposited();
-                            employees.add(employeeNode);
                         }
                         result.set("employees", employees);
                         for (User manager : ((BusinessAccount) account).getManagers()) {
-                            ObjectNode managerNode = objectMapper.createObjectNode();
-                            managerNode.put("username", manager.getLastName() + " " + manager.getFirstName());
-                            managerNode.put("spent", managerStatistics.get(manager).getSpent());
+                            manager.printBusinessUser(objectMapper, managers,
+                                    managerStatistics.get(manager).getSpent(),
+                                    managerStatistics.get(manager).getDeposited());
                             totalSpent += managerStatistics.get(manager).getSpent();
-                            managerNode.put("deposited", managerStatistics.get(manager).getDeposited());
                             totalDeposited += managerStatistics.get(manager).getDeposited();
-                            managers.add(managerNode);
                         }
                         result.set("managers", managers);
                         result.put("total spent", totalSpent);
@@ -134,29 +144,34 @@ public class BusinessReport extends Report {
                             private List<User> managers;
                             private List<User> employees;
 
-                            public CommerciantInfo(final String commerciant) {
+                            CommerciantInfo(final String commerciant) {
                                 this.commerciant = commerciant;
                                 managers = new ArrayList<>();
                                 employees = new ArrayList<>();
                             }
 
                             @Override
-                            public int compareTo(CommerciantInfo o) {
+                            public int compareTo(final CommerciantInfo o) {
                                 return this.commerciant.compareTo(o.commerciant);
                             }
                         }
                         Map<String, CommerciantInfo> commerciantInfo = new TreeMap<>();
                         ArrayNode commerciantNode = objectMapper.createArrayNode();
                         for (Transaction transaction : account.getTransactions()) {
-                            if (transaction.getTimestamp() >= startTimestamp && transaction.getTimestamp() <= endTimestamp) {
+                            if (transaction.getTimestamp() >= startTimestamp
+                                    && transaction.getTimestamp() <= endTimestamp) {
                                 CommerciantInfo info;
-                                if (transaction.getCommerciant() != null && transaction.getUser() != account.getUser()) {
-                                    if (!commerciantInfo.containsKey(transaction.getCommerciant())) {
+                                if (transaction.getCommerciant() != null
+                                        && transaction.getUser() != account.getUser()) {
+                                    if (!commerciantInfo.containsKey(transaction
+                                            .getCommerciant())) {
                                         info = new CommerciantInfo(transaction.getCommerciant());
-                                        if (((BusinessAccount) account).getEmployees().contains(transaction.getUser())) {
+                                        if (((BusinessAccount) account).getEmployees()
+                                                .contains(transaction.getUser())) {
                                             info.getEmployees().add(transaction.getUser());
                                             info.getEmployees().sort(User::compareTo);
-                                        } else if (((BusinessAccount) account).getManagers().contains(transaction.getUser())) {
+                                        } else if (((BusinessAccount) account).getManagers()
+                                                .contains(transaction.getUser())) {
                                             info.getManagers().add(transaction.getUser());
                                             info.getManagers().sort(User::compareTo);
                                         }
@@ -164,14 +179,17 @@ public class BusinessReport extends Report {
                                         commerciantInfo.put(transaction.getCommerciant(), info);
                                     } else {
                                         info = commerciantInfo.get(transaction.getCommerciant());
-                                        if (((BusinessAccount) account).getEmployees().contains(transaction.getUser())) {
+                                        if (((BusinessAccount) account).getEmployees()
+                                                .contains(transaction.getUser())) {
                                             info.getEmployees().add(transaction.getUser());
                                             info.getEmployees().sort(User::compareTo);
-                                        } else if (((BusinessAccount) account).getManagers().contains(transaction.getUser())) {
+                                        } else if (((BusinessAccount) account).getManagers()
+                                                .contains(transaction.getUser())) {
                                             info.getManagers().add(transaction.getUser());
                                             info.getManagers().sort(User::compareTo);
                                         }
-                                        info.setTotalReceived(info.getTotalReceived() + transaction.getAmount());
+                                        info.setTotalReceived(info.getTotalReceived()
+                                                + transaction.getAmount());
                                     }
                                 }
                             }
@@ -179,15 +197,18 @@ public class BusinessReport extends Report {
                         for (Map.Entry<String, CommerciantInfo> entry : commerciantInfo.entrySet()) {
                             ObjectNode commerciant = objectMapper.createObjectNode();
                             commerciant.put("commerciant", entry.getKey());
-                            commerciant.put("total received", entry.getValue().getTotalReceived());
+                            commerciant.put("total received",
+                                    entry.getValue().getTotalReceived());
                             ArrayNode managers = objectMapper.createArrayNode();
                             for (User manager : entry.getValue().getManagers()) {
-                                managers.add(manager.getLastName() + " " + manager.getFirstName());
+                                managers.add(manager.getLastName()
+                                        + " " + manager.getFirstName());
                             }
                             commerciant.set("managers", managers);
                             ArrayNode employees = objectMapper.createArrayNode();
                             for (User employee : entry.getValue().getEmployees()) {
-                                employees.add(employee.getLastName() + " " + employee.getFirstName());
+                                employees.add(employee.getLastName()
+                                        + " " + employee.getFirstName());
                             }
                             commerciant.set("employees", employees);
                             commerciantNode.add(commerciant);
