@@ -1,4 +1,4 @@
-package org.poo.core;
+package org.poo.core.user;
 
 
 import org.poo.utils.Utils;

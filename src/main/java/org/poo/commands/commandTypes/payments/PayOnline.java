@@ -6,13 +6,12 @@ import lombok.Getter;
 import lombok.Setter;
 import org.poo.commerciants.CashbackStrategy;
 import org.poo.commerciants.Commerciant;
-import org.poo.commerciants.cashbackStrategies.NoCashback;
 import org.poo.commerciants.cashbackStrategies.NrOfTransactions;
 import org.poo.commerciants.cashbackStrategies.SpendingTreshhold;
 import org.poo.core.accounts.Account;
 import org.poo.core.accounts.BusinessAccount;
 import org.poo.core.cards.Card;
-import org.poo.core.User;
+import org.poo.core.user.User;
 import org.poo.commands.Command;
 import org.poo.core.exchange.ExchangeGraph;
 import org.poo.exceptions.MyException;
@@ -44,7 +43,6 @@ public class PayOnline extends Command {
         this.description = input.getDescription();
         this.commerciant = input.getCommerciant();
         this.email = input.getEmail();
-        this.cashbackStrategy = new NoCashback();
     }
 
     /**

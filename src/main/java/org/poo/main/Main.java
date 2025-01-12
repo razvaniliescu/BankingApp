@@ -8,7 +8,7 @@ import org.poo.checker.CheckerConstants;
 import org.poo.commands.Command;
 import org.poo.commands.CommandFactory;
 import org.poo.commerciants.Commerciant;
-import org.poo.core.User;
+import org.poo.core.user.User;
 import org.poo.core.exchange.ExchangeGraph;
 import org.poo.core.exchange.ExchangeRate;
 import org.poo.fileio.*;

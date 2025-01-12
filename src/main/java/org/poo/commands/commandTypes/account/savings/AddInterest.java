@@ -1,11 +1,11 @@
-package org.poo.commands.commandTypes.payments;
+package org.poo.commands.commandTypes.account.savings;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.poo.commerciants.Commerciant;
 import org.poo.core.accounts.Account;
 import org.poo.core.accounts.SavingsAccount;
-import org.poo.core.User;
+import org.poo.core.user.User;
 import org.poo.commands.Command;
 import org.poo.exceptions.MyException;
 import org.poo.core.exchange.ExchangeGraph;

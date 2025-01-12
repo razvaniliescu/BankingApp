@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
 import lombok.Setter;
-import org.poo.core.ServicePlans;
-import org.poo.core.User;
+import org.poo.core.user.ServicePlans;
+import org.poo.core.user.User;
 import org.poo.core.accounts.Account;
 import org.poo.utils.Utils;
 

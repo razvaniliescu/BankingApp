@@ -3,7 +3,7 @@ package org.poo.core.accounts;
 import lombok.Getter;
 import lombok.Setter;
 import org.poo.commerciants.Commerciant;
-import org.poo.core.User;
+import org.poo.core.user.User;
 import org.poo.core.exchange.ExchangeGraph;
 import org.poo.utils.Utils;
 

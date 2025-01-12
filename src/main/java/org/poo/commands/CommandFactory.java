@@ -1,9 +1,12 @@
 package org.poo.commands;
 
 import org.poo.commands.commandTypes.account.*;
-import org.poo.commands.commandTypes.business.AddNewBusinessAssociate;
-import org.poo.commands.commandTypes.business.ChangeDepositLimit;
-import org.poo.commands.commandTypes.business.ChangeSpendingLimit;
+import org.poo.commands.commandTypes.account.business.AddNewBusinessAssociate;
+import org.poo.commands.commandTypes.account.business.ChangeDepositLimit;
+import org.poo.commands.commandTypes.account.business.ChangeSpendingLimit;
+import org.poo.commands.commandTypes.account.savings.AddInterest;
+import org.poo.commands.commandTypes.account.savings.ChangeInterestRate;
+import org.poo.commands.commandTypes.account.savings.WithdrawSavings;
 import org.poo.commands.commandTypes.card.CheckCardStatus;
 import org.poo.commands.commandTypes.card.CreateCard;
 import org.poo.commands.commandTypes.card.CreateOneTimeCard;
@@ -16,7 +19,7 @@ import org.poo.commands.commandTypes.payments.splitPayment.RejectSplitPayment;
 import org.poo.commands.commandTypes.payments.splitPayment.SplitPayment;
 import org.poo.commands.commandTypes.reports.BusinessReport;
 import org.poo.commands.commandTypes.reports.Report;
-import org.poo.commands.commandTypes.reports.SpendingsReport;
+import org.poo.commands.commandTypes.reports.SpendingReport;
 import org.poo.fileio.CommandInput;
 
 public final class CommandFactory {
@@ -47,7 +50,7 @@ public final class CommandFactory {
             case "addInterest" -> new AddInterest(input);
             case "changeInterestRate" -> new ChangeInterestRate(input);
             case "report" -> new Report(input);
-            case "spendingsReport" -> new SpendingsReport(input);
+            case "spendingsReport" -> new SpendingReport(input);
             case "upgradePlan" -> new UpgradePlan(input);
             case "withdrawSavings" -> new WithdrawSavings(input);
             case "cashWithdrawal" -> new CashWithdrawal(input);

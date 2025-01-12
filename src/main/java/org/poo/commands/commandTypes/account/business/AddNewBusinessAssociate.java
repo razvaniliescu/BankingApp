@@ -1,4 +1,4 @@
-package org.poo.commands.commandTypes.business;
+package org.poo.commands.commandTypes.account.business;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.poo.commands.Command;
 import org.poo.commerciants.Commerciant;
-import org.poo.core.User;
+import org.poo.core.user.User;
 import org.poo.core.accounts.Account;
 import org.poo.core.accounts.BusinessAccount;
 import org.poo.core.exchange.ExchangeGraph;

@@ -1,4 +1,4 @@
-package org.poo.core;
+package org.poo.core.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -8,7 +8,7 @@ import lombok.Setter;
 import org.poo.commands.commandTypes.payments.splitPayment.SplitPayment;
 import org.poo.core.accounts.Account;
 import org.poo.core.accounts.SavingsAccount;
-import org.poo.exceptions.BalanceNotEmptyException;
+import org.poo.exceptions.MyException;
 import org.poo.fileio.UserInput;
 import org.poo.transactions.Transaction;
 
@@ -71,16 +71,17 @@ public class User implements Comparable<User> {
     /**
      * Removes an account from the user's account list
      * @param account the account to be removed
-     * @throws BalanceNotEmptyException if the account isn't empty
+     * @throws MyException if the account isn't empty
      */
-    public void deleteAccount(final Account account) throws BalanceNotEmptyException {
+    public void deleteAccount(final Account account) throws MyException {
         if (account.getBalance() == 0) {
             accounts.remove(account);
             if (account.getType().equals("savings")) {
                 savingsAccounts.remove(account);
             }
         } else {
-            throw new BalanceNotEmptyException();
+            throw new MyException("Account couldn't be deleted "
+                    + "- see org.poo.transactions for details");
         }
     }
 

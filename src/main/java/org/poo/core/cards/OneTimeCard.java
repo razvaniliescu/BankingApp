@@ -1,6 +1,6 @@
 package org.poo.core.cards;
 
-import org.poo.core.User;
+import org.poo.core.user.User;
 import org.poo.core.accounts.Account;
 import org.poo.transactions.Transaction;
 import org.poo.utils.Utils;

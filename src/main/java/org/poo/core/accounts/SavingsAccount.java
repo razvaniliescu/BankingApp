@@ -2,7 +2,7 @@ package org.poo.core.accounts;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.poo.core.User;
+import org.poo.core.user.User;
 
 @Setter
 @Getter

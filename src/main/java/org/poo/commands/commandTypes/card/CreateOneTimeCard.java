@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.poo.commerciants.Commerciant;
 import org.poo.core.accounts.Account;
 import org.poo.core.cards.OneTimeCard;
-import org.poo.core.User;
+import org.poo.core.user.User;
 import org.poo.core.exchange.ExchangeGraph;
 import org.poo.fileio.CommandInput;
 import org.poo.transactions.Transaction;

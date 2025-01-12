@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.commerciants.Commerciant;
 import org.poo.core.accounts.Account;
 import org.poo.core.accounts.SavingsAccount;
-import org.poo.core.User;
+import org.poo.core.user.User;
 import org.poo.exceptions.AccountTypeException;
 import org.poo.exceptions.MyException;
 import org.poo.core.exchange.ExchangeGraph;
@@ -17,8 +17,8 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class SpendingsReport extends Report {
-    public SpendingsReport(final CommandInput input) {
+public class SpendingReport extends Report {
+    public SpendingReport(final CommandInput input) {
         super(input);
     }
 

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
 import lombok.Setter;
 import org.poo.commerciants.Commerciant;
-import org.poo.core.User;
+import org.poo.core.user.User;
 import org.poo.core.accounts.Account;
 import org.poo.core.accounts.BusinessAccount;
 import org.poo.core.exchange.ExchangeGraph;

@@ -7,10 +7,10 @@ import lombok.Getter;
 import lombok.Setter;
 import org.poo.commerciants.Commerciant;
 import org.poo.core.accounts.Account;
-import org.poo.core.User;
+import org.poo.core.user.User;
 import org.poo.commands.Command;
-import org.poo.exceptions.BalanceNotEmptyException;
 import org.poo.core.exchange.ExchangeGraph;
+import org.poo.exceptions.MyException;
 import org.poo.fileio.CommandInput;
 import org.poo.transactions.Transaction;
 
@@ -54,7 +54,6 @@ public class DeleteAccount extends Command {
                                     .build());
                             return;
                         } else {
-                            System.out.println(account.getBalance() + " " + timestamp);
                             accountUser = user;
                             user.deleteAccount(account);
                             break;
@@ -64,7 +63,7 @@ public class DeleteAccount extends Command {
             }
             result.put("success", "Account deleted");
             result.put("timestamp", timestamp);
-        } catch (BalanceNotEmptyException e) {
+        } catch (MyException e) {
             accountUser.addTransaction(new Transaction.Builder(timestamp,
                     "Account couldn't be deleted - there are funds remaining").build());
             result.put("error", e.getMessage());

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.commerciants.Commerciant;
-import org.poo.core.User;
+import org.poo.core.user.User;
 import org.poo.commands.Command;
 import org.poo.core.exchange.ExchangeGraph;
 import org.poo.fileio.CommandInput;
