@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * The entry point to this homework. It runs the checker that tests your implementation.
@@ -78,12 +76,6 @@ public final class Main {
      */
     public static void action(final String filePath1,
                               final String filePath2) throws IOException {
-        Pattern pattern = Pattern.compile("\\d+");
-        Matcher matcher = pattern.matcher(filePath1);
-        if (matcher.find()) {
-            System.out.println(matcher.group());
-        }
-
         ObjectMapper objectMapper = new ObjectMapper();
         File file = new File(CheckerConstants.TESTS_PATH + filePath1);
         ObjectInput inputData = objectMapper.readValue(file, ObjectInput.class);
@@ -136,8 +128,6 @@ public final class Main {
         // Write the output in the output
         ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
         objectWriter.writeValue(new File(filePath2), output);
-
-        System.out.println();
     }
 
     /**

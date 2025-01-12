@@ -14,7 +14,6 @@ public class SpendingTreshhold implements CashbackStrategy {
         double rate = rates.getExchangeRate(account.getCurrency(), "RON");
         double spending = account.getCashbackDetails().getTotalAmountSpentOnline();
         spending *= rate;
-        System.out.println(spending + " " + account.getPlan());
         if (spending >= Utils.SMALL_SPENDING_THRESHOLD
                 && spending < Utils.MEDIUM_SPENDING_THRESHOLD) {
             switch (account.getPlan()) {

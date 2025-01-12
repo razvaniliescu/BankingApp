@@ -59,7 +59,6 @@ public class Account {
      */
     public void addFunds(final double funds) {
         this.balance += funds;
-        System.out.println(iban + " Added funds " + funds + " New Balance " + balance);
     }
 
     /**
@@ -80,8 +79,6 @@ public class Account {
         if (this.balance >= amount * rate + minBalance) {
             double total = (amount + getCommission(amount, rates, transactionCurrency)) * rate;
             this.balance -= total;
-            System.out.println(iban + " Pay online: paid "
-                    + total + " remaining balance " + this.balance);
             return true;
         }
         return false;
@@ -113,8 +110,6 @@ public class Account {
             double total = amount + getCommission(amount, rates, currency);
             this.balance -= total;
             receiver.balance += receivedAmount;
-            System.out.println(iban + " Send money: paid "
-                    + total + " remaining balance " + this.balance);
             return true;
         }
         return false;
@@ -158,8 +153,6 @@ public class Account {
      */
     public double getCommission(final double amount, final ExchangeGraph rates,
                                 final String transactionCurrency) {
-        System.out.println("Calculating commission: " + plan + " "
-                + amount * rates.getExchangeRate(transactionCurrency, "RON"));
          switch (plan) {
              case standard: return amount * Utils.STANDARD_COMMISSION;
              case silver: if (amount * rates.getExchangeRate(transactionCurrency, "RON")
@@ -178,14 +171,10 @@ public class Account {
      */
     public void checkForUpgrade(final double amount, final ExchangeGraph rates,
                                 final String transactionCurrency, final int timestamp) {
-        System.out.println("Amount " + amount * rates.getExchangeRate(transactionCurrency, "RON")
-                + " current plan " + plan);
         if (amount * rates.getExchangeRate(transactionCurrency, "RON")
                 >= Utils.SILVER_TRANSACTION_THRESHOLD
                 && plan == ServicePlans.Plans.silver) {
             largeSilverTransactions++;
-            System.out.println("Adding large silver transaction. New total: "
-                    + largeSilverTransactions);
             if (largeSilverTransactions == Utils.SILVER_TRANSACTIONS) {
                 for (Account account : this.getUser().getAccounts()) {
                     account.setPlan(ServicePlans.Plans.gold);
